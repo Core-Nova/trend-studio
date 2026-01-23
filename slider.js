@@ -260,8 +260,10 @@ class THREERoot {
     this.tick();
   }
 
+
   resize = () => {
     const { clientWidth, clientHeight } = this.container;
+    console.log(clientWidth, clientHeight);
     this.camera.aspect = clientWidth / clientHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(clientWidth, clientHeight);
