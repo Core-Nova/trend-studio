@@ -1,0 +1,147 @@
+{
+  "services": {
+    "categories": [
+      {
+        "id": "haircuts-styling",
+        "name": {
+          "en": "Haircuts & Styling",
+          "bg": "Подстригване и прически"
+        },
+        "items": [
+          {
+            "name": {
+              "en": "Women's Haircut",
+              "bg": "Дамско подстригване"
+            },
+            "price_eur": 35,
+            "price_note": {
+              "en": "from",
+              "bg": "от"
+            }
+          },
+          {
+            "name": {
+              "en": "Blow Dry",
+              "bg": "Сешоар"
+            },
+            "price_eur": 33,
+            "price_note": {
+              "en": "from",
+              "bg": "от"
+            }
+          },
+          {
+            "name": {
+              "en": "Flat Iron / Curling Iron",
+              "bg": "Преса / Маша"
+            },
+            "price_eur": 30,
+            "price_note": {
+              "en": "from",
+              "bg": "от"
+            }
+          },
+          {
+            "name": {
+              "en": "Special Occasion Styling",
+              "bg": "Официална прическа"
+            },
+            "price_eur": 90,
+            "price_note": {
+              "en": "from",
+              "bg": "от"
+            }
+          }
+        ]
+      },
+      {
+        "id": "coloring",
+        "name": {
+          "en": "Coloring",
+          "bg": "Боядисване"
+        },
+        "items": [
+          {
+            "name": {
+              "en": "Color (Premium Class)",
+              "bg": "Боядисване клас Premium"
+            },
+            "price_eur": 45,
+            "price_note": {
+              "en": "from",
+              "bg": "от"
+            }
+          },
+          {
+            "name": {
+              "en": "Toner",
+              "bg": "Тониране"
+            },
+            "price_eur": 60,
+            "price_note": {
+              "en": "from",
+              "bg": "от"
+            }
+          }
+        ]
+      },
+      {
+        "id": "hair-treatments",
+        "name": {
+          "en": "Hair Treatments",
+          "bg": "Терапии за коса"
+        },
+        "items": [
+          {
+            "name": {
+              "en": "Rhiannon Hair Treatment",
+              "bg": "Терапия за коса с Рианон"
+            },
+            "price_eur": 100,
+            "price_note": null
+          },
+          {
+            "name": {
+              "en": "Aphrodite Hair Treatment",
+              "bg": "Терапия за коса Афродита"
+            },
+            "price_eur": 123,
+            "price_note": null
+          }
+        ]
+      },
+      {
+        "id": "eyelashes",
+        "name": {
+          "en": "Eyelashes",
+          "bg": "Мигли"
+        },
+        "items": [
+          {
+            "name": {
+              "en": "Lash Extensions (Hair by Hair)",
+              "bg": "Удължаване на мигли косъм по косъм"
+            },
+            "price_eur": 120,
+            "price_note": null
+          },
+          {
+            "name": {
+              "en": "Lash Maintenance",
+              "bg": "Поддръжка на мигли"
+            },
+            "price_eur": 75,
+            "price_note": {
+              "en": "from",
+              "bg": "от"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "price_note": {
+    "en": "* Prices may vary based on hair length and complexity.",
+    "bg": "* Цените могат да варират в зависимост от дължината на косата и сложността."
+  }
+}
