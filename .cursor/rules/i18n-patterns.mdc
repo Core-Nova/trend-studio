@@ -1,0 +1,166 @@
+---
+description: Bilingual support patterns for English and Bulgarian
+globs: "**/*.jsx,**/*.tsx"
+alwaysApply: false
+---
+
+# Internationalization (i18n) Patterns
+
+## Project Requirements
+TREND supports English (EN) and Bulgarian (BG) languages with localStorage persistence.
+
+## Translation Data Structure
+
+Store translations in structured objects:
+
+```js
+export const servicesTranslations = {
+  haircuts: {
+    en: "Haircuts & Styling",
+    bg: "Подстригване и прически"
+  },
+  coloring: {
+    en: "Coloring",
+    bg: "Боядисване"
+  },
+  treatments: {
+    en: "Hair Treatments",
+    bg: "Терапии за коса"
+  }
+}
+```
+
+## Translation Hook Pattern
+
+```jsx
+export const useTranslation = () => {
+  const [lang, setLang] = useState(() => 
+    localStorage.getItem('trendLang') || 'en'
+  )
+  
+  const t = (translations) => {
+    return translations[lang] || translations.en
+  }
+  
+  const changeLanguage = (newLang) => {
+    setLang(newLang)
+    localStorage.setItem('trendLang', newLang)
+    document.documentElement.lang = newLang
+  }
+  
+  return { lang, t, changeLanguage }
+}
+```
+
+## Usage in Components
+
+```jsx
+import { useTranslation } from '../hooks/useTranslation'
+
+export const ServiceCard = ({ service }) => {
+  const { t } = useTranslation()
+  
+  return (
+    <div className="service-card">
+      <h3>{t(service.name)}</h3>
+      <p>{t(service.description)}</p>
+    </div>
+  )
+}
+```
+
+## Language Context Pattern
+
+For app-wide language state:
+
+```jsx
+import { createContext, useContext, useState } from 'react'
+
+const LanguageContext = createContext()
+
+export const LanguageProvider = ({ children }) => {
+  const [lang, setLang] = useState(() => 
+    localStorage.getItem('trendLang') || 'en'
+  )
+  
+  const changeLanguage = (newLang) => {
+    setLang(newLang)
+    localStorage.setItem('trendLang', newLang)
+    document.documentElement.lang = newLang
+  }
+  
+  return (
+    <LanguageContext.Provider value={{ lang, changeLanguage }}>
+      {children}
+    </LanguageContext.Provider>
+  )
+}
+
+export const useLanguage = () => useContext(LanguageContext)
+```
+
+## Language Switcher Component
+
+```jsx
+export const LanguageToggle = () => {
+  const { lang, changeLanguage } = useLanguage()
+  
+  return (
+    <div className="lang-toggle">
+      <button 
+        className={lang === 'en' ? 'active' : ''}
+        onClick={() => changeLanguage('en')}
+      >
+        EN
+      </button>
+      <span className="divider">|</span>
+      <button 
+        className={lang === 'bg' ? 'active' : ''}
+        onClick={() => changeLanguage('bg')}
+      >
+        BG
+      </button>
+    </div>
+  )
+}
+```
+
+## Translation Files Organization
+
+```
+src/
+  translations/
+    index.js
+    common.js
+    services.js
+    navigation.js
+    contact.js
+```
+
+## Price Formatting by Locale
+
+```jsx
+const formatPrice = (amount, lang) => {
+  return new Intl.NumberFormat(
+    lang === 'bg' ? 'bg-BG' : 'en-US',
+    { style: 'currency', currency: 'EUR' }
+  ).format(amount)
+}
+```
+
+## Dynamic Content Pattern
+
+```jsx
+const serviceContent = {
+  name: {
+    en: "Women's Haircut",
+    bg: "Дамско подстригване"
+  },
+  priceNote: {
+    en: "from",
+    bg: "от"
+  }
+}
+
+<span>{t(serviceContent.priceNote)} {price}</span>
+```

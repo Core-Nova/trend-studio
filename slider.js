@@ -1,214 +1,331 @@
-'use strict';
+'use strict'
 
-export const initSliders = ({
-  imagesConfig,
-  THREE,
-  TweenMax,
-  Power0,
-  documentRef = document,
-  windowRef = window,
-  mobileBreakpoint = 768
-}) => {
-  const isMobile =
-    windowRef.innerWidth <= mobileBreakpoint ||
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      windowRef.navigator.userAgent
-    );
+/* globals THREE, TweenMax, Power0 */
 
-  if (isMobile) {
-    console.info('Mobile detected – sliders disabled');
-    return;
-  }
+const isMobileDevice = (breakpoint = 768) =>
+  window.innerWidth <= breakpoint ||
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  )
 
-  if (!imagesConfig) {
-    console.error('imagesConfig missing');
-    return;
-  }
+export const initSliders = ({ imagesConfig, mobileBreakpoint = 768 }) => {
+  if (isMobileDevice(mobileBreakpoint)) return null
+  if (!imagesConfig) return null
 
-  const {
-    hero_left = [],
-    hero_right = [],
-    gallery = []
-  } = imagesConfig;
+  const { hero_left = [], hero_right = [], gallery = [] } = imagesConfig
+  const disposers = []
 
-  const leftContainer = documentRef.getElementById('three-container-left');
-  const rightContainer = documentRef.getElementById('three-container-right');
-
+  const leftContainer = document.getElementById('three-container-left')
   if (leftContainer && hero_left.length) {
-    createImageSlider({
-      container: leftContainer,
-      images: hero_left,
-      THREE,
-      TweenMax,
-      Power0,
-      width: 70,
-      height: 105
-    });
-  }
-
-  if (rightContainer && hero_right.length) {
-    setTimeout(() => {
+    disposers.push(
       createImageSlider({
-        container: rightContainer,
-        images: hero_right,
-        THREE,
-        TweenMax,
-        Power0,
+        container: leftContainer,
+        images: hero_left,
         width: 70,
         height: 105
-      });
-    }, 500);
+      })
+    )
+  }
+
+  const rightContainer = document.getElementById('three-container-right')
+  if (rightContainer && hero_right.length) {
+    setTimeout(() => {
+      disposers.push(
+        createImageSlider({
+          container: rightContainer,
+          images: hero_right,
+          width: 70,
+          height: 105
+        })
+      )
+    }, 500)
   }
 
   if (gallery.length) {
-    initGallerySliders({
-      gallery,
-      THREE,
-      TweenMax,
-      Power0,
-      documentRef
-    });
+    for (let i = 0; i < 4; i++) {
+      const container = document.getElementById(`gallery-container-${i + 1}`)
+      if (!container) continue
+
+      const staggered = gallery.map((_, j) => gallery[(i + j) % gallery.length])
+      disposers.push(
+        createImageSlider({
+          container,
+          images: staggered,
+          width: 120,
+          height: 160,
+          delay: i * 200
+        })
+      )
+    }
   }
-};
 
-const createImageSlider = ({
-  container,
-  images,
-  THREE,
-  TweenMax,
-  Power0,
-  width,
-  height,
-  delay = 0
-}) => {
-  if (!container || !images.length) return;
+  return () => disposers.forEach(dispose => dispose && dispose())
+}
 
-  const root = new THREERoot(container, THREE, {
+export const createImageSlider = ({ container, images, width, height, delay = 0 }) => {
+  if (!container || !images.length) return null
+
+  const root = new THREERoot(container, {
     antialias: window.devicePixelRatio === 1,
     fov: 80
-  });
+  })
+  root.renderer.setClearColor(0x000000, 0)
+  root.camera.position.set(0, 0, 60)
 
-  root.renderer.setClearColor(0x000000, 0);
-  root.camera.position.set(0, 0, 60);
+  const slideOut = new Slide(width, height, 'out')
+  const slideIn = new Slide(width, height, 'in')
+  root.scene.add(slideOut, slideIn)
 
-  const slideOut = new Slide(THREE, width, height, 'out');
-  const slideIn = new Slide(THREE, width, height, 'in');
-
-  root.scene.add(slideOut, slideIn);
-
-  let currentIndex = 0;
+  let currentIndex = 0
+  let disposed = false
+  let pendingTimeout = null
 
   const loadImage = (url, slide) =>
     new Promise((resolve, reject) => {
-      const loader = new THREE.ImageLoader();
-      if (url.startsWith('http')) loader.setCrossOrigin('Anonymous');
-
+      const loader = new THREE.ImageLoader()
+      if (url.startsWith('http')) loader.setCrossOrigin('Anonymous')
       loader.load(
         url,
         img => {
-          slide.setImage(img);
-          slide.time = 0;
-          resolve();
+          slide.setImage(img)
+          slide.time = 0
+          resolve(img)
         },
         undefined,
         reject
-      );
-    });
+      )
+    })
 
-  const transition = async () => {
-    await loadImage(images[currentIndex], slideOut);
-    await loadImage(images[(currentIndex + 1) % images.length], slideIn);
+  const runTransition = () => {
+    if (disposed) return
 
-    TweenMax.to(slideOut, 3, {
+    TweenMax.to(slideOut, 3.0, {
       time: slideOut.totalDuration,
       ease: Power0.easeInOut
-    });
+    })
 
-    TweenMax.to(slideIn, 3, {
+    TweenMax.to(slideIn, 3.0, {
       time: slideIn.totalDuration,
       ease: Power0.easeInOut,
       onComplete: () => {
-        currentIndex = (currentIndex + 1) % images.length;
-        setTimeout(transition, 1000);
+        if (disposed) return
+
+        currentIndex = (currentIndex + 1) % images.length
+        const nextIndex = (currentIndex + 1) % images.length
+
+        const currentImg = slideIn.material.uniforms.map.value.image
+        slideOut.setImage(currentImg)
+        slideOut.time = 0
+
+        loadImage(images[nextIndex], slideIn).catch(() => {})
+
+        pendingTimeout = setTimeout(runTransition, 1000)
       }
-    });
-  };
-
-  setTimeout(transition, delay);
-};
-
-const initGallerySliders = ({
-  gallery,
-  THREE,
-  TweenMax,
-  Power0,
-  documentRef
-}) => {
-  for (let i = 0; i < 4; i++) {
-    const container = documentRef.getElementById(`gallery-container-${i + 1}`);
-    if (!container) continue;
-
-    const staggered = gallery.map((_, j) => gallery[(i + j) % gallery.length]);
-
-    createImageSlider({
-      container,
-      images: staggered,
-      THREE,
-      TweenMax,
-      Power0,
-      width: 120,
-      height: 160,
-      delay: i * 200
-    });
+    })
   }
-};
 
+  loadImage(images[0], slideOut)
+    .then(() => {
+      if (disposed || images.length < 2) return
+      return loadImage(images[1], slideIn)
+    })
+    .then(() => {
+      if (disposed) return
+      pendingTimeout = setTimeout(runTransition, delay + 1000)
+    })
+    .catch(() => {})
+
+  const dispose = () => {
+    disposed = true
+    if (pendingTimeout) clearTimeout(pendingTimeout)
+    root.dispose()
+    slideOut.geometry.dispose()
+    slideOut.material.dispose()
+    slideIn.geometry.dispose()
+    slideIn.material.dispose()
+  }
+
+  return dispose
+}
+
+export const createGallerySliders = ({ containers, images, staggerDelay = 200 }) => {
+  if (!images.length) return null
+
+  const disposers = []
+
+  containers.forEach((container, i) => {
+    if (!container) return
+
+    const staggered = images.map((_, j) => images[(i + j) % images.length])
+    disposers.push(
+      createImageSlider({
+        container,
+        images: staggered,
+        width: 120,
+        height: 160,
+        delay: i * staggerDelay
+      })
+    )
+  })
+
+  return () => disposers.forEach(d => d && d())
+}
 
 class Slide extends THREE.Mesh {
-  constructor(THREE, width, height, phase) {
-    const geometry = new SlideGeometry(THREE, width, height, phase);
-    const material = createSlideMaterial(THREE, phase);
-    super(geometry, material);
+  constructor(width, height, phase) {
+    const geometry = new SlideGeometry(width, height, phase)
+    const material = createSlideMaterial(phase)
+    super(geometry, material)
 
-    this.totalDuration = geometry.totalDuration;
-    this.frustumCulled = false;
+    this.totalDuration = geometry.totalDuration
+    this.frustumCulled = false
   }
 
   get time() {
-    return this.material.uniforms.uTime.value;
+    return this.material.uniforms.uTime.value
   }
 
   set time(v) {
-    this.material.uniforms.uTime.value = v;
+    this.material.uniforms.uTime.value = v
   }
 
   setImage(image) {
-    this.material.uniforms.map.value.image = image;
-    this.material.uniforms.map.value.needsUpdate = true;
+    this.material.uniforms.map.value.image = image
+    this.material.uniforms.map.value.needsUpdate = true
   }
 }
 
 class SlideGeometry extends THREE.BAS.ModelBufferGeometry {
-  constructor(THREE, width, height, phase) {
-    const plane = new THREE.PlaneGeometry(width, height, width * 2, height * 2);
-    THREE.BAS.Utils.separateFaces(plane);
-    super(plane);
+  constructor(width, height, phase) {
+    const plane = new THREE.PlaneGeometry(width, height, width * 2, height * 2)
+    THREE.BAS.Utils.separateFaces(plane)
+    super(plane)
 
-    this.bufferUVs();
-    this.totalDuration = 2.5;
+    this.bufferUVs()
+    this.bufferAnimationAttributes(plane, width, height, phase)
+  }
+
+  bufferPositions() {
+    const positionBuffer = this.createAttribute('position', 3).array
+
+    for (let i = 0; i < this.faceCount; i++) {
+      const face = this.modelGeometry.faces[i]
+      const centroid = THREE.BAS.Utils.computeCentroid(this.modelGeometry, face)
+
+      const a = this.modelGeometry.vertices[face.a]
+      const b = this.modelGeometry.vertices[face.b]
+      const c = this.modelGeometry.vertices[face.c]
+
+      positionBuffer[face.a * 3] = a.x - centroid.x
+      positionBuffer[face.a * 3 + 1] = a.y - centroid.y
+      positionBuffer[face.a * 3 + 2] = a.z - centroid.z
+
+      positionBuffer[face.b * 3] = b.x - centroid.x
+      positionBuffer[face.b * 3 + 1] = b.y - centroid.y
+      positionBuffer[face.b * 3 + 2] = b.z - centroid.z
+
+      positionBuffer[face.c * 3] = c.x - centroid.x
+      positionBuffer[face.c * 3 + 1] = c.y - centroid.y
+      positionBuffer[face.c * 3 + 2] = c.z - centroid.z
+    }
+  }
+
+  bufferAnimationAttributes(plane, width, height, phase) {
+    const aAnimation = this.createAttribute('aAnimation', 2)
+    const aStartPosition = this.createAttribute('aStartPosition', 3)
+    const aControl0 = this.createAttribute('aControl0', 3)
+    const aControl1 = this.createAttribute('aControl1', 3)
+    const aEndPosition = this.createAttribute('aEndPosition', 3)
+
+    const minDuration = 0.8
+    const maxDuration = 1.2
+    const maxDelayX = 0.9
+    const maxDelayY = 0.125
+    const stretch = 0.11
+
+    this.totalDuration = maxDuration + maxDelayX + maxDelayY + stretch
+
+    const startPosition = new THREE.Vector3()
+    const control0 = new THREE.Vector3()
+    const control1 = new THREE.Vector3()
+    const endPosition = new THREE.Vector3()
+    const tempPoint = new THREE.Vector3()
+
+    const getControlPoint0 = (centroid) => {
+      const signY = Math.sign(centroid.y)
+      tempPoint.x = THREE.Math.randFloat(0.1, 0.3) * 50
+      tempPoint.y = signY * THREE.Math.randFloat(0.1, 0.3) * 70
+      tempPoint.z = THREE.Math.randFloatSpread(20)
+      return tempPoint
+    }
+
+    const getControlPoint1 = (centroid) => {
+      const signY = Math.sign(centroid.y)
+      tempPoint.x = THREE.Math.randFloat(0.3, 0.6) * 50
+      tempPoint.y = -signY * THREE.Math.randFloat(0.3, 0.6) * 70
+      tempPoint.z = THREE.Math.randFloatSpread(20)
+      return tempPoint
+    }
+
+    for (let i = 0, i2 = 0, i3 = 0; i < this.faceCount; i++, i2 += 6, i3 += 9) {
+      const face = plane.faces[i]
+      const centroid = THREE.BAS.Utils.computeCentroid(plane, face)
+
+      const duration = THREE.Math.randFloat(minDuration, maxDuration)
+      const delayX = THREE.Math.mapLinear(centroid.x, -width * 0.5, width * 0.5, 0.0, maxDelayX)
+      const delayY = phase === 'in'
+        ? THREE.Math.mapLinear(Math.abs(centroid.y), 0, height * 0.5, 0.0, maxDelayY)
+        : THREE.Math.mapLinear(Math.abs(centroid.y), 0, height * 0.5, maxDelayY, 0.0)
+
+      for (let v = 0; v < 6; v += 2) {
+        aAnimation.array[i2 + v] = delayX + delayY + (Math.random() * stretch * duration)
+        aAnimation.array[i2 + v + 1] = duration
+      }
+
+      endPosition.copy(centroid)
+      startPosition.copy(centroid)
+
+      if (phase === 'in') {
+        control0.copy(centroid).sub(getControlPoint0(centroid))
+        control1.copy(centroid).sub(getControlPoint1(centroid))
+      } else {
+        control0.copy(centroid).add(getControlPoint0(centroid))
+        control1.copy(centroid).add(getControlPoint1(centroid))
+      }
+
+      for (let v = 0; v < 9; v += 3) {
+        aStartPosition.array[i3 + v] = startPosition.x
+        aStartPosition.array[i3 + v + 1] = startPosition.y
+        aStartPosition.array[i3 + v + 2] = startPosition.z
+
+        aControl0.array[i3 + v] = control0.x
+        aControl0.array[i3 + v + 1] = control0.y
+        aControl0.array[i3 + v + 2] = control0.z
+
+        aControl1.array[i3 + v] = control1.x
+        aControl1.array[i3 + v + 1] = control1.y
+        aControl1.array[i3 + v + 2] = control1.z
+
+        aEndPosition.array[i3 + v] = endPosition.x
+        aEndPosition.array[i3 + v + 1] = endPosition.y
+        aEndPosition.array[i3 + v + 2] = endPosition.z
+      }
+    }
   }
 }
 
-const createSlideMaterial = (THREE, phase) =>
+const createSlideMaterial = (phase) =>
   new THREE.BAS.BasicAnimationMaterial(
     {
+      shading: THREE.FlatShading,
       side: THREE.DoubleSide,
       uniforms: {
-        uTime: { value: 0 }
+        uTime: { type: 'f', value: 0 }
       },
       shaderFunctions: [
         THREE.BAS.ShaderChunk['cubic_bezier'],
-        THREE.BAS.ShaderChunk['ease_in_out_cubic']
+        THREE.BAS.ShaderChunk['ease_in_out_cubic'],
+        THREE.BAS.ShaderChunk['quaternion_rotation']
       ],
       shaderParameters: [
         'uniform float uTime;',
@@ -232,45 +349,54 @@ const createSlideMaterial = (THREE, phase) =>
       ]
     },
     { map: new THREE.Texture() }
-  );
-
+  )
 
 class THREERoot {
-  constructor(container, THREE, params) {
-    this.container = container;
+  constructor(container, params) {
+    this.container = container
+    this._animationId = null
 
     this.renderer = new THREE.WebGLRenderer({
       antialias: params.antialias,
       alpha: true
-    });
-
-    container.appendChild(this.renderer.domElement);
+    })
+    this.renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1))
+    container.appendChild(this.renderer.domElement)
 
     this.camera = new THREE.PerspectiveCamera(
       params.fov,
       container.clientWidth / container.clientHeight,
       10,
       100000
-    );
+    )
 
-    this.scene = new THREE.Scene();
+    this.scene = new THREE.Scene()
 
-    this.resize();
-    window.addEventListener('resize', this.resize);
-    this.tick();
+    this.resize()
+    window.addEventListener('resize', this.resize)
+    this.tick()
   }
 
-
   resize = () => {
-    const { clientWidth, clientHeight } = this.container;
-    console.log(clientWidth, clientHeight);
-    this.camera.aspect = clientWidth / clientHeight;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(clientWidth, clientHeight);
-  };
+    if (!this.container) return
+    const { clientWidth, clientHeight } = this.container
+    this.camera.aspect = clientWidth / clientHeight
+    this.camera.updateProjectionMatrix()
+    this.renderer.setSize(clientWidth, clientHeight)
+  }
 
   tick = () => {
-    this.renderer.render(this.scene, this.camera);
-    requestAnimationFrame(this.tick);
-  };
+    this.renderer.render(this.scene, this.camera)
+    this._animationId = requestAnimationFrame(this.tick)
+  }
+
+  dispose() {
+    if (this._animationId) cancelAnimationFrame(this._animationId)
+    this._animationId = null
+    window.removeEventListener('resize', this.resize)
+    this.renderer.dispose()
+    if (this.renderer.domElement.parentNode) {
+      this.renderer.domElement.parentNode.removeChild(this.renderer.domElement)
+    }
+  }
 }
