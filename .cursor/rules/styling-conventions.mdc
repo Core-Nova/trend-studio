@@ -1,0 +1,182 @@
+---
+description: Styling conventions based on TREND baroque gold theme
+globs: "**/*.css,**/*.jsx,**/*.tsx"
+alwaysApply: false
+---
+
+# Styling Conventions
+
+## Color Palette
+
+TREND uses a baroque gold and white luxury theme:
+
+```css
+:root {
+  --gold-primary: #C9A227;
+  --gold-light: #D4AF37;
+  --gold-dark: #8B7355;
+  --burgundy: #722F37;
+  --burgundy-dark: #4A1C23;
+  --white: #FFFFFF;
+  --cream: #FAF8F0;
+  --cream-dark: #F5F0E6;
+  --black: #1A1A1A;
+  --charcoal: #2C2C2C;
+  --gray: #6B6B6B;
+  --gray-light: #A0A0A0;
+}
+```
+
+## Typography
+
+```css
+:root {
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Montserrat', 'Helvetica Neue', sans-serif;
+}
+```
+
+## CSS Best Practices
+
+### Use CSS Custom Properties
+```css
+.button {
+  background: var(--gold-primary);
+  color: var(--black);
+  font-family: var(--font-body);
+}
+```
+
+### BEM-like Naming
+```css
+.service-card {
+  padding: 40px;
+}
+
+.service-card__icon {
+  font-size: 2rem;
+}
+
+.service-card__title {
+  font-family: var(--font-display);
+}
+```
+
+### Responsive Design
+```css
+.hero-title {
+  font-size: clamp(3rem, 10vw, 7rem);
+  letter-spacing: 8px;
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    letter-spacing: 15px;
+  }
+}
+```
+
+## Component Styling Patterns
+
+### Colocate Styles
+```
+components/
+  ServiceCard/
+    ServiceCard.jsx
+    ServiceCard.css
+    index.js
+```
+
+### Import Styles in Component
+```jsx
+import './ServiceCard.css'
+
+export const ServiceCard = ({ icon, title }) => {
+  return (
+    <div className="service-card">
+      <div className="service-card__icon">{icon}</div>
+      <h3 className="service-card__title">{title}</h3>
+    </div>
+  )
+}
+```
+
+## Luxury Design Principles
+
+### Transitions and Animations
+```css
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 30px rgba(201, 162, 39, 0.3);
+}
+```
+
+### Ornamental Elements
+Use subtle decorative elements consistent with baroque theme:
+
+```css
+.ornament {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+  margin: 20px auto;
+}
+```
+
+### Shadow and Depth
+```css
+:root {
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --shadow-gold: 0 4px 30px rgba(201, 162, 39, 0.3);
+}
+```
+
+## Slider Container Sizing
+
+Three.js slider containers use fixed aspect ratios matching the image dimensions passed to the `Slide` constructor:
+
+```css
+.hero-slider {
+  width: 280px;
+  height: 420px;
+}
+
+.gallery-three-container {
+  width: 300px;
+  height: 400px;
+}
+```
+
+Hero sliders use a 2:3 portrait ratio (width 70, height 105 in Three.js units).
+Gallery sliders use a 3:4 portrait ratio (width 120, height 160 in Three.js units).
+
+## Mobile Fallback for Sliders
+
+On mobile devices the Three.js sliders are disabled entirely. Replace them with a CSS crossfade:
+
+```css
+.image-crossfade {
+  position: relative;
+  overflow: hidden;
+}
+
+.image-crossfade__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.image-crossfade__img--active {
+  opacity: 1;
+}
+```
+
+Use `useIsMobile()` to conditionally render either the Three.js slider or the CSS fallback. The crossfade should cycle images with a 4-second interval using `setInterval` in a `useEffect`.

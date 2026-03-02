@@ -1,0 +1,186 @@
+{
+    "navigation": {
+        "home": {
+            "en": "Home",
+            "bg": "Начало"
+        },
+        "gallery": {
+            "en": "Gallery",
+            "bg": "Галерия"
+        },
+        "about": {
+            "en": "About",
+            "bg": "За нас"
+        },
+        "services": {
+            "en": "Services",
+            "bg": "Услуги"
+        },
+        "prices": {
+            "en": "Prices",
+            "bg": "Цени"
+        },
+        "reviews": {
+            "en": "Reviews",
+            "bg": "Отзиви"
+        },
+        "contact": {
+            "en": "Contact",
+            "bg": "Контакти"
+        }
+    },
+    "hero": {
+        "subtitle": {
+            "en": "Hair Boutique Studio",
+            "bg": "Бутиково фризьорско студио"
+        },
+        "tagline": {
+            "en": "Where elegance meets artistry",
+            "bg": "Където елегантността среща изкуството"
+        },
+        "cta_button": {
+            "en": "Book Appointment",
+            "bg": "Запази час"
+        }
+    },
+    "gallery": {
+        "section_tag": {
+            "en": "Our Work",
+            "bg": "Нашата работа"
+        },
+        "section_title": {
+            "en": "Gallery",
+            "bg": "Галерия"
+        },
+        "instructions": {
+            "en": "Click and drag on images to control the animation",
+            "bg": "Кликни и влачи върху изображенията за контрол на анимацията"
+        },
+        "instagram_text": {
+            "en": "Follow us for more inspiration",
+            "bg": "Последвайте ни за още вдъхновение"
+        }
+    },
+    "about": {
+        "section_tag": {
+            "en": "Welcome to",
+            "bg": "Добре дошли в"
+        },
+        "paragraph_1": {
+            "en": "Step into a world of baroque elegance and modern sophistication. At TREND Hair Boutique Studio, we believe that every client deserves a royal treatment. Our studio combines timeless beauty traditions with contemporary techniques to create looks that are uniquely yours.",
+            "bg": "Стъпете в свят на барокова елегантност и модерна изтънченост. В TREND Hair Boutique Studio вярваме, че всеки клиент заслужава кралско отношение. Нашето студио съчетава вечни традиции в красотата със съвременни техники, за да създаде визия, която е уникално ваша."
+        },
+        "paragraph_2": {
+            "en": "We work exclusively with world-renowned professional brands including ALTERNA Haircare, Olaplex, and KYDRA by Phyto. Our expert stylists bring years of experience and passion to ensure you leave feeling confident and beautiful.",
+            "bg": "Работим изключително със световноизвестни професионални марки, включително ALTERNA Haircare, Olaplex и KYDRA by Phyto. Нашите експерт стилисти носят години опит и страст, за да се уверим, че си тръгвате уверени и красиви."
+        },
+        "features": {
+            "expert_stylists": {
+                "en": "Expert Stylists",
+                "bg": "Експерт стилисти"
+            },
+            "premium_products": {
+                "en": "Premium Products",
+                "bg": "Първокласни продукти"
+            },
+            "luxurious_atmosphere": {
+                "en": "Luxurious Atmosphere",
+                "bg": "Луксозна атмосфера"
+            }
+        }
+    },
+    "services_section": {
+        "section_tag": {
+            "en": "What We Offer",
+            "bg": "Какво предлагаме"
+        },
+        "section_title": {
+            "en": "Our Services",
+            "bg": "Нашите услуги"
+        }
+    },
+    "prices_section": {
+        "section_tag": {
+            "en": "Investment in Beauty",
+            "bg": "Инвестиция в красота"
+        },
+        "section_title": {
+            "en": "Price List",
+            "bg": "Ценоразпис"
+        },
+        "cta_button": {
+            "en": "See Full Price List on Studio24",
+            "bg": "Вижте пълния ценоразпис в Studio24"
+        }
+    },
+    "reviews_section": {
+        "section_tag": {
+            "en": "Client Testimonials",
+            "bg": "Отзиви от клиенти"
+        },
+        "section_title": {
+            "en": "What Our Clients Say",
+            "bg": "Какво казват нашите клиенти"
+        },
+        "cta_button": {
+            "en": "See All Google Reviews",
+            "bg": "Вижте всички Google отзиви"
+        },
+        "note": {
+            "en": "Reviews are loaded directly from Google. If reviews don't appear, please visit our Google Business Profile.",
+            "bg": "Отзивите се зареждат директно от Google. Ако отзивите не се появят, моля посетете нашия Google Business профил."
+        }
+    },
+    "contact_section": {
+        "section_tag": {
+            "en": "Get in Touch",
+            "bg": "Свържете се с нас"
+        },
+        "section_title": {
+            "en": "Contact Us",
+            "bg": "Контакти"
+        },
+        "address_label": {
+            "en": "Address",
+            "bg": "Адрес"
+        },
+        "address_value": {
+            "en": "8 Tsar Kaloyan St.<br>(former Central Korecom building, Mezzanine)<br>Sofia, Bulgaria",
+            "bg": "ул. Цар Калоян 8<br>(сградата на бившия централен Кореком, Мецанин)<br>София, България"
+        },
+        "phone_label": {
+            "en": "Phone",
+            "bg": "Телефон"
+        },
+        "email_label": {
+            "en": "Email",
+            "bg": "Имейл"
+        },
+        "hours_label": {
+            "en": "Working Hours",
+            "bg": "Работно време"
+        },
+        "hours_value": {
+            "en": "Mon, Wed, Fri: 09:00 - 19:30<br>Tue, Thu: 10:00 - 19:00<br>Sat, Sun: 09:00 - 19:00",
+            "bg": "Пон, Сряда, Пет: 09:00 - 19:30<br>Вт, Чет: 10:00 - 19:00<br>Съб, Нед: 09:00 - 19:00"
+        },
+        "booking_button": {
+            "en": "Book via Studio24",
+            "bg": "Резервирай в Studio24"
+        },
+        "map_link": {
+            "en": "Open in Google Maps",
+            "bg": "Отвори в Google Maps"
+        }
+    },
+    "footer": {
+        "tagline": {
+            "en": "Hair Boutique Studio",
+            "bg": "Бутиково фризьорско студио"
+        },
+        "copyright": {
+            "en": "All rights reserved.",
+            "bg": "Всички права запазени."
+        }
+    }
+}

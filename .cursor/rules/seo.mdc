@@ -1,0 +1,102 @@
+---
+description: SEO guidelines for the TREND React SPA on GitHub Pages
+alwaysApply: false
+---
+
+# SEO Guidelines
+
+## Hosting & SEO Limits
+
+- The site is a **client-rendered Vite SPA** hosted on **GitHub Pages**
+- There is no SSR, so:
+  - Initial HTML is mostly the root shell from `index.html`
+  - Some crawlers may not execute client-side JavaScript
+- SEO work focuses on:
+  - High-quality baseline metadata in `index.html`
+  - Clean URLs, internal linking, and semantics
+  - Fast, stable layout (LCP/CLS)
+
+## Baseline Metadata (`index.html`)
+
+- `index.html` defines the default:
+  - `<title>`
+  - `<meta name="description">`
+  - Open Graph tags (`og:title`, `og:description`, `og:image`, `og:url`, `og:site_name`)
+  - Twitter cards
+  - Canonical URL
+  - JSON-LD for the salon entity
+- When editing `index.html`, keep these in sync with `translations.seo` where possible.
+
+## Per-Page SEO with `usePageSEO`
+
+- Hook: `src/hooks/usePageSEO.js`
+- Usage pattern in pages:
+
+```jsx
+import { useLanguage } from '../contexts/LanguageContext'
+import { translations } from '../translations'
+import { usePageSEO } from '../hooks/usePageSEO'
+
+export const AboutPage = () => {
+  const { t } = useLanguage()
+
+  usePageSEO({
+    title: t(translations.seo.aboutTitle),
+    description: t(translations.seo.aboutDescription)
+  })
+
+  return (
+    <div className="page-content">
+      {/* content */}
+    </div>
+  )
+}
+```
+
+- `usePageSEO` updates:
+  - `document.title`
+  - `meta[name="description"]`
+  - `meta[property="og:description"]`
+  - `meta[name="twitter:description"]`
+  - `meta[property="og:title"]`
+  - `meta[name="twitter:title"]`
+
+## Translated SEO Text
+
+- All SEO strings live in `translations.seo` in `src/translations/index.js`
+- For any new page or major section:
+  - Add `Title` and `Description` entries for EN/BG under `translations.seo`
+  - Use `t(translations.seo.someKey)` in the corresponding page with `usePageSEO`
+
+## On-Page SEO Checklist for New Pages
+
+- Unique, descriptive `title` and `description` via `usePageSEO`
+- Semantic headings:
+  - One main `<h1>` per page
+  - Logical hierarchy of `<h2>`, `<h3>` for sections
+- Images:
+  - Use meaningful `alt` text where appropriate
+  - Avoid layout shifts by constraining width/height via CSS
+- Links:
+  - Use `Link` from `react-router-dom` for internal navigation
+  - Ensure important pages are reachable via internal links from the homepage
+
+## Performance & UX (SEO-Relevant)
+
+- Optimize Largest Contentful Paint (LCP):
+  - Avoid blocking the hero area with unnecessary scripts
+  - Prefer Vite imports and code-splitting for non-critical sections
+- Avoid Cumulative Layout Shift (CLS):
+  - Reserve space for hero, sliders, and gallery using fixed heights or aspect-ratio containers
+  - Do not inject large DOM blocks above the fold after initial render
+- Use `loading="lazy"` on non-critical images (e.g., galleries, preview cards)
+
+## Structured Data
+
+- The primary JSON-LD for the salon lives in `index.html`
+- When adjusting services or hours:
+  - Prefer updating the JSON-LD in `index.html` to keep the canonical entity accurate
+- Route-specific JSON-LD is optional; if added, ensure it:
+  - Mirrors the same entity (no conflicting data)
+  - Is injected only once per page
+

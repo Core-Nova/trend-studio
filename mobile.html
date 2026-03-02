@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description"
+        content="TREND - Hair Boutique Studio. Professional hair styling, coloring, and treatments in a baroque-inspired atmosphere in Sofia.">
+    <title>TREND | Hair Boutique Studio</title>
+
+    <link rel="stylesheet" href="mobile.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo">TREND</a>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="#home" data-en="Home" data-bg="Начало">Home</a></li>
+                <li><a href="#about" data-en="About" data-bg="За нас">About</a></li>
+                <li><a href="#services" data-en="Services" data-bg="Услуги">Services</a></li>
+                <li><a href="#prices" data-en="Prices" data-bg="Цени">Prices</a></li>
+                <li><a href="#reviews" data-en="Reviews" data-bg="Отзиви">Reviews</a></li>
+                <li><a href="#contact" data-en="Contact" data-bg="Контакти">Contact</a></li>
+            </ul>
+            <div class="lang-toggle">
+                <button class="lang-btn active" data-lang="en">EN</button>
+                <span class="lang-divider">|</span>
+                <button class="lang-btn" data-lang="bg">BG</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-background"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">TREND</h1>
+            <p class="hero-subtitle" data-en="Hair Boutique Studio" data-bg="Бутиково фризьорско студио">Hair Boutique
+                Studio</p>
+            <p class="hero-tagline" data-en="Where elegance meets artistry"
+                data-bg="Където елегантността среща изкуството">Where elegance meets artistry</p>
+            <a href="https://studio24.bg" target="_blank" rel="noopener noreferrer" class="btn btn-primary"
+                data-en="Book Appointment" data-bg="Запази час">Book Appointment</a>
+        </div>
+    </section>
+
+
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-en="Welcome to" data-bg="Добре дошли в">Welcome to</span>
+                <h2 class="section-title">TREND</h2>
+                <div class="ornament"></div>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <p data-en="Step into a world of baroque elegance and modern sophistication. At TREND Hair Boutique Studio, we believe that every client deserves a royal treatment. Our studio combines timeless beauty traditions with contemporary techniques to create looks that are uniquely yours."
+                        data-bg="Стъпете в свят на барокова елегантност и модерна изтънченост. В TREND Hair Boutique Studio вярваме, че всеки клиент заслужава кралско отношение. Нашето студио съчетава вечни традиции в красотата със съвременни техники, за да създаде визия, която е уникално ваша.">
+                        Step into a world of baroque elegance and modern sophistication. At TREND Hair Boutique Studio,
+                        we believe that every client deserves a royal treatment. Our studio combines timeless beauty
+                        traditions with contemporary techniques to create looks that are uniquely yours.
+                    </p>
+                    <p data-en="We work exclusively with world-renowned professional brands including ALTERNA Haircare, Olaplex, and KYDRA by Phyto. Our expert stylists bring years of experience and passion to ensure you leave feeling confident and beautiful."
+                        data-bg="Работим изключително със световноизвестни професионални марки, включително ALTERNA Haircare, Olaplex и KYDRA by Phyto. Нашите експерт стилисти носят години опит и страст, за да се уверим, че си тръгвате уверени и красиви.">
+                        We work exclusively with world-renowned professional brands including ALTERNA Haircare, Olaplex,
+                        and KYDRA by Phyto. Our expert stylists bring years of experience and passion to ensure you
+                        leave feeling confident and beautiful.
+                    </p>
+                </div>
+                <div class="about-features">
+                    <div class="feature">
+                        <div class="feature-icon">✦</div>
+                        <h3 data-en="Expert Stylists" data-bg="Експерт стилисти">Expert Stylists</h3>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✦</div>
+                        <h3 data-en="Premium Products" data-bg="Първокласни продукти">Premium Products</h3>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✦</div>
+                        <h3 data-en="Luxurious Atmosphere" data-bg="Луксозна атмосфера">Luxurious Atmosphere</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="services">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-en="What We Offer" data-bg="Какво предлагаме">What We Offer</span>
+                <h2 class="section-title" data-en="Our Services" data-bg="Нашите услуги">Our Services</h2>
+                <div class="ornament"></div>
+            </div>
+            <!-- Services will be dynamically loaded -->
+            <div class="services-grid" id="services-container">
+            </div>
+        </div>
+    </section>
+
+    <section id="prices" class="prices">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-en="Investment" data-bg="Инвестиция">Investment</span>
+                <h2 class="section-title" data-en="Price List" data-bg="Ценоразпис">Price List</h2>
+                <div class="ornament"></div>
+            </div>
+            <!-- Prices will be dynamically loaded -->
+            <div class="prices-grid" id="prices-container">
+            </div>
+            <div class="prices-footer">
+                <p class="price-note" id="price-note"></p>
+                <a href="https://studio24.bg" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                    <span data-en="View Full Price List" data-bg="Виж пълен ценоразпис">View Full Price List</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="reviews" class="reviews">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-en="Testimonials" data-bg="Отзиви">Testimonials</span>
+                <h2 class="section-title" data-en="What Our Clients Say" data-bg="Какво казват нашите клиенти">What Our
+                    Clients Say</h2>
+                <div class="ornament"></div>
+            </div>
+            <div class="reviews-content">
+                <p class="reviews-note"
+                    data-en="We are proud to have served hundreds of satisfied clients. Visit our social media to see more reviews and transformations."
+                    data-bg="Гордеем се, че сме обслужили стотици доволни клиенти. Посетете нашите социални мрежи, за да видите повече отзиви и трансформации.">
+                    We are proud to have served hundreds of satisfied clients. Visit our social media to see more
+                    reviews and transformations.
+                </p>
+                <a href="https://studio24.bg" target="_blank" rel="n noopener noreferrer" class="btn btn-secondary">
+                    <span data-en="Read Reviews" data-bg="Прочети отзиви">Read Reviews</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-en="Get In Touch" data-bg="Свържете се с нас">Get In Touch</span>
+                <h2 class="section-title" data-en="Visit Us" data-bg="Посетете ни">Visit Us</h2>
+                <div class="ornament"></div>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <div class="contact-icon">📍</div>
+                    <div class="contact-details">
+                        <h3 data-en="Address" data-bg="Адрес">Address</h3>
+                        <p data-en="Bulgaria, Sofia 1407<br>zh.k. Lozenets, ul. &quot;Krichim&quot; 14A"
+                            data-bg="България, София 1407<br>ж.к. Лозенец, ул. &quot;Кричим&quot; 14А">
+                            Bulgaria, Sofia 1407<br>zh.k. Lozenets, ul. "Krichim" 14A
+                        </p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">📱</div>
+                    <div class="contact-details">
+                        <h3 data-en="Phone" data-bg="Телефон">Phone</h3>
+                        <a href="tel:+359897808090">+359 897 808 090</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">✉️</div>
+                    <div class="contact-details">
+                        <h3 data-en="Email" data-bg="Имейл">Email</h3>
+                        <a href="mailto:teodora.kyuchukov@gmail.com">teodora.kyuchukov@gmail.com</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">🕐</div>
+                    <div class="contact-details">
+                        <h3 data-en="Working Hours" data-bg="Работно време">Working Hours</h3>
+                        <p data-en="Monday - Sunday<br>9:00 AM - 8:00 PM" data-bg="Понеделник - Неделя<br>9:00 - 20:00">
+                            Monday - Sunday<br>9:00 AM - 8:00 PM
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-cta">
+                <a href="https://studio24.bg" target="_blank" rel="noopener noreferrer" class="btn booking-btn">
+                    <span data-en="Book Your Appointment" data-bg="Запазете час">Book Your Appointment</span>
+                </a>
+                <a href="https://maps.app.goo.gl/VpN28yiM1qL6gvjh8" target="_blank" rel="noopener noreferrer"
+                    class="map-link">
+                    <span data-en="Open in Maps" data-bg="Отвори в карти">Open in Maps</span> →
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>TREND</h3>
+                    <p class="footer-tagline" data-en="Hair Boutique Studio" data-bg="Бутиково фризьорско студио">Hair
+                        Boutique Studio</p>
+                </div>
+                <div class="footer-social">
+                    <a href="https://instagram.com/trendbytedi" target="_blank" rel="noopener noreferrer"
+                        aria-label="Instagram">
+                        <span>📷</span>
+                    </a>
+                    <a href="https://facebook.com/trendbytedi" target="_blank" rel="noopener noreferrer"
+                        aria-label="Facebook">
+                        <span>📘</span>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-copyright">
+                    <span data-en="© 2025 TREND Hair Boutique Studio. All rights reserved."
+                        data-bg="© 2025 TREND Hair Boutique Studio. Всички права запазени.">
+                        © 2025 TREND Hair Boutique Studio. All rights reserved.
+                    </span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Configuration Scripts -->
+    <script>
+        // Content configuration for multilingual support
+        window.contentConfig = {
+            "navigation": {
+                "home": { "en": "Home", "bg": "Начало" },
+                "gallery": { "en": "Gallery", "bg": "Галерия" },
+                "about": { "en": "About", "bg": "За нас" },
+                "services": { "en": "Services", "bg": "Услуги" },
+                "prices": { "en": "Prices", "bg": "Цени" },
+                "reviews": { "en": "Reviews", "bg": "Отзиви" },
+                "contact": { "en": "Contact", "bg": "Контакти" }
+            },
+            "hero": {
+                "subtitle": { "en": "Hair Boutique Studio", "bg": "Бутиково фризьорско студио" },
+                "tagline": { "en": "Where elegance meets artistry", "bg": "Където елегантността среща изкуството" },
+                "cta_button": { "en": "Book Appointment", "bg": "Запази час" }
+            },
+            "gallery": {
+                "section_tag": { "en": "Our Work", "bg": "Нашата работа" },
+                "section_title": { "en": "Gallery", "bg": "Галерия" },
+                "instructions": { "en": "Swipe to view more", "bg": "Прелистете за повече" },
+                "instagram_text": { "en": "Follow us for more inspiration", "bg": "Последвайте ни за още вдъхновение" }
+            },
+            "about": {
+                "section_tag": { "en": "Welcome to", "bg": "Добре дошли в" },
+                "paragraph_1": { "en": "Step into a world of baroque elegance and modern sophistication. At TREND Hair Boutique Studio, we believe that every client deserves a royal treatment. Our studio combines timeless beauty traditions with contemporary techniques to create looks that are uniquely yours.", "bg": "Стъпете в свят на барокова елегантност и модерна изтънченост. В TREND Hair Boutique Studio вярваме, че всеки клиент заслужава кралско отношение. Нашето студио съчетава вечни традиции в красотата със съвременни техники, за да създаде визия, която е уникално ваша." },
+                "paragraph_2": { "en": "We work exclusively with world-renowned professional brands including ALTERNA Haircare, Olaplex, and KYDRA by Phyto. Our expert stylists bring years of experience and passion to ensure you leave feeling confident and beautiful.", "bg": "Работим изключително със световноизвестни професионални марки, включително ALTERNA Haircare, Olaplex и KYDRA by Phyto. Нашите експерт стилисти носят години опит и страст, за да се уверим, че си тръгвате уверени и красиви." },
+                "features": {
+                    "expert_stylists": { "en": "Expert Stylists", "bg": "Експерт стилисти" },
+                    "premium_products": { "en": "Premium Products", "bg": "Първокласни продукти" },
+                    "luxurious_atmosphere": { "en": "Luxurious Atmosphere", "bg": "Луксозна атмосфера" }
+                }
+            },
+            "services_section": {
+                "section_tag": { "en": "What We Offer", "bg": "Какво предлагаме" },
+                "section_title": { "en": "Our Services", "bg": "Нашите услуги" }
+            },
+            "prices_section": {
+                "section_tag": { "en": "Investment", "bg": "Инвестиция" },
+                "section_title": { "en": "Price List", "bg": "Ценоразпис" },
+                "cta_button": { "en": "View Full Price List", "bg": "Виж пълен ценоразпис" }
+            },
+            "reviews_section": {
+                "section_tag": { "en": "Testimonials", "bg": "Отзиви" },
+                "section_title": { "en": "What Our Clients Say", "bg": "Какво казват нашите клиенти" },
+                "cta_button": { "en": "Read Reviews", "bg": "Прочети отзиви" },
+                "note": { "en": "We are proud to have served hundreds of satisfied clients. Visit our social media to see more reviews and transformations.", "bg": "Гордеем се, че сме обслужили стотици доволни клиенти. Посетете нашите социални мрежи, за да видите повече отзиви и трансформации." }
+            },
+            "contact_section": {
+                "section_tag": { "en": "Get In Touch", "bg": "Свържете се с нас" },
+                "section_title": { "en": "Visit Us", "bg": "Посетете ни" },
+                "address_label": { "en": "Address", "bg": "Адрес" },
+                "phone_label": { "en": "Phone", "bg": "Телефон" },
+                "email_label": { "en": "Email", "bg": "Имейл" },
+                "hours_label": { "en": "Working Hours", "bg": "Работно време" },
+                "address_value": { "en": "Bulgaria, Sofia 1407<br>zh.k. Lozenets, ul. \"Krichim\" 14A", "bg": "България, София 1407<br>ж.к. Лозенец, ул. \"Кричим\" 14А" },
+                "hours_value": { "en": "Monday - Sunday<br>9:00 AM - 8:00 PM", "bg": "Понеделник - Неделя<br>9:00 - 20:00" },
+                "booking_button": { "en": "Book Your Appointment", "bg": "Запазете час" },
+                "map_link": { "en": "Open in Maps", "bg": "Отвори в карти" }
+            },
+            "footer": {
+                "tagline": { "en": "Hair Boutique Studio", "bg": "Бутиково фризьорско студио" },
+                "copyright": { "en": "© 2025 TREND Hair Boutique Studio. All rights reserved.", "bg": "© 2025 TREND Hair Boutique Studio. Всички права запазени." }
+            }
+        };
+
+        // Images configuration
+        window.imagesConfig = {
+            "gallery": [
+                "https://i.imgur.com/gu5D22Q.jpg",
+                "https://i.imgur.com/4v9Sx5Y.jpg",
+                "https://i.imgur.com/CT0rlqR.jpg",
+                "https://i.imgur.com/FHO9xBX.jpg"
+            ]
+        };
+    </script>
+
+    <script>
+        window.servicesConfig = {
+            "services": {
+                "categories": [
+                    {
+                        "id": "haircuts-styling",
+                        "name": { "en": "Haircuts & Styling", "bg": "Подстригване и прически" },
+                        "items": [
+                            { "name": { "en": "Women's Haircut", "bg": "Дамско подстригване" }, "price_eur": 35, "price_note": { "en": "from", "bg": "от" } },
+                            { "name": { "en": "Blow Dry", "bg": "Сешоар" }, "price_eur": 33, "price_note": { "en": "from", "bg": "от" } },
+                            { "name": { "en": "Flat Iron / Curling Iron", "bg": "Преса / Маша" }, "price_eur": 30, "price_note": { "en": "from", "bg": "от" } },
+                            { "name": { "en": "Special Occasion Styling", "bg": "Официална прическа" }, "price_eur": 90, "price_note": { "en": "from", "bg": "от" } }
+                        ]
+                    },
+                    {
+                        "id": "coloring",
+                        "name": { "en": "Coloring", "bg": "Боядисване" },
+                        "items": [
+                            { "name": { "en": "Color (Premium Class)", "bg": "Боядисване клас Premium" }, "price_eur": 45, "price_note": { "en": "from", "bg": "от" } },
+                            { "name": { "en": "Toner", "bg": "Тониране" }, "price_eur": 60, "price_note": { "en": "from", "bg": "от" } }
+                        ]
+                    },
+                    {
+                        "id": "hair-treatments",
+                        "name": { "en": "Hair Treatments", "bg": "Терапии за коса" },
+                        "items": [
+                            { "name": { "en": "Rhiannon Hair Treatment", "bg": "Терапия за коса с Рианон" }, "price_eur": 100, "price_note": null },
+                            { "name": { "en": "Aphrodite Hair Treatment", "bg": "Терапия за коса Афродита" }, "price_eur": 123, "price_note": null }
+                        ]
+                    },
+                    {
+                        "id": "eyelashes",
+                        "name": { "en": "Eyelashes", "bg": "Мигли" },
+                        "items": [
+                            { "name": { "en": "Lash Extensions (Hair by Hair)", "bg": "Удължаване на мигли косъм по косъм" }, "price_eur": 120, "price_note": null },
+                            { "name": { "en": "Lash Maintenance", "bg": "Поддръжка на мигли" }, "price_eur": 75, "price_note": { "en": "from", "bg": "от" } }
+                        ]
+                    }
+                ]
+            },
+            "price_note": {
+                "en": "* Prices may vary based on hair length and complexity.",
+                "bg": "* Цените могат да варират в зависимост от дължината на косата и сложността."
+            }
+        };
+    </script>
+
+    <script src="content-loader.js"></script>
+    <script src="script.js"></script>
+    <script src="services-loader.js"></script>
+    <script src="mobile-gallery.js"></script>
+
+</body>
+
+</html>

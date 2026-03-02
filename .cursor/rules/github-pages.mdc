@@ -1,0 +1,73 @@
+---
+description: GitHub Pages deployment and static hosting constraints for the TREND React app
+alwaysApply: true
+---
+
+# GitHub Pages & Static Hosting
+
+## Hosting Model
+
+- The site is deployed as a **static Vite build** to **GitHub Pages**
+- Build output lives in the `dist/` folder
+- There is **no server-side rendering** and **no custom backend**
+
+## Deployment Workflow
+
+- GitHub Actions workflow: `.github/workflows/deploy.yml`
+- Triggered on:
+  - Push to `main` or `master`
+  - Manual workflow dispatch
+- Steps:
+  - `npm ci`
+  - `npm run build`
+  - Upload `dist/` as the Pages artifact
+
+## Vite Configuration
+
+- Config file: `vite.config.js`
+- Key settings:
+  - `base: './'` so asset URLs are relative and work for any repo name
+  - `build.outDir = 'dist'`
+  - `build.assetsDir = 'assets'`
+
+## SPA Routing Constraints
+
+- The app is a **client-rendered SPA**
+- Refreshing a deep link must still serve `index.html`
+- The build step copies:
+  - `dist/index.html` → `dist/404.html`
+- This ensures GitHub Pages returns the SPA shell on unknown routes
+
+## What You Can and Cannot Do
+
+### Allowed
+
+- Client-side routing with `react-router-dom`
+- Static assets bundled by Vite (JS, CSS, images, fonts)
+- Third-party browser APIs (Google Maps iframe, localStorage, etc.)
+
+### Not Allowed
+
+- No server-side code (Node/Express, server routes, database access)
+- No dynamic rewriting rules beyond the `404.html` SPA fallback trick
+- No runtime environment variables from the server (use build-time config instead)
+
+## Local Testing
+
+- During development:
+  - Use `npm run dev` for the Vite dev server
+- For production build testing:
+  - Use `npm run build` and then `npm run preview`
+  - Do **not** open `dist/index.html` via `file://` (module scripts will fail)
+
+## Common Issues
+
+- **Blank page on GitHub Pages**:
+  - Check that `base: './'` is set in `vite.config.js`
+  - Confirm that `dist/` contains `index.html`, `404.html`, and `assets/`
+- **404 on refresh for nested routes**:
+  - Ensure the build script still copies `index.html` to `404.html`
+- **Broken images**:
+  - Use Vite imports from `src/assets/**` (see `static-hosting.mdc` and `imageImports.js`)
+  - Avoid absolute paths that assume a specific repo name
+

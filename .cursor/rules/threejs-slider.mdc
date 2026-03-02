@@ -1,0 +1,105 @@
+---
+description: Three.js triangle slider ("spin") patterns and React integration
+globs: "**/*.jsx,**/*.tsx,**/*.js"
+alwaysApply: false
+---
+
+# Three.js Triangle Slider ("Spin")
+
+## What It Is
+
+The signature TREND slider breaks images into triangular faces and animates them along cubic bezier paths during transitions. One image disassembles while the next assembles, creating a dramatic particle-like effect.
+
+## Canonical Module
+
+The slider code lives at `src/lib/slider.js`. This is the single source of truth for the React app.
+
+### Legacy Files (repo root)
+
+- `slider.js` -- modernized ES module reference (complete, matches the React version)
+- `slider22.js` -- **legacy/deprecated** IIFE version used by the original vanilla site. Do NOT port from this file. Do NOT use `var`, prototype-based classes, or IIFE patterns from it.
+
+### Dependencies (CDN only)
+
+- **Three.js r73** -- pinned; BAS requires the old `THREE.Geometry` API
+- **BAS (Buffer Animation System)** -- `THREE.BAS.ModelBufferGeometry`, `THREE.BAS.BasicAnimationMaterial`
+- **GSAP TweenMax 1.x** -- `TweenMax.to()` for tweening
+
+Load via `<script>` tags in `index.html` `<head>`, NOT as npm packages:
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js"></script>
+<script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/175711/bas.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.0/TweenMax.min.js"></script>
+```
+
+Do NOT upgrade Three.js -- newer versions break BAS.
+
+## Public API
+
+### `createImageSlider({ container, images, width, height, delay })`
+
+Creates one slider. Returns a dispose function (or `null` if deps missing).
+
+### `createGallerySliders({ containers, images, staggerDelay })`
+
+Creates multiple staggered sliders. Returns a dispose function.
+
+## React Integration
+
+Always wrap in `useEffect` and return the dispose function:
+
+```jsx
+import { useRef, useEffect } from 'react'
+import { useIsMobile } from '../hooks/useIsMobile'
+import { createImageSlider } from '../lib/slider'
+
+export const HeroSlider = ({ images, width, height, delay = 0 }) => {
+  const containerRef = useRef(null)
+  const isMobile = useIsMobile()
+
+  useEffect(() => {
+    if (isMobile || !containerRef.current || !images.length) return
+    if (typeof THREE === 'undefined') return
+
+    const dispose = createImageSlider({
+      container: containerRef.current,
+      images,
+      width,
+      height,
+      delay
+    })
+
+    return dispose
+  }, [isMobile, images, width, height, delay])
+
+  if (isMobile) return null
+
+  return <div ref={containerRef} className="hero-slider" />
+}
+```
+
+### Key Rules
+
+- Always check `typeof THREE !== 'undefined'` before calling slider functions
+- Always return the dispose function from `useEffect` -- it cleans up WebGL resources
+- Skip initialization on mobile -- render a CSS fallback instead
+- Use `useRef` for containers, never query the DOM
+
+## Slider Placements
+
+| Location | Width | Height | Delay |
+|---|---|---|---|
+| Hero left | 70 | 105 | 0 |
+| Hero right | 70 | 105 | 500ms |
+| Gallery (x4) | 120 | 160 | i * 200ms |
+
+## Mobile Fallback
+
+On mobile (`useIsMobile()` true), render a CSS crossfade instead of the Three.js slider. The slider module also returns `null` when `THREE` is unavailable.
+
+## Image Loading
+
+- Slider images are provided by the React app, typically using Vite-imported assets from `src/data/imageImports.js`
+- In the standard setup, images are local files under `src/assets/images/**` bundled by Vite (no external CDN dependency)
+- After each transition, the current image reference is copied (no re-download) and only the next image is fetched

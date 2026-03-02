@@ -1,0 +1,149 @@
+---
+description: React component patterns and conventions
+globs: "**/*.jsx,**/*.tsx"
+alwaysApply: false
+---
+
+# React Component Patterns
+
+## Component Types
+
+### Presentational Components
+Pure components that receive props and render UI.
+
+```jsx
+export const ServiceCard = ({ icon, title, description }) => {
+  return (
+    <div className="service-card">
+      <div className="service-icon">{icon}</div>
+      <h3>{title}</h3>
+      <p>{description}</p>
+    </div>
+  )
+}
+```
+
+### Container Components
+Components with state and business logic.
+
+```jsx
+export const ServiceList = () => {
+  const [services, setServices] = useState([])
+  const [loading, setLoading] = useState(true)
+  
+  useEffect(() => {
+    fetchServices().then(setServices).finally(() => setLoading(false))
+  }, [])
+  
+  if (loading) return <Loader />
+  
+  return (
+    <div className="services-grid">
+      {services.map(service => (
+        <ServiceCard key={service.id} {...service} />
+      ))}
+    </div>
+  )
+}
+```
+
+## Custom Hooks Pattern
+
+Extract reusable logic into custom hooks:
+
+```jsx
+// useLanguage.js
+export const useLanguage = () => {
+  const [lang, setLang] = useState(() => 
+    localStorage.getItem('trendLang') || 'en'
+  )
+  
+  const changeLanguage = (newLang) => {
+    setLang(newLang)
+    localStorage.setItem('trendLang', newLang)
+  }
+  
+  return { lang, changeLanguage }
+}
+
+// Usage in component
+const { lang, changeLanguage } = useLanguage()
+```
+
+## Props Patterns
+
+### Optional Props with Defaults
+```jsx
+export const Button = ({ 
+  variant = 'primary', 
+  size = 'medium',
+  children,
+  onClick 
+}) => {
+  return (
+    <button 
+      className={`btn btn-${variant} btn-${size}`}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  )
+}
+```
+
+### Children Prop
+```jsx
+export const Section = ({ children, id, className }) => {
+  return (
+    <section id={id} className={className}>
+      <div className="container">
+        {children}
+      </div>
+    </section>
+  )
+}
+```
+
+## Conditional Rendering
+
+```jsx
+// ✅ GOOD - Early returns
+if (loading) return <Loader />
+if (error) return <Error message={error} />
+if (!data) return null
+
+// ✅ GOOD - Ternary for simple conditions
+{isOpen ? <Modal /> : null}
+
+// ✅ GOOD - Logical AND for single condition
+{hasServices && <ServiceList services={services} />}
+```
+
+## List Rendering
+
+Always use stable keys:
+
+```jsx
+// ✅ GOOD - Unique ID as key
+{services.map(service => (
+  <ServiceCard key={service.id} {...service} />
+))}
+
+// ❌ BAD - Index as key (unstable)
+{services.map((service, index) => (
+  <ServiceCard key={index} {...service} />
+))}
+```
+
+## Event Handlers
+
+```jsx
+<button onClick={() => setOpen(!open)}>Toggle</button>
+
+const handleSubmit = (e) => {
+  e.preventDefault()
+  validateAndSubmitForm(formData)
+}
+
+<form onSubmit={handleSubmit}>
+```
