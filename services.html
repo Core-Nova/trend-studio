@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="TREND Hair Boutique Studio Services - Professional haircuts, coloring, treatments, and more.">
+    <title>Our Services | TREND Hair Boutique Studio</title>
+
+    <!-- Mobile Detection -->
+    <script src="detect-mobile.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="services.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">TREND</a>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li class="nav-dropdown">
+                    <a href="services.html">Services</a>
+                    <div class="nav-submenu">
+                        <a href="haircuts.html">Haircuts & Styling</a>
+                        <a href="hair-therapies.html">Hair Therapies</a>
+                    </div>
+                </li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="lang-toggle">
+                <button class="lang-btn active" data-lang="en">EN</button>
+                <span class="lang-divider">|</span>
+                <button class="lang-btn" data-lang="bg">BG</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="section-tag">What We Offer</span>
+            <h1 class="hero-title">Our Services</h1>
+            <p class="hero-subtitle">Experience luxury hair care with world-class products and expert stylists</p>
+        </div>
+    </section>
+
+    <!-- Services Grid -->
+    <section class="services-section">
+        <div class="container">
+            <div class="services-grid">
+                <!-- Haircuts & Styling -->
+                <div class="service-card">
+                    <div class="service-icon">✂️</div>
+                    <h3>Haircuts & Styling</h3>
+                    <p>Expert cuts and beautiful styles for every occasion</p>
+                    <ul class="service-list">
+                        <li>Women's Haircut</li>
+                        <li>Blow Dry & Styling</li>
+                        <li>Flat Iron / Curling</li>
+                        <li>Special Occasion Styling</li>
+                    </ul>
+                    <a href="haircuts.html" class="btn btn-secondary">Learn More</a>
+                </div>
+
+                <!-- Coloring -->
+                <div class="service-card">
+                    <div class="service-icon">🎨</div>
+                    <h3>Hair Coloring</h3>
+                    <p>Premium color treatments with professional-grade products</p>
+                    <ul class="service-list">
+                        <li>Full Color (Premium Class)</li>
+                        <li>Highlights & Balayage</li>
+                        <li>Toner & Gloss</li>
+                        <li>Color Correction</li>
+                    </ul>
+                    <a href="services.html#coloring" class="btn btn-secondary">View Details</a>
+                </div>
+
+                <!-- Hair Treatments -->
+                <div class="service-card highlighted">
+                    <div class="service-badge">Most Popular</div>
+                    <div class="service-icon">✨</div>
+                    <h3>Hair Therapies</h3>
+                    <p>Restorative treatments for healthy, beautiful hair</p>
+                    <ul class="service-list">
+                        <li>Rhiannon Hair Treatment</li>
+                        <li>Aphrodite Therapy</li>
+                        <li>Olaplex Treatment</li>
+                        <li>Deep Conditioning</li>
+                    </ul>
+                    <a href="hair-therapies.html" class="btn btn-primary">Explore Treatments</a>
+                </div>
+
+                <!-- Eyelashes -->
+                <div class="service-card">
+                    <div class="service-icon">👁️</div>
+                    <h3>Eyelash Extensions</h3>
+                    <p>Beautiful, natural-looking lash extensions</p>
+                    <ul class="service-list">
+                        <li>Hair by Hair Extensions</li>
+                        <li>Volume Lashes</li>
+                        <li>Lash Lift & Tint</li>
+                        <li>Maintenance & Fills</li>
+                    </ul>
+                    <a href="services.html#lashes" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Brands Section -->
+    <section class="brands-section">
+        <div class="container text-center">
+            <h2>We Work With Premium Brands</h2>
+            <div class="ornament"></div>
+            <div class="brands-grid">
+                <div class="brand-item">ALTERNA Haircare</div>
+                <div class="brand-item">Olaplex</div>
+                <div class="brand-item">KYDRA by Phyto</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container text-center">
+            <h2>Ready to Transform Your Look?</h2>
+            <p>Book your appointment today and experience the TREND difference</p>
+            <a href="contact.html" class="btn btn-primary">Book Now</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>TREND</h3>
+                    <p class="footer-tagline">Hair Boutique Studio</p>
+                    <div class="footer-social">
+                        <a href="https://instagram.com/trendbytedi" target="_blank" rel="noopener noreferrer"
+                            aria-label="Instagram">
+                            <span>📷</span>
+                        </a>
+                        <a href="https://facebook.com/trendbytedi" target="_blank" rel="noopener noreferrer"
+                            aria-label="Facebook">
+                            <span>📘</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="gallery.html">Gallery</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li>Sofia, Lozenets</li>
+                        <li>ul. "Krichim" 14A</li>
+                        <li>+359 897 808 090</li>
+                        <li>Mon-Sun: 9:00-20:00</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-copyright">
+                    © 2025 TREND Hair Boutique Studio. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

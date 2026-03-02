@@ -12,7 +12,7 @@ The signature TREND slider breaks images into triangular faces and animates them
 
 ## Canonical Module
 
-The slider code lives at `react-app/src/lib/slider.js`. This is the single source of truth for the React app.
+The slider code lives at `src/lib/slider.js`. This is the single source of truth for the React app.
 
 ### Legacy Files (repo root)
 
@@ -25,7 +25,7 @@ The slider code lives at `react-app/src/lib/slider.js`. This is the single sourc
 - **BAS (Buffer Animation System)** -- `THREE.BAS.ModelBufferGeometry`, `THREE.BAS.BasicAnimationMaterial`
 - **GSAP TweenMax 1.x** -- `TweenMax.to()` for tweening
 
-Load via `<script>` tags in `react-app/index.html` `<head>`, NOT as npm packages:
+Load via `<script>` tags in `index.html` `<head>`, NOT as npm packages:
 
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js"></script>
@@ -100,6 +100,6 @@ On mobile (`useIsMobile()` true), render a CSS crossfade instead of the Three.js
 
 ## Image Loading
 
-- All images come from external CDN URLs (see `src/data/images.json`)
-- Cross-origin is handled automatically by the module for HTTP URLs
+- Slider images are provided by the React app, typically using Vite-imported assets from `src/data/imageImports.js`
+- In the standard setup, images are local files under `src/assets/images/**` bundled by Vite (no external CDN dependency)
 - After each transition, the current image reference is copied (no re-download) and only the next image is fetched

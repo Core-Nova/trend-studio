@@ -9,7 +9,7 @@ description: Integrate, modify, or debug the Three.js triangle slider effect in 
 
 Before writing any slider code, verify:
 
-1. CDN script tags exist in `react-app/index.html` `<head>`:
+1. CDN script tags exist in `index.html` `<head>`:
 
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js"></script>
@@ -17,9 +17,9 @@ Before writing any slider code, verify:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.0/TweenMax.min.js"></script>
 ```
 
-2. The slider module exists at `react-app/src/lib/slider.js`
+2. The slider module exists at `src/lib/slider.js`
 
-3. Image URLs in `react-app/src/data/images.json` use external CDN URLs (not local paths)
+3. Slider images are provided by the React app, typically via Vite-imported assets from `src/data/imageImports.js`
 
 ## Adding a Slider to a Component
 
@@ -110,7 +110,7 @@ The slider is desktop-only. When `useIsMobile()` returns true, render a CSS cros
 
 ## Modifying Images
 
-Edit `src/data/images.json`. All URLs must be external CDN URLs (Imgur). Never reference `public/images/` paths.
+Edit `src/data/imageImports.js` and the files under `src/assets/images/**`. All slider images should be local assets imported by Vite (no external CDN URLs in normal operation).
 
 ## Debugging
 

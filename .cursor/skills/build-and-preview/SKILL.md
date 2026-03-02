@@ -7,12 +7,11 @@ description: Build, preview, and test the TREND website locally. Use when runnin
 
 ## React App
 
-All commands run from the `react-app/` directory.
+All commands run from the repository root (`trend-studio/`).
 
 ### Install Dependencies
 
 ```bash
-cd react-app
 npm install
 ```
 
@@ -30,7 +29,7 @@ Opens at `http://localhost:5173` with hot module replacement.
 npm run build
 ```
 
-Outputs static files to `react-app/dist/`. The output should be small -- only JS, CSS, and HTML bundles. All images load from external CDN URLs at runtime.
+Outputs static files to `dist/`. The output should be small -- only JS, CSS, and HTML bundles plus optimized images built by Vite.
 
 ### Preview Production Build
 
@@ -59,19 +58,13 @@ npm install --save-dev gh-pages
 npm run deploy
 ```
 
-## Vanilla Site (Original)
+## Legacy Vanilla Site (Optional)
 
-The vanilla site lives at the repo root. It uses regular `<script>` tags (not ES modules), so it works directly from the filesystem.
-
-```bash
-open index.html
-```
-
-The vanilla site loads `slider22.js` (legacy IIFE) and CDN-loaded Three.js/BAS/GSAP.
+If you keep the original vanilla HTML/CSS/JS version (for reference or legacy), it should live under a `legacy/` folder and can be opened directly in a browser using regular `<script>` tags (not ES modules).
 
 ## Build Configuration
 
-The React app uses `base: './'` in `react-app/vite.config.js` for relative asset paths. This ensures the build works on GitHub Pages regardless of the repository name.
+The React app uses `base: './'` in `vite.config.js` for relative asset paths. This ensures the build works on GitHub Pages regardless of the repository name.
 
 Key settings:
 - Output: `dist/`
@@ -83,7 +76,7 @@ Key settings:
 
 After building or starting the dev server, verify:
 
-1. Images load from Imgur CDN URLs (not local `public/images/` paths)
+1. Images load correctly from the bundled assets (no broken images)
 2. No WebGL or CORS errors in browser console
 3. Language toggle (EN/BG) persists across page refreshes via localStorage
 4. On mobile viewport (<=768px): Three.js sliders do not initialize

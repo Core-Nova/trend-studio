@@ -1,0 +1,249 @@
+/* ========================================
+   TREND - Services Page Styles
+   Grid-based service card layout
+   ======================================== */
+
+/* Hero Section */
+.hero {
+    position: relative;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 140px 40px 80px;
+    background: linear-gradient(135deg, rgba(201, 164, 86, 0.1) 0%, rgba(10, 10, 10, 1) 100%);
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 30% 40%, rgba(201, 164, 86, 0.15) 0%, transparent 60%),
+        radial-gradient(circle at 70% 60%, rgba(201, 164, 86, 0.1) 0%, transparent 50%);
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+}
+
+.hero-title {
+    font-size: clamp(48px, 6vw, 72px);
+    color: var(--primary-gold);
+    margin-bottom: 20px;
+    text-shadow: 0 2px 20px rgba(201, 164, 86, 0.3);
+}
+
+.hero-subtitle {
+    font-size: clamp(16px, 2vw, 20px);
+    color: rgba(245, 245, 245, 0.8);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Services Section */
+.services-section {
+    padding: 100px 0;
+    background: var(--dark-bg);
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.service-card {
+    position: relative;
+    background: linear-gradient(135deg, rgba(201, 164, 86, 0.05) 0%, rgba(26, 26, 26, 0.5) 100%);
+    border: 1px solid rgba(201, 164, 86, 0.2);
+    border-radius: 12px;
+    padding: 40px 30px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--primary-gold), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.service-card:hover::before {
+    transform: translateX(100%);
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary-gold);
+    box-shadow: 0 15px 40px rgba(201, 164, 86, 0.2);
+    background: linear-gradient(135deg, rgba(201, 164, 86, 0.08) 0%, rgba(26, 26, 26, 0.7) 100%);
+}
+
+.service-card.highlighted {
+    border-color: var(--primary-gold);
+    background: linear-gradient(135deg, rgba(201, 164, 86, 0.1) 0%, rgba(26, 26, 26, 0.6) 100%);
+}
+
+.service-badge {
+    display: inline-block;
+    background: var(--primary-gold);
+    color: var(--dark-bg);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+}
+
+.service-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    filter: grayscale(20%);
+}
+
+.service-card h3 {
+    font-size: 26px;
+    color: var(--light-text);
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+.service-card p {
+    font-size: 15px;
+    color: rgba(245, 245, 245, 0.7);
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+.service-list {
+    list-style: none;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.service-list li {
+    padding: 10px 0;
+    padding-left: 25px;
+    position: relative;
+    color: rgba(245, 245, 245, 0.8);
+    font-size: 14px;
+    border-bottom: 1px solid rgba(201, 164, 86, 0.1);
+}
+
+.service-list li:last-child {
+    border-bottom: none;
+}
+
+.service-list li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: var(--primary-gold);
+    font-size: 12px;
+}
+
+.service-card .btn {
+    width: 100%;
+    max-width: 220px;
+}
+
+/* Brands Section */
+.brands-section {
+    padding: 80px 0;
+    background: var(--accent-dark);
+}
+
+.brands-section h2 {
+    font-size: 36px;
+    color: var(--light-text);
+    margin-bottom: 30px;
+}
+
+.brands-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin-top: 50px;
+}
+
+.brand-item {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--primary-gold);
+    padding: 20px 30px;
+    border: 2px solid rgba(201, 164, 86, 0.3);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    letter-spacing: 2px;
+}
+
+.brand-item:hover {
+    border-color: var(--primary-gold);
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(201, 164, 86, 0.2);
+}
+
+/* CTA Section */
+.cta-section {
+    padding: 100px 0;
+    background: linear-gradient(135deg, rgba(201, 164, 86, 0.1) 0%, var(--dark-bg) 100%);
+    text-align: center;
+}
+
+.cta-section h2 {
+    font-size: 42px;
+    color: var(--light-text);
+    margin-bottom: 20px;
+}
+
+.cta-section p {
+    font-size: 18px;
+    color: rgba(245, 245, 245, 0.8);
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .hero {
+        min-height: 60vh;
+        padding: 120px 24px 60px;
+    }
+
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .brands-grid {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .brand-item {
+        width: 100%;
+        max-width: 280px;
+    }
+}

@@ -1,0 +1,117 @@
+---
+description: High-level architecture patterns for the TREND React app (pages, containers, views, hooks, and data modules)
+alwaysApply: false
+---
+
+# Architecture Patterns
+
+## Layers and Responsibilities
+
+### Pages (`src/pages/**`)
+
+- Define route-level structure and composition
+- Call `usePageSEO` to set per-page title and description
+- Wire together one or more feature containers (hero, gallery, services, prices, reviews, contact)
+- Should not contain low-level layout CSS or business logic
+
+### Containers (`src/components/**/Feature.jsx`)
+
+- Own feature-level state, data loading, and side effects
+- Compose one or more presentational views
+- Call custom hooks from `src/hooks/**`
+- Map data and callbacks into view props
+
+### Views (`src/components/**/FeatureView.jsx`)
+
+- Receive all data and callbacks via props
+- Render JSX only (no data fetching, no side effects)
+- Can be tested in isolation with simple props
+
+### Hooks (`src/hooks/**`)
+
+- Encapsulate reusable logic (data fetching, sliders, responsive behavior, SEO, etc.)
+- Never render JSX
+- Should be small and focused (one responsibility)
+
+### Data & Translations (`src/data/**`, `src/translations/**`)
+
+- `src/data/**` holds structured data (services, images, slider config)
+- `src/translations/**` holds EN/BG translation objects for all UI text and SEO metadata
+- React components consume these modules instead of hardcoding strings
+
+## Container / View Pattern
+
+### Example Structure
+
+```
+src/components/Services/
+  Services.jsx       (container)
+  ServicesView.jsx   (view)
+  Services.css
+```
+
+### Container Example
+
+```jsx
+import { useServices } from '../../hooks/useServices'
+import { ServicesView } from './ServicesView'
+
+export const Services = ({ showSeeAll }) => {
+  const { lang, services, isLoading } = useServices()
+
+  if (isLoading) return null
+
+  return (
+    <ServicesView
+      lang={lang}
+      services={services}
+      showSeeAll={showSeeAll}
+    />
+  )
+}
+```
+
+### View Example
+
+```jsx
+import './Services.css'
+
+export const ServicesView = ({ lang, services, showSeeAll }) => {
+  return (
+    <section className="services">
+      <div className="container">
+        <div className="services-grid">
+          {services.map(service => (
+            <div key={service.id} className="service-card">
+              <h3>{service.name[lang]}</h3>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+```
+
+## When to Split into Container + View
+
+- The component:
+  - Uses multiple hooks
+  - Handles data fetching or transforms
+  - Has several event handlers or side effects
+  - Is becoming hard to read or test
+- In these cases, move logic to `Feature.jsx` and keep `FeatureView.jsx` purely presentational.
+
+## Example Flow
+
+```mermaid
+flowchart TD
+  appRoot["App"] --> router["Router"]
+  router --> page["Page"]
+  page --> usePageSEO["usePageSEO"]
+  page --> container["Container"]
+  container --> hooks["CustomHooks"]
+  container --> view["View"]
+  container --> imageData["imageImports"]
+```
+
