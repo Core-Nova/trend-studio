@@ -90,7 +90,7 @@ export const HeroSlider = ({ images, width, height, delay = 0 }) => {
 ### Key Rules
 
 - NEVER static-import `slider.js` -- always use dynamic `import()` inside `useEffect`
-- Always check `typeof THREE !== 'undefined'` before calling slider functions
+- CDN scripts load asynchronously -- poll for `THREE`/`TweenMax` with `setTimeout` retry instead of checking once and giving up
 - Always return the dispose function from `useEffect` -- it cleans up WebGL resources
 - Skip initialization on mobile -- render a CSS fallback instead
 - Use `useRef` for containers, never query the DOM

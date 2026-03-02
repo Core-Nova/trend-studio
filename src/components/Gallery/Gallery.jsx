@@ -14,24 +14,36 @@ export const Gallery = ({ showSeeAll = false }) => {
   const disposeRef = useRef(null)
 
   useEffect(() => {
-    if (isMobile || typeof THREE === 'undefined') return
+    if (isMobile) return
 
     let mounted = true
+    let pollTimer = null
 
-    import('../../lib/slider.js').then(({ createGallerySliders }) => {
+    const tryInit = () => {
       if (!mounted) return
-      const containers = containerRefs.map(r => r.current).filter(Boolean)
-      if (!containers.length || !data.images.length) return
+      if (typeof THREE === 'undefined') {
+        pollTimer = setTimeout(tryInit, 200)
+        return
+      }
 
-      disposeRef.current = createGallerySliders({
-        containers,
-        images: data.images,
-        staggerDelay: 200
+      import('../../lib/slider.js').then(({ createGallerySliders }) => {
+        if (!mounted) return
+        const containers = containerRefs.map(r => r.current).filter(Boolean)
+        if (!containers.length || !data.images.length) return
+
+        disposeRef.current = createGallerySliders({
+          containers,
+          images: data.images,
+          staggerDelay: 200
+        })
       })
-    })
+    }
+
+    tryInit()
 
     return () => {
       mounted = false
+      if (pollTimer) clearTimeout(pollTimer)
       if (disposeRef.current) disposeRef.current()
       disposeRef.current = null
     }
