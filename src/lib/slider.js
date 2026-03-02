@@ -56,7 +56,7 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
         slideOut.setImage(currentImg)
         slideOut.time = 0
 
-        loadImage(images[nextIndex], slideIn).catch(() => {})
+        loadImage(images[nextIndex], slideIn).catch(() => { })
 
         pendingTimeout = setTimeout(runTransition, 1000)
       }
@@ -72,12 +72,20 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
       if (disposed) return
       pendingTimeout = setTimeout(runTransition, delay + 1000)
     })
-    .catch(() => {})
+    .catch(() => { })
 
   const dispose = () => {
     disposed = true
     if (pendingTimeout) clearTimeout(pendingTimeout)
     root.dispose()
+
+    if (slideOut.material.uniforms.map.value.image) {
+      slideOut.material.uniforms.map.value.dispose()
+    }
+    if (slideIn.material.uniforms.map.value.image) {
+      slideIn.material.uniforms.map.value.dispose()
+    }
+
     slideOut.geometry.dispose()
     slideOut.material.dispose()
     slideIn.geometry.dispose()
@@ -253,8 +261,13 @@ class SlideGeometry extends THREE.BAS.ModelBufferGeometry {
   }
 }
 
-const createSlideMaterial = (phase) =>
-  new THREE.BAS.BasicAnimationMaterial(
+const createSlideMaterial = (phase) => {
+  const texture = new THREE.Texture()
+  texture.generateMipmaps = false
+  texture.minFilter = THREE.LinearFilter
+  texture.magFilter = THREE.LinearFilter
+
+  return new THREE.BAS.BasicAnimationMaterial(
     {
       shading: THREE.FlatShading,
       side: THREE.DoubleSide,
@@ -287,8 +300,9 @@ const createSlideMaterial = (phase) =>
         'transformed += cubicBezier(aStartPosition, aControl0, aControl1, aEndPosition, tProgress);'
       ]
     },
-    { map: new THREE.Texture() }
+    { map: texture }
   )
+}
 
 class THREERoot {
   constructor(container, params) {
