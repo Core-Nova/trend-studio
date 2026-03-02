@@ -19,6 +19,24 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
   let disposed = false
   let pendingTimeout = null
 
+  const resizeToPowerOfTwo = (image) => {
+    const isPowerOfTwo = (value) => (value & (value - 1)) === 0 && value !== 0
+    if (isPowerOfTwo(image.width) && isPowerOfTwo(image.height)) {
+      return image
+    }
+
+    const pow2Width = Math.min(2048, Math.pow(2, Math.floor(Math.log2(image.width))))
+    const pow2Height = Math.min(2048, Math.pow(2, Math.floor(Math.log2(image.height))))
+
+    const canvas = document.createElement('canvas')
+    canvas.width = pow2Width
+    canvas.height = pow2Height
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(image, 0, 0, pow2Width, pow2Height)
+
+    return canvas
+  }
+
   const loadImage = (url, slide) =>
     new Promise((resolve, reject) => {
       const loader = new THREE.ImageLoader()
@@ -26,9 +44,10 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
       loader.load(
         url,
         img => {
-          slide.setImage(img)
+          const potImage = resizeToPowerOfTwo(img)
+          slide.setImage(potImage)
           slide.time = 0
-          resolve(img)
+          resolve(potImage)
         },
         undefined,
         reject
