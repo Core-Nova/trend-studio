@@ -3,6 +3,7 @@ import { translations } from '../translations'
 import servicesData from '../data/services.json'
 
 const SERVICE_ICONS = ['\u2702', '\u2726', '\u2727', '\u2726']
+const PREVIEW_LIMIT = 4
 
 export const useServices = () => {
   const { t } = useLanguage()
@@ -12,7 +13,9 @@ export const useServices = () => {
     icon: SERVICE_ICONS[i] || '\u2726',
     name: t(category.name),
     count: category.items.length,
-    description: t(translations.services.descriptions[i])
+    description: t(translations.services.descriptions[i]),
+    preview: category.items.slice(0, PREVIEW_LIMIT).map(item => t(item.name)),
+    hasMore: category.items.length > PREVIEW_LIMIT
   }))
 
   return {

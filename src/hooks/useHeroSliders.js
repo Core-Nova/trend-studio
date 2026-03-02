@@ -1,7 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { useIsMobile } from './useIsMobile'
 import { imageData } from '../data/imageImports'
-import { createImageSlider } from '../lib/slider'
 
 export const useHeroSliders = () => {
   const isMobile = useIsMobile()
@@ -14,30 +13,29 @@ export const useHeroSliders = () => {
 
     let mounted = true
 
-    const initLeft = () => {
-      if (!mounted || !leftRef.current || !imageData.hero_left.length) return
-      const d = createImageSlider({
-        container: leftRef.current,
-        images: imageData.hero_left,
-        width: 70,
-        height: 105
-      })
-      if (d) disposersRef.current.push(d)
-    }
+    import('../lib/slider.js').then(({ createImageSlider }) => {
+      if (!mounted) return
 
-    const initRight = () => {
-      if (!mounted || !rightRef.current || !imageData.hero_right.length) return
-      const d = createImageSlider({
-        container: rightRef.current,
-        images: imageData.hero_right,
-        width: 70,
-        height: 105
-      })
-      if (d) disposersRef.current.push(d)
-    }
+      if (leftRef.current && imageData.hero_left.length) {
+        const d = createImageSlider({
+          container: leftRef.current,
+          images: imageData.hero_left,
+          width: 70,
+          height: 105
+        })
+        if (d) disposersRef.current.push(d)
+      }
 
-    initLeft()
-    initRight()
+      if (rightRef.current && imageData.hero_right.length) {
+        const d = createImageSlider({
+          container: rightRef.current,
+          images: imageData.hero_right,
+          width: 70,
+          height: 105
+        })
+        if (d) disposersRef.current.push(d)
+      }
+    })
 
     return () => {
       mounted = false

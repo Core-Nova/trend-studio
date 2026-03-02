@@ -307,6 +307,10 @@ section.hero .hero-slider canvas {
     z-index: 3;
     padding: 20px;
     max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
 }
 
 .hero-title {
@@ -490,48 +494,79 @@ section {
 
 .services {
     background: var(--cream);
+    padding: 60px 0;
 }
 
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 1100px;
+    margin-inline: auto;
 }
 
 .service-card {
     background: var(--white);
-    padding: 40px 30px;
-    text-align: center;
+    padding: 24px;
     border: 1px solid transparent;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 @media (hover: hover) {
     .service-card:hover {
         border-color: var(--gold-primary);
         box-shadow: var(--shadow);
-        transform: translateY(-5px);
     }
 }
 
+.service-card__header {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
 .service-icon {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
+    font-size: 2rem;
+    flex-shrink: 0;
+    line-height: 1;
 }
 
 .service-card h3 {
     font-family: var(--font-display);
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 500;
     color: var(--charcoal);
-    margin-bottom: 15px;
+    margin-bottom: 6px;
     letter-spacing: 1px;
 }
 
-.service-card p {
-    font-size: 0.95rem;
+.service-card__desc {
+    font-size: 0.85rem;
     color: var(--gray);
-    line-height: 1.7;
+    line-height: 1.6;
+}
+
+.service-card__preview {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.service-card__preview li {
+    font-size: 0.8rem;
+    color: var(--charcoal);
+    background: var(--cream);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.service-card__more {
+    color: var(--gold-dark);
+    font-style: italic;
+    background: transparent;
+    padding: 4px 8px;
 }
 
 .gallery-section {
@@ -1228,11 +1263,11 @@ section {
 
     .services-grid {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 16px;
     }
 
     .service-card {
-        padding: 30px 24px;
+        padding: 20px;
     }
 
     .price-categories {
@@ -1975,6 +2010,7 @@ section {
     align-items: center;
     justify-content: center;
     padding: 16px;
+    min-height: 52px;
     background: var(--gold-primary);
     color: var(--white);
     font-weight: 600;
@@ -1989,6 +2025,7 @@ section {
     align-items: center;
     justify-content: center;
     width: 56px;
+    min-height: 52px;
     background: var(--charcoal);
     color: var(--gold-primary);
     font-size: 1.4rem;

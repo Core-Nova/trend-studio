@@ -1,5 +1,24 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import { SectionHeader } from '../atoms/SectionHeader'
+
+const ServiceCard = memo(({ icon, name, count, description, preview, hasMore }) => (
+  <div className="service-card">
+    <div className="service-card__header">
+      <span className="service-icon">{icon}</span>
+      <div>
+        <h3>{name} <span className="service-count">({count})</span></h3>
+        <p className="service-card__desc">{description}</p>
+      </div>
+    </div>
+    <ul className="service-card__preview">
+      {preview.map((item, i) => (
+        <li key={i}>{item}</li>
+      ))}
+      {hasMore && <li className="service-card__more">+ more</li>}
+    </ul>
+  </div>
+))
 
 export const ServicesView = ({ sectionTag, title, categories, showSeeAll, seeAllBtn }) => (
   <section id="services" className="services">
@@ -7,11 +26,7 @@ export const ServicesView = ({ sectionTag, title, categories, showSeeAll, seeAll
       <SectionHeader tag={sectionTag} title={title} />
       <div className="services-grid">
         {categories.map(category => (
-          <div key={category.id} className="service-card">
-            <div className="service-icon">{category.icon}</div>
-            <h3>{category.name} <span className="service-count">({category.count})</span></h3>
-            <p>{category.description}</p>
-          </div>
+          <ServiceCard key={category.id} {...category} />
         ))}
       </div>
       {showSeeAll && (
