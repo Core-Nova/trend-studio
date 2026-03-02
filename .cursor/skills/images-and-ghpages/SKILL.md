@@ -1,6 +1,6 @@
 ---
 name: images-and-ghpages
-description: Handle images and other static assets correctly for the TREND React app deployed on GitHub Pages.
+description: Handle images and static assets for the TREND React app on GitHub Pages.
 ---
 
 # Images & GitHub Pages Skill
@@ -17,41 +17,27 @@ description: Handle images and other static assets correctly for the TREND React
    - `src/assets/images/hero-left/`
    - `src/assets/images/hero-right/`
    - `src/assets/images/gallery/`
-2. Use hyphenated filenames with no spaces:
-   - `my-image.jpg`
-3. Import it in `src/data/imageImports.js` and add it to the right array:
+2. Use hyphenated filenames (no spaces): `my-image.jpg`
+3. Import in `src/data/imageImports.js` and add to the right array
+4. If the image should appear in stories, update `allImages` and `STORY_GROUPS`
 
-```js
-import newImage from '../assets/images/gallery/new-image.jpg'
+## Shared Image Constants
 
-export const imageData = {
-  hero_left: [...],
-  hero_right: [...],
-  gallery: [newImage, /* existing images */]
-}
-```
+`imageImports.js` exports:
+- `imageData` -- categorized image arrays
+- `allImages` -- combined flat array of all images
+- `STORY_GROUPS` -- story group definitions with thumbnails and start indices
 
 ## Using Images in Components
 
-- Always import from `imageData` in `src/data/imageImports.js`:
-
 ```jsx
-import { imageData } from '../data/imageImports'
-
-const galleryImages = imageData.gallery
+import { imageData, allImages } from '../data/imageImports'
 ```
 
-- Do not reference `dist/` paths or assume specific hashed filenames.
+Do not reference `dist/` paths or assume specific hashed filenames.
 
-## GitHub Pages Constraints
+## GitHub Pages Config
 
-- Assets are served from the `dist/` folder after `npm run build`
-- Vite rewrites image imports to relative URLs under `assets/`
-- `base: './'` in `vite.config.js` ensures paths work regardless of repo name
-
-## Checklist Before Deploy
-
-- New images are imported via `imageImports.js`
-- No hardcoded `dist/` or repository-specific paths in JSX or CSS
-- The site builds without missing-asset errors
-
+- `base: '/trend-studio/'` in `vite.config.js`
+- Vite rewrites imports to relative URLs under `assets/`
+- Static files in `public/` are copied as-is to `dist/`

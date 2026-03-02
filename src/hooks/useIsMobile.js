@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react'
 export const useIsMobile = (breakpoint = 768) => {
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === 'undefined') return false
-    return window.innerWidth <= breakpoint || 
-           /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    return window.innerWidth <= breakpoint
   })
 
   useEffect(() => {

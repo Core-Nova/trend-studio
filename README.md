@@ -102,39 +102,47 @@ Wrap these in `useEffect` and return the dispose function for proper cleanup.
 
 ## Image Management
 
-### Static Hosting Constraint
+### Vite Import Approach
 
-This site is deployed to GitHub Pages. The build output must remain small and contain only JS/CSS/HTML. All images are served from external CDN URLs.
+All images are stored locally in `src/assets/images/` and imported via Vite at build time. Vite processes them into hashed filenames in `dist/assets/` for cache-busting. No external CDN is needed.
 
 ### Image Configuration
 
-All image URLs are stored in `src/data/images.json`:
+All image imports are centralized in `src/data/imageImports.js`:
 
-```json
-{
-  "hero_left": ["https://i.imgur.com/...jpg", ...],
-  "hero_right": ["https://i.imgur.com/...jpg", ...],
-  "gallery": ["https://i.imgur.com/...jpg", ...]
+```jsx
+import heroLeft1 from '../assets/images/hero-left/1-story.png'
+
+export const imageData = {
+  hero_left: [heroLeft1, ...],
+  hero_right: [...],
+  gallery: [...]
 }
 ```
 
 ### Adding New Images
 
-1. Upload the image to Imgur (or another public CDN that supports CORS)
-2. Copy the direct image URL
-3. Add the URL to the appropriate array in `src/data/images.json`
-4. The slider/gallery will pick it up automatically
+1. Place the image file in the appropriate folder under `src/assets/images/`
+2. Use hyphens in filenames (no spaces): `my-image.jpg`
+3. Add an import line in `src/data/imageImports.js`
+4. Add the imported variable to the appropriate array in `imageData`
+5. The slider/gallery will pick it up automatically
 
-### Local Backups
+### File Structure
 
-The `public/images/` folder contains local copies of all images organized by section (`hero-left/`, `hero-right/`, `gallery/`). These are for reference and backup only -- they are NOT used in production.
+```
+src/assets/images/
+  hero-left/    (4 portrait images for left hero slider)
+  hero-right/   (4 portrait images for right hero slider)
+  gallery/      (4 images for gallery section)
+```
 
 ## Architecture Decisions
 
 | Decision | Rationale |
 |---|---|
 | Three.js r73 via CDN | BAS extension requires old geometry API; not available on npm |
-| External image URLs | GitHub Pages has size limits; images on CDN load faster globally |
+| Vite image imports | Images bundled at build time via `src/data/imageImports.js`, served same-origin |
 | Desktop-only sliders | WebGL is too heavy on mobile; CSS crossfade provides smooth fallback |
 | `base: './'` in Vite | Relative paths work regardless of the repo name on GitHub Pages |
 | No source maps in prod | Smaller deployment, faster page loads |
@@ -150,7 +158,7 @@ react-app/
   src/
     components/        # React components (one per folder)
     contexts/          # React contexts (LanguageContext)
-    data/              # JSON data (images.json, services.json)
+    data/              # Data modules (imageImports.js, services.json)
     hooks/             # Custom hooks (useIsMobile)
     lib/               # Shared modules
       slider.js        # Three.js triangle slider (canonical source)

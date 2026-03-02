@@ -1,28 +1,33 @@
 import { useState } from 'react'
+import { SectionHeader } from '../atoms/SectionHeader'
 
-const PriceTag = ({ eur, bgn, note }) => (
+const PriceTag = ({ eur, note }) => (
   <span className="price-tag">
     {note && <span className="price-tag__note">{note} </span>}
     <span className="price-tag__eur">{eur.toFixed(2)} EUR</span>
-    <span className="price-tag__sep"> / </span>
-    <span className="price-tag__bgn">{bgn.toFixed(2)} лв.</span>
   </span>
 )
 
-const ServiceItem = ({ name, duration, priceEur, priceBgn, note, options }) => {
+const ServiceItem = ({ name, duration, priceEur, note, options }) => {
   const [expanded, setExpanded] = useState(false)
+  const toggle = () => setExpanded(prev => !prev)
 
   return (
     <div className={`price-service ${expanded ? 'price-service--expanded' : ''}`}>
-      <div className="price-service__header" onClick={options ? () => setExpanded(!expanded) : undefined}>
+      <div className="price-service__header">
         <div className="price-service__info">
           <span className="price-service__name">{name}</span>
           <span className="price-service__duration">{duration}</span>
         </div>
         <div className="price-service__price">
-          <PriceTag eur={priceEur} bgn={priceBgn} note={note} />
+          <PriceTag eur={priceEur} note={note} />
           {options && (
-            <button className="price-service__toggle" aria-label="Toggle options">
+            <button
+              className="price-service__toggle"
+              aria-label="Toggle options"
+              aria-expanded={expanded}
+              onClick={toggle}
+            >
               {expanded ? '\u25B2' : '\u25BC'}
             </button>
           )}
@@ -34,7 +39,7 @@ const ServiceItem = ({ name, duration, priceEur, priceBgn, note, options }) => {
             <li key={i} className="price-option">
               <span className="price-option__name">{opt.name}</span>
               <span className="price-option__duration">{opt.duration}</span>
-              <PriceTag eur={opt.eur} bgn={opt.bgn} />
+              <PriceTag eur={opt.eur} />
             </li>
           ))}
         </ul>
@@ -46,11 +51,7 @@ const ServiceItem = ({ name, duration, priceEur, priceBgn, note, options }) => {
 export const PricesView = ({ sectionTag, title, categories, note, ctaText, ctaUrl }) => (
   <section id="prices" className="prices">
     <div className="container">
-      <div className="section-header">
-        <span className="section-tag">{sectionTag}</span>
-        <h2 className="section-title">{title}</h2>
-        <div className="ornament"></div>
-      </div>
+      <SectionHeader tag={sectionTag} title={title} />
       <div className="price-categories">
         {categories.map(category => (
           <div key={category.id} className="price-category">

@@ -1,102 +1,56 @@
 ---
-description: SEO guidelines for the TREND React SPA on GitHub Pages
+description: SEO guidelines for the TREND React SPA
 alwaysApply: false
 ---
 
 # SEO Guidelines
 
-## Hosting & SEO Limits
+## Per-Page SEO (Required)
 
-- The site is a **client-rendered Vite SPA** hosted on **GitHub Pages**
-- There is no SSR, so:
-  - Initial HTML is mostly the root shell from `index.html`
-  - Some crawlers may not execute client-side JavaScript
-- SEO work focuses on:
-  - High-quality baseline metadata in `index.html`
-  - Clean URLs, internal linking, and semantics
-  - Fast, stable layout (LCP/CLS)
-
-## Baseline Metadata (`index.html`)
-
-- `index.html` defines the default:
-  - `<title>`
-  - `<meta name="description">`
-  - Open Graph tags (`og:title`, `og:description`, `og:image`, `og:url`, `og:site_name`)
-  - Twitter cards
-  - Canonical URL
-  - JSON-LD for the salon entity
-- When editing `index.html`, keep these in sync with `translations.seo` where possible.
-
-## Per-Page SEO with `usePageSEO`
-
-- Hook: `src/hooks/usePageSEO.js`
-- Usage pattern in pages:
+Every page must call `usePageSEO`:
 
 ```jsx
-import { useLanguage } from '../contexts/LanguageContext'
-import { translations } from '../translations'
-import { usePageSEO } from '../hooks/usePageSEO'
-
-export const AboutPage = () => {
-  const { t } = useLanguage()
-
-  usePageSEO({
-    title: t(translations.seo.aboutTitle),
-    description: t(translations.seo.aboutDescription)
-  })
-
-  return (
-    <div className="page-content">
-      {/* content */}
-    </div>
-  )
-}
+usePageSEO({
+  title: t(translations.seo.someTitle),
+  description: t(translations.seo.someDescription)
+})
 ```
 
-- `usePageSEO` updates:
-  - `document.title`
-  - `meta[name="description"]`
-  - `meta[property="og:description"]`
-  - `meta[name="twitter:description"]`
-  - `meta[property="og:title"]`
-  - `meta[name="twitter:title"]`
+This hook updates `document.title`, meta description, OG tags, Twitter cards, `og:url`, and canonical link.
 
-## Translated SEO Text
+All SEO strings live in `translations.seo` in `src/translations/index.js`. For new pages, add both `Title` and `Description` entries for EN/BG.
 
-- All SEO strings live in `translations.seo` in `src/translations/index.js`
-- For any new page or major section:
-  - Add `Title` and `Description` entries for EN/BG under `translations.seo`
-  - Use `t(translations.seo.someKey)` in the corresponding page with `usePageSEO`
+## Baseline Metadata
 
-## On-Page SEO Checklist for New Pages
-
-- Unique, descriptive `title` and `description` via `usePageSEO`
-- Semantic headings:
-  - One main `<h1>` per page
-  - Logical hierarchy of `<h2>`, `<h3>` for sections
-- Images:
-  - Use meaningful `alt` text where appropriate
-  - Avoid layout shifts by constraining width/height via CSS
-- Links:
-  - Use `Link` from `react-router-dom` for internal navigation
-  - Ensure important pages are reachable via internal links from the homepage
-
-## Performance & UX (SEO-Relevant)
-
-- Optimize Largest Contentful Paint (LCP):
-  - Avoid blocking the hero area with unnecessary scripts
-  - Prefer Vite imports and code-splitting for non-critical sections
-- Avoid Cumulative Layout Shift (CLS):
-  - Reserve space for hero, sliders, and gallery using fixed heights or aspect-ratio containers
-  - Do not inject large DOM blocks above the fold after initial render
-- Use `loading="lazy"` on non-critical images (e.g., galleries, preview cards)
+`index.html` provides defaults for: title, description, OG tags, Twitter cards, canonical, hreflang, and JSON-LD.
 
 ## Structured Data
 
-- The primary JSON-LD for the salon lives in `index.html`
-- When adjusting services or hours:
-  - Prefer updating the JSON-LD in `index.html` to keep the canonical entity accurate
-- Route-specific JSON-LD is optional; if added, ensure it:
-  - Mirrors the same entity (no conflicting data)
-  - Is injected only once per page
+JSON-LD in `index.html` includes:
+- HairSalon entity with address, phone, hours
+- `aggregateRating` (5.0 stars, 57 reviews)
+- Service catalog with EUR prices
+- `sameAs` links to Instagram and Studio24
 
+When updating services, hours, or rating -- update the JSON-LD too.
+
+## Google Reviews
+
+- Hardcoded reviews in `src/data/reviews.js`
+- `RatingBadge` component shows the 5.0 rating
+- `ReviewsCarousel` rotates through reviews
+- Update `reviews.js` and `aggregateRating` in JSON-LD when new reviews come in
+
+## On-Page Checklist
+
+- Unique title + description via `usePageSEO`
+- Semantic headings (one `<h1>` per page)
+- Meaningful `alt` text on images
+- Internal links via `<Link>` from react-router-dom
+- `loading="lazy"` on non-critical images
+- Stable layout (reserve space for hero/sliders)
+
+## Static SEO Files
+
+- `public/robots.txt` with sitemap reference
+- `public/sitemap.xml` listing all routes

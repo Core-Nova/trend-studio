@@ -1,0 +1,76 @@
+MOBILE TILE GRID - COMPONENT SPEC
+===================================
+
+LAYOUT (2x2 grid):
+
+    20px padding
+    |                                      |
+    |  +----------------+  +----------------+
+    |  |                |  |                |
+    |  |     [icon]     |  |     [icon]     |
+    |  |     TITLE      |  |     TITLE      |
+    |  |                |  |                |
+    |  +----------------+  +----------------+
+    |         12px gap
+    |  +----------------+  +----------------+
+    |  |                |  |                |
+    |  |     [icon]     |  |     [icon]     |
+    |  |     TITLE      |  |     TITLE      |
+    |  |                |  |                |
+    |  +----------------+  +----------------+
+    |                                      |
+
+
+SINGLE TILE (detail):
+
+    +--------------------------------+
+    |         28px padding top       |
+    |                                |
+    |          [icon]                |  <- 2rem, gold (#C9A227)
+    |          12px gap              |
+    |          TITLE                 |  <- 0.85rem, white, uppercase
+    |                                |     letter-spacing: 2px
+    |         28px padding bottom    |     font-family: Montserrat
+    +--------------------------------+
+       border-radius: 8px
+       background: #2C2C2C (charcoal)
+       min-height: 120px
+
+
+TILES DATA:
+
+    +--------+-----------+----------+---------+
+    | Route  | Title EN  | Title BG | Icon    |
+    +--------+-----------+----------+---------+
+    | /gallery | Gallery | Галерия  | star    |
+    | /services| Services| Услуги   | scissors|
+    | /about   | About   | За нас   | diamond |
+    | /contact | Contact | Контакти | phone   |
+    +--------+-----------+----------+---------+
+
+
+INTERACTION STATES:
+
+    Default:    bg #2C2C2C, border transparent
+    Tap/Active: bg #2C2C2C, border 1px solid #C9A227
+    Focus:      outline 2px solid #C9A227, offset 2px
+
+
+COMPARISON WITH CURRENT DESIGN:
+
+    BEFORE (image cards):
+    +--------+-------------------+
+    | [photo]| Gallery           |
+    |        | Our latest work   |
+    |        | See More ->       |
+    +--------+-------------------+
+    Problems: slow (loads 5-10MB images),
+    cluttered, text hard to read
+
+    AFTER (icon tiles):
+    +----------------+  +----------------+
+    |     [star]     |  |  [scissors]   |
+    |    GALLERY     |  |   SERVICES    |
+    +----------------+  +----------------+
+    Benefits: instant load, clean,
+    clear tap targets, no images needed

@@ -10,13 +10,12 @@ import { Services } from '../components/Services/Services'
 import { Prices } from '../components/Prices/Prices'
 import { Reviews } from '../components/Reviews/Reviews'
 import { Contact } from '../components/Contact/Contact'
-import { imageData } from '../data/imageImports'
 
-const PREVIEW_CARDS = [
-  { to: '/gallery', titleKey: 'gallery', descKey: 'previewGallery', image: imageData.gallery[0] },
-  { to: '/services', titleKey: 'services', descKey: 'previewServices', image: imageData.hero_left[0] },
-  { to: '/about', titleKey: 'about', descKey: 'previewAbout', image: imageData.hero_right[0] },
-  { to: '/contact', titleKey: 'contact', descKey: 'previewContact', image: imageData.hero_left[1] },
+const NAV_TILES = [
+  { to: '/gallery', titleKey: 'gallery', icon: '\u2606' },
+  { to: '/services', titleKey: 'services', icon: '\u2702' },
+  { to: '/about', titleKey: 'about', icon: '\u2726' },
+  { to: '/contact', titleKey: 'contact', icon: '\u260E' },
 ]
 
 export const HomePage = () => {
@@ -32,19 +31,11 @@ export const HomePage = () => {
     return (
       <>
         <Hero />
-        <div className="mobile-previews">
-          {PREVIEW_CARDS.map(card => (
-            <Link key={card.to} to={card.to} className="mobile-preview-card">
-              <div className="mobile-preview-card__image">
-                <img src={card.image} alt="" loading="lazy" />
-              </div>
-              <div className="mobile-preview-card__content">
-                <h3>{t(translations.nav[card.titleKey])}</h3>
-                <p>{t(translations.mobile[card.descKey])}</p>
-                <span className="mobile-preview-card__link">
-                  {t(translations.mobile.seeMore)} &rarr;
-                </span>
-              </div>
+        <div className="mobile-tiles">
+          {NAV_TILES.map(tile => (
+            <Link key={tile.to} to={tile.to} className="mobile-tile">
+              <span className="mobile-tile__icon">{tile.icon}</span>
+              <span className="mobile-tile__title">{t(translations.nav[tile.titleKey])}</span>
             </Link>
           ))}
         </div>

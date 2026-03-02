@@ -1,166 +1,59 @@
 ---
-description: Bilingual support patterns for English and Bulgarian
-globs: "**/*.jsx,**/*.tsx"
-alwaysApply: false
+description: Bilingual EN/BG translation patterns
+alwaysApply: true
 ---
 
-# Internationalization (i18n) Patterns
+# i18n Patterns
 
-## Project Requirements
-TREND supports English (EN) and Bulgarian (BG) languages with localStorage persistence.
+## Translation Structure
 
-## Translation Data Structure
-
-Store translations in structured objects:
+All translations live in `src/translations/index.js` as a flat object with nested keys:
 
 ```js
-export const servicesTranslations = {
-  haircuts: {
-    en: "Haircuts & Styling",
-    bg: "Подстригване и прически"
+export const translations = {
+  nav: {
+    home: { en: 'Home', bg: 'Начало' },
+    ...
   },
-  coloring: {
-    en: "Coloring",
-    bg: "Боядисване"
-  },
-  treatments: {
-    en: "Hair Treatments",
-    bg: "Терапии за коса"
+  seo: {
+    title: { en: '...', bg: '...' },
+    ...
   }
 }
 ```
 
-## Translation Hook Pattern
+Every translatable string is an object with `en` and `bg` keys.
+
+## Using Translations
 
 ```jsx
-export const useTranslation = () => {
-  const [lang, setLang] = useState(() => 
-    localStorage.getItem('trendLang') || 'en'
-  )
-  
-  const t = (translations) => {
-    return translations[lang] || translations.en
-  }
-  
-  const changeLanguage = (newLang) => {
-    setLang(newLang)
-    localStorage.setItem('trendLang', newLang)
-    document.documentElement.lang = newLang
-  }
-  
-  return { lang, t, changeLanguage }
-}
+import { useLanguage } from '../contexts/LanguageContext'
+import { translations } from '../translations'
+
+const { t } = useLanguage()
+const text = t(translations.section.key)
 ```
 
-## Usage in Components
+`t()` returns the string for the current language, falling back to `en`.
 
-```jsx
-import { useTranslation } from '../hooks/useTranslation'
+## LanguageContext
 
-export const ServiceCard = ({ service }) => {
-  const { t } = useTranslation()
-  
-  return (
-    <div className="service-card">
-      <h3>{t(service.name)}</h3>
-      <p>{t(service.description)}</p>
-    </div>
-  )
-}
-```
+- Provider wraps the entire app
+- State persisted to `localStorage` as `trendLang`
+- `document.documentElement.lang` updated on change
 
-## Language Context Pattern
+## Adding New Translations
 
-For app-wide language state:
+1. Add keys to `translations` in `src/translations/index.js`
+2. Use `t(translations.section.newKey)` in the component
+3. For new pages, add SEO keys under `translations.seo`
 
-```jsx
-import { createContext, useContext, useState } from 'react'
+## Pricing
 
-const LanguageContext = createContext()
+Display EUR only. Services data in `services.json` contains both EUR and BGN but only EUR is shown.
 
-export const LanguageProvider = ({ children }) => {
-  const [lang, setLang] = useState(() => 
-    localStorage.getItem('trendLang') || 'en'
-  )
-  
-  const changeLanguage = (newLang) => {
-    setLang(newLang)
-    localStorage.setItem('trendLang', newLang)
-    document.documentElement.lang = newLang
-  }
-  
-  return (
-    <LanguageContext.Provider value={{ lang, changeLanguage }}>
-      {children}
-    </LanguageContext.Provider>
-  )
-}
+## Contact Translations
 
-export const useLanguage = () => useContext(LanguageContext)
-```
-
-## Language Switcher Component
-
-```jsx
-export const LanguageToggle = () => {
-  const { lang, changeLanguage } = useLanguage()
-  
-  return (
-    <div className="lang-toggle">
-      <button 
-        className={lang === 'en' ? 'active' : ''}
-        onClick={() => changeLanguage('en')}
-      >
-        EN
-      </button>
-      <span className="divider">|</span>
-      <button 
-        className={lang === 'bg' ? 'active' : ''}
-        onClick={() => changeLanguage('bg')}
-      >
-        BG
-      </button>
-    </div>
-  )
-}
-```
-
-## Translation Files Organization
-
-```
-src/
-  translations/
-    index.js
-    common.js
-    services.js
-    navigation.js
-    contact.js
-```
-
-## Price Formatting by Locale
-
-```jsx
-const formatPrice = (amount, lang) => {
-  return new Intl.NumberFormat(
-    lang === 'bg' ? 'bg-BG' : 'en-US',
-    { style: 'currency', currency: 'EUR' }
-  ).format(amount)
-}
-```
-
-## Dynamic Content Pattern
-
-```jsx
-const serviceContent = {
-  name: {
-    en: "Women's Haircut",
-    bg: "Дамско подстригване"
-  },
-  priceNote: {
-    en: "from",
-    bg: "от"
-  }
-}
-
-<span>{t(serviceContent.priceNote)} {price}</span>
-```
+Phone, Viber, and call button text are under `translations.contact`:
+- `contact.viber` -- Viber chat button text
+- `contact.callBtn` -- Call button text

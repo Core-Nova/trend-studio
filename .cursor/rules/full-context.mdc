@@ -1,0 +1,17 @@
+---
+description: Always read full file contents before editing
+alwaysApply: true
+---
+
+# Full Context Rule
+
+When working on this codebase, always read the complete contents of files before making changes. Do not assume file contents from memory or prior conversation context.
+
+Key files to read before any component work:
+- `src/App.jsx` (router structure)
+- `src/lib/slider.js` (Three.js slider module)
+- `src/data/imageImports.js` (image manifest)
+- `src/index.css` (all styles)
+- `src/translations/index.js` (all bilingual strings)
+
+When editing a component, always read both the component file AND its associated hook and view files.

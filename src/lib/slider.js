@@ -82,11 +82,12 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
     })
   }
 
-  loadImage(images[0], slideOut)
-    .then(() => {
-      if (disposed || images.length < 2) return
-      return loadImage(images[1], slideIn)
-    })
+  const initialLoads = [loadImage(images[0], slideOut)]
+  if (images.length >= 2) {
+    initialLoads.push(loadImage(images[1], slideIn))
+  }
+
+  Promise.all(initialLoads)
     .then(() => {
       if (disposed) return
       pendingTimeout = setTimeout(runTransition, delay + 1000)

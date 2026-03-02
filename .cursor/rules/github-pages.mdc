@@ -1,5 +1,5 @@
 ---
-description: GitHub Pages deployment and static hosting constraints for the TREND React app
+description: GitHub Pages deployment constraints
 alwaysApply: true
 ---
 
@@ -7,67 +7,35 @@ alwaysApply: true
 
 ## Hosting Model
 
-- The site is deployed as a **static Vite build** to **GitHub Pages**
-- Build output lives in the `dist/` folder
-- There is **no server-side rendering** and **no custom backend**
+- Static Vite build deployed to GitHub Pages
+- Build output: `dist/` folder
+- No server-side rendering, no custom backend
 
 ## Deployment Workflow
 
-- GitHub Actions workflow: `.github/workflows/deploy.yml`
-- Triggered on:
-  - Push to `main` or `master`
-  - Manual workflow dispatch
-- Steps:
-  - `npm ci`
-  - `npm run build`
-  - Upload `dist/` as the Pages artifact
+GitHub Actions workflow: `.github/workflows/deploy.yml`
+- Triggered on push to `main`/`master` or manual dispatch
+- Steps: `npm ci` -> `npm run build` -> upload `dist/`
 
 ## Vite Configuration
 
-- Config file: `vite.config.js`
-- Key settings:
-  - `base: './'` so asset URLs are relative and work for any repo name
-  - `build.outDir = 'dist'`
-  - `build.assetsDir = 'assets'`
+- `base: '/trend-studio/'` for repo subpath
+- `build.outDir = 'dist'`
+- Build script copies `index.html` to `404.html` for SPA fallback
 
-## SPA Routing Constraints
+## Static Files
 
-- The app is a **client-rendered SPA**
-- Refreshing a deep link must still serve `index.html`
-- The build step copies:
-  - `dist/index.html` → `dist/404.html`
-- This ensures GitHub Pages returns the SPA shell on unknown routes
+- `public/robots.txt` is copied to `dist/robots.txt`
+- `public/sitemap.xml` is copied to `dist/sitemap.xml`
 
-## What You Can and Cannot Do
+## SPA Routing
 
-### Allowed
-
-- Client-side routing with `react-router-dom`
-- Static assets bundled by Vite (JS, CSS, images, fonts)
-- Third-party browser APIs (Google Maps iframe, localStorage, etc.)
-
-### Not Allowed
-
-- No server-side code (Node/Express, server routes, database access)
-- No dynamic rewriting rules beyond the `404.html` SPA fallback trick
-- No runtime environment variables from the server (use build-time config instead)
+- Client-side routing with `react-router-dom` `BrowserRouter`
+- `basename={import.meta.env.BASE_URL}` in BrowserRouter
+- Deep link refresh works via `404.html` SPA fallback
 
 ## Local Testing
 
-- During development:
-  - Use `npm run dev` for the Vite dev server
-- For production build testing:
-  - Use `npm run build` and then `npm run preview`
-  - Do **not** open `dist/index.html` via `file://` (module scripts will fail)
-
-## Common Issues
-
-- **Blank page on GitHub Pages**:
-  - Check that `base: './'` is set in `vite.config.js`
-  - Confirm that `dist/` contains `index.html`, `404.html`, and `assets/`
-- **404 on refresh for nested routes**:
-  - Ensure the build script still copies `index.html` to `404.html`
-- **Broken images**:
-  - Use Vite imports from `src/assets/**` (see `static-hosting.mdc` and `imageImports.js`)
-  - Avoid absolute paths that assume a specific repo name
-
+- Dev: `npm run dev`
+- Production preview: `npm run build && npm run preview`
+- Do NOT open `dist/index.html` via `file://`

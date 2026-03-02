@@ -1,13 +1,10 @@
 import { Link } from 'react-router-dom'
+import { SectionHeader } from '../atoms/SectionHeader'
 
 export const ServicesView = ({ sectionTag, title, categories, showSeeAll, seeAllBtn }) => (
   <section id="services" className="services">
     <div className="container">
-      <div className="section-header">
-        <span className="section-tag">{sectionTag}</span>
-        <h2 className="section-title">{title}</h2>
-        <div className="ornament"></div>
-      </div>
+      <SectionHeader tag={sectionTag} title={title} />
       <div className="services-grid">
         {categories.map(category => (
           <div key={category.id} className="service-card">

@@ -13,6 +13,11 @@ export default defineConfig({
     })
   ],
   base: '/trend-studio/',
+  test: {
+    environment: 'happy-dom',
+    globals: true,
+    setupFiles: ['./src/__tests__/setup.js']
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

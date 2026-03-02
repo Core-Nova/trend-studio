@@ -7,57 +7,27 @@ alwaysApply: true
 
 ## Core Constraint
 
-This site is deployed to **GitHub Pages** -- a pure static host. The build output (`dist/`) contains JS, CSS, HTML, and optimized images. Everything is self-contained with no external CDN dependencies for images.
+Deployed to **GitHub Pages** -- pure static host. Build output (`dist/`) contains JS, CSS, HTML, and optimized images. Everything is self-contained.
 
 ## Image Management via Vite Imports
 
-Images are stored in `src/assets/images/` and imported via Vite at build time. Vite processes them into hashed filenames in `dist/assets/` for cache-busting.
-
-### Image manifest file
-
-All image imports are centralized in `src/data/imageImports.js`:
-
-```jsx
-import heroLeft1 from '../assets/images/hero-left/1-story.png'
-
-export const imageData = {
-  hero_left: [heroLeft1, ...],
-  hero_right: [...],
-  gallery: [...]
-}
-```
+Images in `src/assets/images/` are imported via Vite. All imports centralized in `src/data/imageImports.js`.
 
 ### Adding new images
 
-1. Place the image file in the appropriate folder under `src/assets/images/`
-2. Use hyphens in filenames (no spaces): `my-image.jpg`
-3. Add an import line in `src/data/imageImports.js`
-4. Add the imported variable to the appropriate array in `imageData`
+1. Place file in `src/assets/images/` (use hyphens, no spaces)
+2. Add import in `src/data/imageImports.js`
+3. Add to the appropriate array in `imageData`
 
-### Using images in components
+### Shared image constants
 
-```jsx
-import { imageData } from '../data/imageImports'
-
-const galleryImages = imageData.gallery
-```
-
-Images resolve to hashed URLs at build time (e.g., `./assets/1-story-a3f2b1c.png`). No CORS issues since they're same-origin.
-
-### File structure
-
-```
-src/assets/images/
-  hero-left/     (4 portrait images for left hero slider)
-  hero-right/    (4 portrait images for right hero slider)
-  gallery/       (4 images for gallery section)
-```
+`allImages` and `STORY_GROUPS` are exported from `imageImports.js` for use across Gallery components and pages.
 
 ## Vite Build Configuration
 
 ```js
 export default defineConfig({
-  base: './',
+  base: '/trend-studio/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -66,17 +36,14 @@ export default defineConfig({
 })
 ```
 
-`base: './'` ensures relative paths work on GitHub Pages regardless of repo name.
+`base: '/trend-studio/'` matches the GitHub Pages subpath deployment.
 
-The build also copies `index.html` to `404.html` for SPA fallback with BrowserRouter.
+The build copies `index.html` to `404.html` for SPA fallback with BrowserRouter.
 
-## Deployment
+## Static SEO Files
 
-GitHub Actions workflow (`.github/workflows/deploy.yml`) handles deployment:
-
-1. Push to `main` or `master` triggers the workflow
-2. Runs `npm ci && npm run build`
-3. Uploads `dist/` to GitHub Pages
+- `public/robots.txt` -- crawl rules and sitemap reference
+- `public/sitemap.xml` -- static sitemap with all routes
 
 ## What Goes Where
 
@@ -85,5 +52,5 @@ GitHub Actions workflow (`.github/workflows/deploy.yml`) handles deployment:
 | JS/CSS/HTML bundles | `dist/assets/` | GitHub Pages |
 | Salon images | `dist/assets/` (Vite-processed) | GitHub Pages |
 | Google Fonts | Google Fonts CDN | `<link>` in `index.html` |
-| Three.js / BAS / GSAP | CDN script tags | `<script defer>` in `index.html` |
-| Original images backup | `public/images/` | Not used in production |
+| Three.js / BAS / GSAP | CDN script tags | `<script>` in `index.html` |
+| robots.txt, sitemap.xml | `dist/` (from `public/`) | GitHub Pages |

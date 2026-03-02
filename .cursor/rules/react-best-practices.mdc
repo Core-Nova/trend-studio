@@ -1,71 +1,56 @@
 ---
-description: React and Vite best practices for the TREND project
+description: React and Vite best practices for the TREND app
 alwaysApply: true
 ---
 
 # React Best Practices
 
 ## Project Context
-This is the TREND Hair Boutique Studio website - a luxury hairdressing salon site with baroque-inspired design, bilingual support (EN/BG), and interactive Three.js animations.
+
+TREND Hair Boutique Studio website -- luxury hairdressing salon with baroque-inspired design, bilingual support (EN/BG), Three.js animations on desktop, deployed to GitHub Pages.
 
 ## Core Principles
 
-### Functional Programming
-- **Always use functional components** with hooks
-- Prefer pure functions and immutability
+- Functional components with hooks only
 - Extract reusable logic into custom hooks
-- Avoid class components entirely
-
-### Code Organization
-- One component per file
-- Colocate related files (component, styles, tests)
-- Use named exports for components
+- Named exports for components
 - Keep components under 200 lines
 
-### Performance
-- Use `React.memo()` for expensive renders
-- Implement `useMemo()` and `useCallback()` appropriately
-- Lazy load routes and heavy components
-- Optimize images and assets
+## SEO
 
-### State Management
-- Start with `useState` and `useContext`
-- Lift state only when necessary
-- Use custom hooks for complex state logic
-- Consider context for global state (language, theme)
+Every page must call `usePageSEO({ title, description })` with values from `translations.seo`. New pages require adding SEO keys to translations.
+
+## Pricing
+
+Display EUR only. Do not show BGN or dual currency.
+
+## Contact
+
+- Phone: 0888 599 590 (international: +359 888 599 590)
+- Viber link: `viber://chat?number=%2B359888599590`
+- Booking: https://studio24.bg/hair-boutique-studio-trend-s4258
 
 ## Code Style
 
-### No Comments in Code
-Do not add any comments to the code:
-- No JSDoc comments
-- No inline comments
-- No explanatory comments
-- Code should be self-documenting with clear variable and function names
+### No Comments, No Emojis
 
-### No Emojis
-Do not use emojis in code files:
-- Not in comments
-- Not in strings or JSX content
-- Not in console.log statements
-- Use text only
+- No JSDoc, no inline comments, no explanatory comments
+- No emojis in code files
+- Code should be self-documenting
 
 ### Component Structure
+
 ```jsx
 import { useState, useEffect } from 'react'
 import './Component.css'
 
 export const Component = ({ prop1, prop2 }) => {
   const [state, setState] = useState(initialValue)
-  
+
   useEffect(() => {
     performSideEffect()
   }, [dependencies])
-  
-  const handleEvent = () => {
-    updateState()
-  }
-  
+
   return (
     <div className="component">
       <h1>{prop1}</h1>
@@ -75,47 +60,19 @@ export const Component = ({ prop1, prop2 }) => {
 ```
 
 ### Props Destructuring
-```jsx
-// ✅ GOOD - Destructure props
-export const Header = ({ title, subtitle, lang }) => {
-  return <h1>{title}</h1>
-}
 
-// ❌ BAD - Using props object
-export const Header = (props) => {
-  return <h1>{props.title}</h1>
-}
-```
-
-## External Dependencies (CDN)
-
-Three.js, BAS, and GSAP are loaded via `<script>` tags in `index.html`, not as npm packages. They are available as globals (`THREE`, `TweenMax`, `Power0`).
-
-- Always guard access with `typeof THREE !== 'undefined'` before using
-- These globals are not available during SSR or tests — skip slider logic in those environments
-
-## WebGL Resource Cleanup
-
-Components that create Three.js renderers, geometries, materials, or textures must dispose them on unmount:
-
-```jsx
-useEffect(() => {
-  const renderer = new THREE.WebGLRenderer({ alpha: true })
-
-  return () => {
-    renderer.dispose()
-    geometry.dispose()
-    material.dispose()
-    if (texture) texture.dispose()
-    window.removeEventListener('resize', handleResize)
-  }
-}, [])
-```
-
-Failing to dispose WebGL resources causes context leaks — browsers limit the number of active WebGL contexts.
+Always destructure props in function parameters.
 
 ## Vite Configuration
-- Use `base: './'` for GitHub Pages compatibility
-- Configure build output to `dist` folder
-- Optimize for production builds with minification
-- Use relative paths for assets
+
+- `base: '/trend-studio/'` for GitHub Pages subpath
+- Build output: `dist` folder
+- Minification: terser
+- Image optimization via `vite-plugin-image-optimizer`
+
+## Three.js Integration
+
+- CDN scripts loaded conditionally (desktop only, width > 768)
+- Guard with `typeof THREE !== 'undefined'`
+- Dispose WebGL resources on unmount
+- Use `s.async = false` for ordered script loading

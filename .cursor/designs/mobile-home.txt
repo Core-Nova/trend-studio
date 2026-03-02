@@ -1,0 +1,70 @@
+MOBILE HOME PAGE - DESIGN SPEC
+==============================
+Viewport: 390 x 844 (iPhone 14 Pro)
+
+Full page scroll layout:
+
++------------------------------------------+  <- navbar (fixed, 56px)
+| TREND              [hamburger]           |
++------------------------------------------+
+
++------------------------------------------+  <- hero (100svh)
+|                                          |
+|     [image crossfade background]         |
+|     [dark overlay]                       |
+|                                          |
+|              TREND                       |  <- gold, 5rem, Cormorant
+|       Hair Boutique Studio               |  <- white, italic
+|   Where elegance meets artistry          |  <- gray, uppercase
+|                                          |
+|     +----------------------------+       |
+|     |    BOOK APPOINTMENT        |       |  <- gold bg, full width
+|     +----------------------------+       |
+|                                          |
+|              [scroll]                    |
++------------------------------------------+
+
++------------------------------------------+  <- nav tiles (cream bg)
+|  padding: 20px                           |
+|  gap: 12px                               |
+|                                          |
+|  +----------------+  +----------------+  |
+|  |                |  |                |  |
+|  |    [star]      |  |  [scissors]   |  |  <- 2rem gold icon
+|  |   GALLERY      |  |  SERVICES     |  |  <- 0.85rem white uppercase
+|  |                |  |                |  |
+|  +----------------+  +----------------+  |
+|                                          |
+|  +----------------+  +----------------+  |
+|  |                |  |                |  |
+|  |  [diamond]     |  |   [phone]     |  |
+|  |    ABOUT       |  |   CONTACT     |  |
+|  |                |  |                |  |
+|  +----------------+  +----------------+  |
+|                                          |
++------------------------------------------+
+
++------------------------------------------+  <- footer (black bg, 60px pad)
+|              TREND                       |
+|       Hair Boutique Studio               |
+|       ___________________                |
+|    (c) 2026 TREND. All rights reserved.  |
++------------------------------------------+
+
++------------------------------------------+  <- sticky booking (gold, 52px)
+|          BOOK APPOINTMENT                |
++------------------------------------------+
+
+
+TILE SPECS:
+-----------
+Background:   #2C2C2C (charcoal)
+Icon color:   #C9A227 (gold-primary)
+Text color:   #FFFFFF (white)
+Border:       1px solid transparent -> gold on tap
+Border-radius: 8px
+Min-height:   120px
+Padding:      28px 16px
+Gap between:  12px
+Grid:         2 columns, equal width
+Container:    20px padding, cream background

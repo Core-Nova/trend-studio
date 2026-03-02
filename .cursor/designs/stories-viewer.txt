@@ -1,0 +1,147 @@
+INSTAGRAM STORIES VIEWER - COMPONENT SPEC
+==========================================
+
+Two parts: Highlights row + Full-screen Stories viewer
+
+
+PART 1: HIGHLIGHTS ROW (on Gallery page, mobile only)
+------------------------------------------------------
+Horizontal scrollable row of circular thumbnails, like Instagram profile highlights.
+
+    +------------------------------------------+
+    |  [scroll left]                            |
+    |                                           |
+    |  (O)    (O)    (O)    (O)    (O)    (O)   |  <- circular thumbnails
+    | Hair  Color  Treat  Style  Glam   More    |  <- labels below
+    |                                           |
+    |  [scroll right -->]                       |
+    +------------------------------------------+
+
+    Single highlight circle:
+
+    +----------+
+    |  /----\  |   <- 64px diameter
+    |  | img |  |   <- circular crop, object-fit: cover
+    |  \----/  |   <- 2px gold ring border
+    |   Label  |   <- 0.7rem, gray, center-aligned
+    +----------+
+       width: 72px (64px circle + 4px padding each side)
+
+    Ring colors:
+      - Unseen: gold gradient ring (like Instagram unseen story)
+      - Seen: gray ring (#A0A0A0)
+
+    Tap: opens the Stories viewer at that highlight's first image
+
+
+PART 2: STORIES VIEWER (full-screen overlay)
+---------------------------------------------
+Opens when a highlight circle is tapped. Full-screen, dark background.
+
+    +------------------------------------------+
+    | [====|----------] [X]                    |  <- progress bars + close
+    +------------------------------------------+
+    |                                          |
+    |                                          |
+    |                                          |
+    |          [  FULL SCREEN IMAGE  ]         |  <- object-fit: cover
+    |                                          |
+    |                                          |
+    |                                          |
+    |                                          |
+    +------------------------------------------+
+    |                                          |
+    |  @trendbytedi                            |  <- Instagram handle
+    |  [Follow us on Instagram]                |  <- CTA button
+    |                                          |
+    +------------------------------------------+
+
+    Tap zones (invisible):
+    +-------------------+--------------------+
+    |                   |                    |
+    |    TAP LEFT       |    TAP RIGHT       |
+    |   (prev image)    |   (next image)     |
+    |                   |                    |
+    +-------------------+--------------------+
+
+    Progress bar detail:
+    +--+--+--+--+--+--+--+--+--+--+--+--+
+    |==|==|>>|  |  |  |  |  |  |  |  |  |  <- one segment per image
+    +--+--+--+--+--+--+--+--+--+--+--+--+
+      ^done ^active (filling)  ^upcoming
+
+    Segments:
+      - Total width: calc(100% - 40px) with 4px gaps
+      - Done: white (opacity 1)
+      - Active: white, animating width from 0% to 100% over 5 seconds
+      - Upcoming: white (opacity 0.3)
+
+    Timer: 5 seconds per image, auto-advances
+    - Pauses when user holds finger down (touch start)
+    - Resumes on release (touch end)
+    - Tap left half: go to previous image
+    - Tap right half: go to next image
+    - Swipe down: close viewer
+    - Last image done: close viewer automatically
+
+    Close button: top-right, white X, 44px tap target
+
+
+COMPONENT ARCHITECTURE:
+-----------------------
+    src/components/Stories/
+      StoriesHighlights.jsx    <- the circular thumbnail row
+      StoriesViewer.jsx        <- the full-screen viewer overlay
+      useStories.js            <- hook: timer, navigation, state
+
+    Hook API:
+      useStories({ images, duration = 5000 })
+      Returns:
+        currentIndex    - which image is showing
+        progress        - 0 to 1 for the active progress bar
+        isOpen          - whether viewer is visible
+        open(index)     - open viewer at specific image
+        close()         - close viewer
+        next()          - go to next
+        prev()          - go to previous
+        pause()         - pause timer (touch hold)
+        resume()        - resume timer
+
+    StoriesHighlights props:
+      images          - array of image URLs
+      labels          - array of label strings (optional)
+      onOpen(index)   - callback when highlight tapped
+
+    StoriesViewer props:
+      images          - array of image URLs
+      currentIndex    - from hook
+      progress        - from hook
+      onClose         - close callback
+      onNext          - next callback
+      onPrev          - prev callback
+      onPause         - pause callback
+      onResume        - resume callback
+      instagramUrl    - link at bottom
+      instagramHandle - display text
+
+
+CSS VARIABLES:
+--------------
+    --stories-ring-size: 64px
+    --stories-ring-border: 2px
+    --stories-ring-gap: 12px
+    --stories-progress-height: 2px
+    --stories-duration: 5s
+    --stories-bg: rgba(0, 0, 0, 0.98)
+
+
+INTERACTION FLOW:
+-----------------
+    1. User sees highlight circles on gallery page
+    2. Taps a circle -> Stories viewer opens at that image
+    3. Progress bar fills over 5 seconds
+    4. Auto-advances to next image
+    5. User can tap left/right to navigate
+    6. User can hold to pause
+    7. At end of last image, viewer closes
+    8. Bottom shows Instagram CTA link

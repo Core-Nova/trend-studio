@@ -2,7 +2,7 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
 import servicesData from '../data/services.json'
 
-const SERVICE_ICONS = ['\u2702', '\u{1F3A8}', '\u{1F4AB}', '\u{2728}']
+const SERVICE_ICONS = ['\u2702', '\u2726', '\u2727', '\u2726']
 
 export const useServices = () => {
   const { t } = useLanguage()

@@ -81,9 +81,8 @@ Six rule files to guide AI-assisted development:
 
 #### `static-hosting.mdc` (Always Active)
 - GitHub Pages static hosting constraint
-- All images must use external CDN URLs (Imgur)
-- Image URL management via `src/data/images.json`
-- Cross-origin requirements for Three.js and canvas
+- All images imported via Vite from `src/assets/images/`
+- Image manifest centralized in `src/data/imageImports.js`
 - Vite build configuration for static output
 - What goes where: bundles vs CDN vs local backups
 
@@ -166,13 +165,12 @@ The React app is based on the existing TREND website with:
 
 ## Static Hosting Constraint
 
-The site deploys to GitHub Pages, which means the `dist/` output must contain only JS, CSS, and HTML. All images are loaded at runtime from external CDN URLs (Imgur).
+The site deploys to GitHub Pages as a static Vite build. All images are stored in `src/assets/images/` and imported via Vite at build time through `src/data/imageImports.js`. Vite hashes filenames for cache-busting and serves them same-origin from `dist/assets/`.
 
 Key rules:
-- All image URLs are stored in `src/data/images.json` -- never hardcode paths to `public/images/`
-- The `public/images/` folder is a local backup only, not used in production
+- All image imports are centralized in `src/data/imageImports.js`
+- Images are Vite-processed from `src/assets/images/` (no external CDN needed)
 - Three.js, BAS, and GSAP are loaded via CDN `<script>` tags in `index.html`, not as npm packages
-- External images require `setCrossOrigin('Anonymous')` for Three.js loaders
 
 ## Next Steps
 

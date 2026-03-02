@@ -102,6 +102,8 @@ export const translations = {
       bg: 'Пон, Сряда, Пет: 09:00 - 19:30\nВт, Чет: Почивен ден\nСъб, Нед: 09:00 - 19:00'
     },
     bookBtn: { en: 'Book via Studio24', bg: 'Резервирай в Studio24' },
+    viber: { en: 'Chat on Viber', bg: 'Пишете ни във Viber' },
+    callBtn: { en: 'Call Us', bg: 'Обадете се' },
     mapLink: { en: 'Open in Google Maps', bg: 'Отвори в Google Maps' }
   },
 
@@ -150,7 +152,21 @@ export const translations = {
     contactDescription: {
       en: 'Visit TREND Hair Boutique Studio at 8 Tsar Kaloyan St., Sofia. Book your appointment online or call us.',
       bg: 'Посетете TREND Бутиково фризьорско студио на ул. Цар Калоян 8, София. Запазете час онлайн или ни се обадете.'
+    },
+    notFoundTitle: {
+      en: 'TREND | Page Not Found',
+      bg: 'TREND | Страницата не е намерена'
+    },
+    notFoundDescription: {
+      en: 'The page you are looking for does not exist.',
+      bg: 'Страницата, която търсите, не съществува.'
     }
+  },
+
+  notFound: {
+    heading: { en: 'Page Not Found', bg: 'Страницата не е намерена' },
+    message: { en: 'The page you are looking for does not exist.', bg: 'Страницата, която търсите, не съществува.' },
+    backBtn: { en: 'Back to Home', bg: 'Към начало' }
   },
 
   mobile: {

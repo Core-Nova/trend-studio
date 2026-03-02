@@ -1,117 +1,53 @@
 ---
-description: High-level architecture patterns for the TREND React app (pages, containers, views, hooks, and data modules)
-alwaysApply: false
+description: Component structure and file organization conventions
+alwaysApply: true
 ---
 
-# Architecture Patterns
+# Component Structure
 
-## Layers and Responsibilities
+## Hooks + Components Pattern
 
-### Pages (`src/pages/**`)
+Separate logic from UI:
 
-- Define route-level structure and composition
-- Call `usePageSEO` to set per-page title and description
-- Wire together one or more feature containers (hero, gallery, services, prices, reviews, contact)
-- Should not contain low-level layout CSS or business logic
+- **Hook** (`hooks/useFeature.js`): logic, data fetching, translations, state, side effects
+- **Component** (`components/Feature/Feature.jsx`): calls the hook and renders UI, or delegates to a View component
+- **Page** (`pages/FeaturePage.jsx`): composes components with per-page SEO via `usePageSEO`
 
-### Containers (`src/components/**/Feature.jsx`)
+Extracting a separate View component is optional. Use your judgment -- if a component is small, a single file is fine.
 
-- Own feature-level state, data loading, and side effects
-- Compose one or more presentational views
-- Call custom hooks from `src/hooks/**`
-- Map data and callbacks into view props
+## Shared Atoms
 
-### Views (`src/components/**/FeatureView.jsx`)
+Reusable UI primitives live in `components/atoms/`:
 
-- Receive all data and callbacks via props
-- Render JSX only (no data fetching, no side effects)
-- Can be tested in isolation with simple props
+- `SectionHeader` -- tag + title + ornament
+- `BookingButton` -- booking CTA link
+- `RatingBadge` -- Google rating display
 
-### Hooks (`src/hooks/**`)
+## Code Splitting
 
-- Encapsulate reusable logic (data fetching, sliders, responsive behavior, SEO, etc.)
-- Never render JSX
-- Should be small and focused (one responsibility)
+- `HomePage` is eagerly loaded (landing page)
+- All other pages use `React.lazy` + `Suspense`
+- Three.js CDN scripts are conditionally loaded only on desktop (width > 768)
 
-### Data & Translations (`src/data/**`, `src/translations/**`)
+## SEO Requirement
 
-- `src/data/**` holds structured data (services, images, slider config)
-- `src/translations/**` holds EN/BG translation objects for all UI text and SEO metadata
-- React components consume these modules instead of hardcoding strings
+Every page must call `usePageSEO` with translated `title` and `description` from `translations.seo`.
 
-## Container / View Pattern
-
-### Example Structure
+## File Structure
 
 ```
-src/components/Services/
-  Services.jsx       (container)
-  ServicesView.jsx   (view)
-  Services.css
+src/
+  components/
+    atoms/              <- shared reusable atoms
+    Feature/
+      Feature.jsx       <- component (may contain logic or delegate to View)
+      FeatureView.jsx   <- optional pure UI component
+  hooks/
+    useFeature.js       <- logic + data
+  pages/
+    FeaturePage.jsx     <- page composition + SEO
+  contexts/             <- React contexts
+  data/                 <- static data (images, services, reviews)
+  lib/                  <- non-React utilities (slider)
+  translations/         <- i18n strings
 ```
-
-### Container Example
-
-```jsx
-import { useServices } from '../../hooks/useServices'
-import { ServicesView } from './ServicesView'
-
-export const Services = ({ showSeeAll }) => {
-  const { lang, services, isLoading } = useServices()
-
-  if (isLoading) return null
-
-  return (
-    <ServicesView
-      lang={lang}
-      services={services}
-      showSeeAll={showSeeAll}
-    />
-  )
-}
-```
-
-### View Example
-
-```jsx
-import './Services.css'
-
-export const ServicesView = ({ lang, services, showSeeAll }) => {
-  return (
-    <section className="services">
-      <div className="container">
-        <div className="services-grid">
-          {services.map(service => (
-            <div key={service.id} className="service-card">
-              <h3>{service.name[lang]}</h3>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-```
-
-## When to Split into Container + View
-
-- The component:
-  - Uses multiple hooks
-  - Handles data fetching or transforms
-  - Has several event handlers or side effects
-  - Is becoming hard to read or test
-- In these cases, move logic to `Feature.jsx` and keep `FeatureView.jsx` purely presentational.
-
-## Example Flow
-
-```mermaid
-flowchart TD
-  appRoot["App"] --> router["Router"]
-  router --> page["Page"]
-  page --> usePageSEO["usePageSEO"]
-  page --> container["Container"]
-  container --> hooks["CustomHooks"]
-  container --> view["View"]
-  container --> imageData["imageImports"]
-```
-

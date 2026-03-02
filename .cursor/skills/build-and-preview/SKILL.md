@@ -1,11 +1,11 @@
 ---
 name: build-and-preview
-description: Build, preview, and test the TREND website locally. Use when running dev servers, creating production builds, previewing static output, or opening the vanilla site.
+description: Build, preview, and test the TREND website locally. Use when running dev servers, creating production builds, previewing static output.
 ---
 
 # Build and Preview
 
-## React App
+## Commands
 
 All commands run from the repository root (`trend-studio/`).
 
@@ -29,7 +29,7 @@ Opens at `http://localhost:5173` with hot module replacement.
 npm run build
 ```
 
-Outputs static files to `dist/`. The output should be small -- only JS, CSS, and HTML bundles plus optimized images built by Vite.
+Outputs static files to `dist/`. Includes optimized images, JS/CSS bundles, `robots.txt`, `sitemap.xml`, and `404.html` SPA fallback.
 
 ### Preview Production Build
 
@@ -37,36 +37,29 @@ Outputs static files to `dist/`. The output should be small -- only JS, CSS, and
 npm run preview
 ```
 
-Serves the built `dist/` folder at `http://localhost:4173`.
+Serves `dist/` at `http://localhost:4173`. Do NOT open `dist/index.html` via `file://`.
 
-Do NOT use `open dist/index.html` to test the React build. The app uses `<script type="module">` which requires an HTTP server. The `file://` protocol will fail with CORS errors.
-
-### Lint
+### Lint & Format
 
 ```bash
 npm run lint
+npx prettier --check .
 ```
 
-### Deploy to GitHub Pages
-
-**Automatic**: push to `main` or `master`. GitHub Actions (`.github/workflows/deploy.yml`) builds and deploys automatically.
-
-**Manual**:
+### Tests
 
 ```bash
-npm install --save-dev gh-pages
-npm run deploy
+npm test
+npm run test:run
 ```
 
-## Legacy Vanilla Site (Optional)
+## Deploy to GitHub Pages
 
-If you keep the original vanilla HTML/CSS/JS version (for reference or legacy), it should live under a `legacy/` folder and can be opened directly in a browser using regular `<script>` tags (not ES modules).
+**Automatic**: push to `main`/`master`. GitHub Actions builds and deploys.
 
 ## Build Configuration
 
-The React app uses `base: './'` in `vite.config.js` for relative asset paths. This ensures the build works on GitHub Pages regardless of the repository name.
-
-Key settings:
+- `base: '/trend-studio/'` in `vite.config.js`
 - Output: `dist/`
 - Assets: `dist/assets/`
 - Minification: terser
@@ -74,10 +67,10 @@ Key settings:
 
 ## Testing Checklist
 
-After building or starting the dev server, verify:
-
-1. Images load correctly from the bundled assets (no broken images)
-2. No WebGL or CORS errors in browser console
-3. Language toggle (EN/BG) persists across page refreshes via localStorage
-4. On mobile viewport (<=768px): Three.js sliders do not initialize
-5. On desktop: triangle slider transitions play smoothly in hero and gallery sections
+1. Images load correctly (no broken images)
+2. No WebGL or CORS errors in console
+3. Language toggle persists across refreshes
+4. Mobile (<=768px): No Three.js, stories/crossfade work
+5. Desktop: Triangle sliders play in hero and gallery
+6. Reviews carousel rotates, rating badge links to Google
+7. Phone/Viber links work on mobile

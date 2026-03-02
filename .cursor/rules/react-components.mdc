@@ -1,149 +1,54 @@
 ---
-description: React component patterns and conventions
-globs: "**/*.jsx,**/*.tsx"
-alwaysApply: false
+description: Component patterns and conventions
+alwaysApply: true
 ---
 
-# React Component Patterns
+# React Component Conventions
 
-## Component Types
+## Component Structure
 
-### Presentational Components
-Pure components that receive props and render UI.
+Components can be organized as:
 
-```jsx
-export const ServiceCard = ({ icon, title, description }) => {
-  return (
-    <div className="service-card">
-      <div className="service-icon">{icon}</div>
-      <h3>{title}</h3>
-      <p>{description}</p>
-    </div>
-  )
-}
-```
+1. **Single file**: Hook logic + UI in one component (fine for simple components)
+2. **Hook + Component**: Logic extracted to `useFeature` hook, component calls the hook
+3. **Hook + Container + View**: For complex components, separate the container (calls hooks) from the view (renders UI from props)
 
-### Container Components
-Components with state and business logic.
+Choose the simplest option that keeps the component readable and under 200 lines.
 
-```jsx
-export const ServiceList = () => {
-  const [services, setServices] = useState([])
-  const [loading, setLoading] = useState(true)
-  
-  useEffect(() => {
-    fetchServices().then(setServices).finally(() => setLoading(false))
-  }, [])
-  
-  if (loading) return <Loader />
-  
-  return (
-    <div className="services-grid">
-      {services.map(service => (
-        <ServiceCard key={service.id} {...service} />
-      ))}
-    </div>
-  )
-}
-```
+## Custom Hooks
 
-## Custom Hooks Pattern
+Extract logic into custom hooks when:
+- The same logic is used in multiple components
+- A component has complex state or effects
+- The component file exceeds ~150 lines
 
-Extract reusable logic into custom hooks:
+Hook naming: `useFeature` in `hooks/useFeature.js`
 
-```jsx
-// useLanguage.js
-export const useLanguage = () => {
-  const [lang, setLang] = useState(() => 
-    localStorage.getItem('trendLang') || 'en'
-  )
-  
-  const changeLanguage = (newLang) => {
-    setLang(newLang)
-    localStorage.setItem('trendLang', newLang)
-  }
-  
-  return { lang, changeLanguage }
-}
+## Props
 
-// Usage in component
-const { lang, changeLanguage } = useLanguage()
-```
+- Always destructure in function parameters
+- Use default values where sensible: `({ showSeeAll = false })`
+- Pass callbacks with descriptive names: `onClose`, `onNext`, `onOpen`
 
-## Props Patterns
+## Accessibility
 
-### Optional Props with Defaults
-```jsx
-export const Button = ({ 
-  variant = 'primary', 
-  size = 'medium',
-  children,
-  onClick 
-}) => {
-  return (
-    <button 
-      className={`btn btn-${variant} btn-${size}`}
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  )
-}
-```
-
-### Children Prop
-```jsx
-export const Section = ({ children, id, className }) => {
-  return (
-    <section id={id} className={className}>
-      <div className="container">
-        {children}
-      </div>
-    </section>
-  )
-}
-```
+- Interactive elements need `role`, `tabIndex`, and keyboard handlers
+- Dialogs need `role="dialog"`, `aria-modal`, keyboard Escape to close, auto-focus
+- Expandable elements need `aria-expanded`
+- Decorative icons need `aria-hidden="true"`
+- All icon-only buttons need `aria-label`
 
 ## Conditional Rendering
 
 ```jsx
-// ✅ GOOD - Early returns
-if (loading) return <Loader />
-if (error) return <Error message={error} />
-if (!data) return null
-
-// ✅ GOOD - Ternary for simple conditions
-{isOpen ? <Modal /> : null}
-
-// ✅ GOOD - Logical AND for single condition
-{hasServices && <ServiceList services={services} />}
-```
-
-## List Rendering
-
-Always use stable keys:
-
-```jsx
-// ✅ GOOD - Unique ID as key
-{services.map(service => (
-  <ServiceCard key={service.id} {...service} />
-))}
-
-// ❌ BAD - Index as key (unstable)
-{services.map((service, index) => (
-  <ServiceCard key={index} {...service} />
-))}
+{isMobile && <MobileComponent />}
+{!isMobile && <DesktopComponent />}
 ```
 
 ## Event Handlers
 
+Name with `handle` prefix or pass as `on` props:
 ```jsx
-<button onClick={() => setOpen(!open)}>Toggle</button>
-
-const handleSubmit = (e) => {
-  e.preventDefault()
-  validateAndSubmitForm(formData)
-}
-
-<form onSubmit={handleSubmit}>
+const handleClick = () => { ... }
+<button onClick={handleClick}>
 ```
