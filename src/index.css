@@ -91,6 +91,14 @@ img {
 
 .page-loading {
     min-height: 50vh;
+    background: linear-gradient(90deg, var(--cream) 25%, var(--cream-dark) 50%, var(--cream) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease infinite;
+}
+
+@keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
 }
 
 .navbar {
@@ -1386,6 +1394,9 @@ section {
         border: 1px solid transparent;
         min-height: 120px;
         transition: border-color 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
     }
 
     .mobile-tile:active {
@@ -1490,11 +1501,11 @@ section {
 
 .page-content {
     padding-top: 80px;
-    animation: pageEnter 0.3s ease;
+    animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes pageEnter {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -1548,6 +1559,9 @@ section {
     cursor: pointer;
     flex-shrink: 0;
     padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
 }
 
 .stories-highlight__ring {
@@ -1586,7 +1600,12 @@ section {
     display: flex;
     flex-direction: column;
     height: 100dvh;
-    animation: fadeIn 0.2s ease;
+    animation: storiesEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes storiesEnter {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 .stories-progress {
@@ -1646,6 +1665,7 @@ section {
 .stories-viewer__tap-right {
     flex: 1;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .stories-viewer__cta {
@@ -1681,7 +1701,7 @@ section {
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: fadeIn 0.2s ease;
+    animation: storiesEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .lightbox__img {
@@ -1738,6 +1758,9 @@ section {
 
 .page-gallery-grid__item {
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
 }
 
 .section-see-all {
@@ -1765,7 +1788,11 @@ section {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.15s ease;
+}
+
+.page-gallery-grid__item:active img {
+    opacity: 0.7;
 }
 
 @media (hover: hover) {
