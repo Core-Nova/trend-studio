@@ -360,6 +360,8 @@ section.hero .hero-slider canvas {
     text-transform: uppercase;
     border: none;
     cursor: pointer;
+    text-align: center;
+    min-width: 280px;
     transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -500,81 +502,262 @@ section {
     letter-spacing: 1px;
 }
 
-.services {
+.services-section {
     background: var(--cream);
     padding: 60px 0;
 }
 
-.services-grid {
+.svc-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    gap: 24px;
     max-width: 1100px;
     margin-inline: auto;
 }
 
-.service-card {
+.svc-card {
     background: var(--white);
-    padding: 24px;
-    border: 1px solid transparent;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 @media (hover: hover) {
-    .service-card:hover {
-        border-color: var(--gold-primary);
-        box-shadow: var(--shadow);
+    .svc-card:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
     }
 }
 
-.service-card__header {
+.svc-card__head {
     display: flex;
-    gap: 16px;
-    align-items: flex-start;
-    margin-bottom: 16px;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 12px;
 }
 
-.service-icon {
-    font-size: 2rem;
+.svc-card__icon {
+    font-size: 1.6rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cream);
+    border-radius: 10px;
     flex-shrink: 0;
-    line-height: 1;
 }
 
-.service-card h3 {
+.svc-card__titles {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.svc-card__name {
     font-family: var(--font-display);
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 500;
     color: var(--charcoal);
-    margin-bottom: 6px;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
-.service-card__desc {
+.svc-card__count {
+    font-size: 0.75rem;
+    color: var(--gray-light);
+    letter-spacing: 0.5px;
+    text-transform: lowercase;
+}
+
+.svc-card__desc {
     font-size: 0.85rem;
     color: var(--gray);
     line-height: 1.6;
+    margin-bottom: 16px;
 }
 
-.service-card__preview {
+.svc-card__divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-primary) 0%, transparent 100%);
+    margin-bottom: 8px;
+    opacity: 0.4;
+}
+
+.svc-card__items {
+    display: flex;
+    flex-direction: column;
+}
+
+.svc-item {
+    border-bottom: 1px solid var(--cream-dark);
+}
+
+.svc-item:last-child {
+    border-bottom: none;
+}
+
+.svc-item__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 14px 0;
+    gap: 12px;
+    cursor: default;
+}
+
+.svc-item__row[role="button"] {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.svc-item__info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+}
+
+.svc-item__name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--charcoal);
+}
+
+.svc-item__duration {
+    font-size: 0.75rem;
+    color: var(--gray-light);
+}
+
+.svc-item__trailing {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.svc-item__price {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gold-dark);
+    white-space: nowrap;
+}
+
+.svc-item__note {
+    font-weight: 400;
+    font-size: 0.75rem;
+    color: var(--gray);
+}
+
+.svc-item__chevron {
+    color: var(--gold-primary);
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    flex-shrink: 0;
+}
+
+.svc-item__chevron--open {
+    transform: rotate(180deg);
+}
+
+.svc-item__options {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.svc-item__options--visible {
+    grid-template-rows: 1fr;
+}
+
+.svc-options-list {
+    overflow: hidden;
+    list-style: none;
+    background: var(--cream);
+    border-radius: 8px;
+    padding: 0;
+    margin: 0 0 12px;
+}
+
+.svc-item__options--visible .svc-options-list {
+    padding: 4px 14px;
+}
+
+.svc-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    gap: 10px;
+}
+
+.svc-option:last-child {
+    border-bottom: none;
+}
+
+.svc-option__name {
+    font-size: 0.82rem;
+    color: var(--charcoal);
+    flex: 1;
+    min-width: 0;
+}
+
+.svc-option__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.svc-option__duration {
+    font-size: 0.72rem;
+    color: var(--gray-light);
+}
+
+.svc-option__price {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--gold-dark);
+    white-space: nowrap;
+}
+
+.svc-pills {
     list-style: none;
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+    margin-top: 12px;
 }
 
-.service-card__preview li {
+.svc-pill {
     font-size: 0.8rem;
     color: var(--charcoal);
     background: var(--cream);
-    padding: 4px 12px;
+    padding: 5px 14px;
     border-radius: 20px;
 }
 
-.service-card__more {
+.svc-pill--more {
     color: var(--gold-dark);
     font-style: italic;
     background: transparent;
-    padding: 4px 8px;
+    padding: 5px 8px;
+}
+
+.svc-note {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.85rem;
+    color: var(--gray);
+    font-style: italic;
+}
+
+.svc-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
 }
 
 .gallery-section {
@@ -608,13 +791,45 @@ section {
     letter-spacing: 3px;
 }
 
-.slider-instructions {
-    text-align: center;
-    color: var(--gray-light);
-    font-size: 0.85rem;
-    letter-spacing: 1px;
-    padding: 15px 0;
+.gallery-masonry {
+    columns: 3;
+    column-gap: 12px;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 40px;
+}
+
+.gallery-masonry__item {
+    break-inside: avoid;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.gallery-masonry__item img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.15s ease;
+}
+
+@media (hover: hover) {
+    .gallery-masonry__item:hover img {
+        transform: scale(1.03);
+    }
+}
+
+.gallery-masonry__item:active img {
     opacity: 0.8;
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+    .gallery-masonry {
+        columns: 2;
+        padding: 0 30px;
+    }
 }
 
 .gallery-instagram {
@@ -651,30 +866,6 @@ section {
     }
 }
 
-.gallery-sliders-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
-    max-width: 1600px;
-    margin: 60px auto;
-    padding: 0 40px;
-}
-
-.gallery-slider-item {
-    position: relative;
-    width: 100%;
-    min-height: 500px;
-    height: auto;
-    aspect-ratio: 3 / 4;
-    overflow: hidden;
-    border-radius: 4px;
-}
-
-.gallery-three-container {
-    width: 100%;
-    height: 100%;
-    cursor: default;
-}
 
 .prices {
     background: var(--white);
@@ -739,7 +930,8 @@ section {
 }
 
 .price-cta {
-    text-align: center;
+    display: flex;
+    justify-content: center;
     margin-top: 30px;
 }
 
@@ -748,7 +940,8 @@ section {
 }
 
 .google-reviews-link {
-    text-align: center;
+    display: flex;
+    justify-content: center;
     margin-top: 50px;
 }
 
@@ -1269,17 +1462,28 @@ section {
         margin-bottom: 40px;
     }
 
-    .services-grid {
+    .svc-grid {
         grid-template-columns: 1fr;
         gap: 16px;
     }
 
-    .service-card {
+    .svc-card {
         padding: 20px;
+        border-radius: 10px;
     }
 
-    .price-categories {
-        grid-template-columns: 1fr;
+    .svc-card__icon {
+        width: 38px;
+        height: 38px;
+        font-size: 1.4rem;
+    }
+
+    .svc-card__name {
+        font-size: 1.1rem;
+    }
+
+    .svc-option__meta {
+        gap: 8px;
     }
 
     .about-features {
@@ -1289,6 +1493,9 @@ section {
     .btn {
         min-height: 48px;
         padding: 14px 32px;
+        min-width: 0;
+        width: 100%;
+        max-width: 400px;
     }
 
     .contact-item {
@@ -1764,7 +1971,8 @@ section {
 }
 
 .section-see-all {
-    text-align: center;
+    display: flex;
+    justify-content: center;
     margin-top: 40px;
     padding-bottom: 20px;
 }

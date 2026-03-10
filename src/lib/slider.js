@@ -115,29 +115,6 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
   return dispose
 }
 
-export const createGallerySliders = ({ containers, images, staggerDelay = 200 }) => {
-  if (!images.length) return null
-
-  const disposers = []
-
-  containers.forEach((container, i) => {
-    if (!container) return
-
-    const staggered = images.map((_, j) => images[(i + j) % images.length])
-    disposers.push(
-      createImageSlider({
-        container,
-        images: staggered,
-        width: 120,
-        height: 160,
-        delay: i * staggerDelay
-      })
-    )
-  })
-
-  return () => disposers.forEach(d => d && d())
-}
-
 class Slide extends THREE.Mesh {
   constructor(width, height, phase) {
     const geometry = new SlideGeometry(width, height, phase)

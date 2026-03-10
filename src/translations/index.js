@@ -18,10 +18,6 @@ export const translations = {
   gallery: {
     sectionTag: { en: 'Our Work', bg: 'Нашата работа' },
     title: { en: 'Gallery', bg: 'Галерия' },
-    instructions: {
-      en: 'Click and drag on images to control the animation',
-      bg: 'Кликни и влачи върху изображенията за контрол на анимацията'
-    },
     followText: { en: 'Follow us for more inspiration', bg: 'Последвайте ни за още вдъхновение' },
     seeAllBtn: { en: 'View Full Gallery', bg: 'Вижте цялата галерия' }
   },

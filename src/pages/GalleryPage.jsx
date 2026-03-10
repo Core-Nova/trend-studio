@@ -5,14 +5,14 @@ import { usePageSEO } from '../hooks/usePageSEO'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useStories } from '../hooks/useStories'
 import { useLightbox } from '../hooks/useLightbox'
-import { allImages, STORY_GROUPS } from '../data/imageImports'
+import { allImages, allImageUrls, STORY_GROUPS } from '../data/imageImports'
 import { StoriesHighlights } from '../components/Stories/StoriesHighlights'
 import { StoriesViewer } from '../components/Stories/StoriesViewer'
 
 export const GalleryPage = () => {
   const { t } = useLanguage()
   const isMobile = useIsMobile()
-  const stories = useStories({ images: allImages, duration: 5000 })
+  const stories = useStories({ images: allImageUrls, duration: 5000 })
   const { lightboxIndex, lightboxRef, open: openLightbox, close: closeLightbox, prev: prevImage, next: nextImage } = useLightbox(allImages.length)
 
   usePageSEO({
@@ -30,7 +30,7 @@ export const GalleryPage = () => {
           <StoriesHighlights groups={STORY_GROUPS} onOpen={stories.open} />
         )}
         <div className="page-gallery-grid">
-          {allImages.map((url, i) => (
+          {allImages.map((img, i) => (
             <div
               key={i}
               className="page-gallery-grid__item"
@@ -40,11 +40,11 @@ export const GalleryPage = () => {
               onKeyDown={(e) => e.key === 'Enter' && (isMobile ? stories.open(i) : openLightbox(i))}
             >
               <img
-                src={url}
+                src={img.src}
                 alt={`TREND salon work ${i + 1}`}
                 loading="lazy"
-                width="600"
-                height="800"
+                width={img.width}
+                height={img.height}
               />
             </div>
           ))}
@@ -79,7 +79,7 @@ export const GalleryPage = () => {
           <button className="lightbox__close" onClick={closeLightbox} aria-label="Close lightbox">&times;</button>
           <button className="lightbox__prev" onClick={(e) => { e.stopPropagation(); prevImage() }} aria-label="Previous image">&lsaquo;</button>
           <img
-            src={allImages[lightboxIndex]}
+            src={allImages[lightboxIndex].src}
             alt={`TREND salon work ${lightboxIndex + 1}`}
             className="lightbox__img"
             onClick={(e) => e.stopPropagation()}
@@ -88,7 +88,7 @@ export const GalleryPage = () => {
         </div>
       )}
       <StoriesViewer
-        images={allImages}
+        images={allImageUrls}
         currentIndex={stories.currentIndex}
         progress={stories.progress}
         onClose={stories.close}

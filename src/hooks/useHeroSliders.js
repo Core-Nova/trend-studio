@@ -16,7 +16,7 @@ export const useHeroSliders = () => {
 
     const tryInit = () => {
       if (!mounted) return
-      if (typeof THREE === 'undefined' || typeof TweenMax === 'undefined') {
+      if (typeof THREE === 'undefined' || typeof THREE.BAS === 'undefined' || typeof TweenMax === 'undefined') {
         pollTimer = setTimeout(tryInit, 200)
         return
       }
@@ -43,7 +43,7 @@ export const useHeroSliders = () => {
           })
           if (d) disposersRef.current.push(d)
         }
-      })
+      }).catch(() => {})
     }
 
     tryInit()
