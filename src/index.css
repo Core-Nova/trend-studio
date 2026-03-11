@@ -3,24 +3,25 @@
 }
 
 :root {
-    --gold-primary: #C9A227;
-    --gold-light: #D4AF37;
-    --gold-dark: #8B7355;
+    --gold-primary: #B08D3A;
+    --gold-light: #C4A24E;
+    --gold-dark: #8A6D2B;
     --burgundy: #722F37;
     --burgundy-dark: #4A1C23;
     --white: #FFFFFF;
-    --cream: #FAF8F0;
-    --cream-dark: #F5F0E6;
-    --black: #1A1A1A;
-    --charcoal: #2C2C2C;
-    --gray: #6B6B6B;
-    --gray-light: #A0A0A0;
+    --cream: #F5ECD7;
+    --cream-dark: #EDE3CC;
+    --black: #2A2118;
+    --charcoal: #3B2F22;
+    --gray: #6B5E50;
+    --gray-light: #9A8E80;
 
     --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-script: 'Great Vibes', cursive;
     --font-body: 'Montserrat', 'Helvetica Neue', sans-serif;
 
-    --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    --shadow-gold: 0 4px 30px rgba(201, 162, 39, 0.3);
+    --shadow: 0 4px 20px rgba(42, 33, 24, 0.1);
+    --shadow-gold: 0 4px 30px rgba(176, 141, 58, 0.3);
 }
 
 *, *::before, *::after {
@@ -250,8 +251,8 @@ img {
     right: 0;
     bottom: 0;
     background:
-        radial-gradient(ellipse at 20% 80%, rgba(201, 162, 39, 0.15) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(114, 47, 55, 0.2) 0%, transparent 50%);
+        radial-gradient(ellipse at 20% 80%, rgba(176, 141, 58, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(114, 47, 55, 0.15) 0%, transparent 50%);
     pointer-events: none;
 }
 
@@ -261,7 +262,7 @@ img {
     left: 0;
     right: 0;
     bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C9A227' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23B08D3A' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     opacity: 0.5;
     z-index: 0;
 }
@@ -332,12 +333,11 @@ section.hero .hero-slider canvas {
 }
 
 .hero-subtitle {
-    font-family: var(--font-display);
-    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    font-family: var(--font-script);
+    font-size: clamp(1.3rem, 3vw, 2rem);
     font-weight: 400;
-    font-style: italic;
     color: var(--white);
-    letter-spacing: 3px;
+    letter-spacing: 1px;
     margin-bottom: 10px;
 }
 
@@ -557,11 +557,10 @@ section {
 }
 
 .svc-card__name {
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 500;
+    font-family: var(--font-script);
+    font-size: 1.5rem;
+    font-weight: 400;
     color: var(--charcoal);
-    letter-spacing: 0.5px;
 }
 
 .svc-card__count {
@@ -944,12 +943,11 @@ section {
 }
 
 .category-title {
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 500;
+    font-family: var(--font-script);
+    font-size: 1.7rem;
+    font-weight: 400;
     color: var(--charcoal);
     margin-bottom: 25px;
-    letter-spacing: 1px;
 }
 
 .price-list {
@@ -997,6 +995,43 @@ section {
 
 .reviews {
     background: var(--cream);
+}
+
+.reviews--bg {
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    position: relative;
+}
+
+.reviews--bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(42, 33, 24, 0.88);
+    z-index: 0;
+}
+
+.reviews--bg > .container {
+    position: relative;
+    z-index: 1;
+}
+
+.reviews--bg .section-tag,
+.reviews--bg .review-card__text {
+    color: var(--cream);
+}
+
+.reviews--bg .section-title {
+    color: var(--gold-primary);
+}
+
+.reviews--bg .review-card__name {
+    color: var(--cream);
+}
+
+.reviews--bg .review-card__date {
+    color: var(--gray-light);
 }
 
 .google-reviews-link {
