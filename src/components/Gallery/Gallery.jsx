@@ -11,7 +11,7 @@ export const Gallery = ({ showSeeAll = false }) => {
   const isMobile = useIsMobile()
   const stories = useStories({ images: allImageUrls, duration: 5000 })
   const lightbox = useLightbox(allImages.length)
-  const carousel = useCarousel({ totalItems: allImages.length, visibleCount: 3, interval: 5000 })
+  const carousel = useCarousel({ totalItems: allImages.length, visibleCount: 4, interval: 5000 })
 
   return (
     <GalleryView

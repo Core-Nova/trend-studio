@@ -762,7 +762,7 @@ section {
 
 .gallery-section {
     background: var(--black);
-    padding: 80px 0 40px;
+    padding: 40px 0 30px;
     position: relative;
     overflow: hidden;
 }
@@ -774,9 +774,17 @@ section {
 
 .gallery-header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     position: relative;
     z-index: 10;
+}
+
+.gallery-header .section-header {
+    margin-bottom: 10px;
+}
+
+.gallery-header .ornament {
+    margin-top: 10px;
 }
 
 .gallery-section .section-tag {
@@ -793,8 +801,8 @@ section {
 
 .gallery-carousel-wrap {
     position: relative;
-    max-width: 1100px;
-    margin: 40px auto 0;
+    max-width: 1600px;
+    margin: 20px auto 0;
     padding: 0 60px;
 }
 
@@ -809,8 +817,8 @@ section {
 }
 
 .gallery-carousel__slide {
-    flex: 0 0 calc(100% / 3);
-    padding: 0 8px;
+    flex: 0 0 calc(100% / 4);
+    padding: 0 6px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 }
@@ -865,7 +873,7 @@ section {
     display: flex;
     justify-content: center;
     gap: 8px;
-    margin-top: 20px;
+    margin-top: 16px;
 }
 
 .gallery-carousel__dot {
@@ -886,7 +894,7 @@ section {
 
 .gallery-instagram {
     text-align: center;
-    margin-top: 30px;
+    margin-top: 16px;
     padding: 0 20px;
     position: relative;
     z-index: 10;

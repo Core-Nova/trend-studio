@@ -34,7 +34,7 @@ const Lightbox = ({ images, index, onClose, onPrev, onNext, lightboxRef }) => {
   )
 }
 
-const VISIBLE = 3
+const VISIBLE = 4
 
 export const GalleryView = ({
   sectionTag, title, followText, instagramUrl, instagramHandle,
