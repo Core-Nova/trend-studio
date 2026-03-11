@@ -36,12 +36,6 @@ export const allImages = [
 
 export const allImageUrls = allImages.map(img => img.src)
 
-export const featuredImages = [
-  allImages[0],
-  allImages[8],
-  allImages[4],
-]
-
 export const STORY_GROUPS = [
   { label: 'Hair', thumbnail: imageData.hero_left[0], startIndex: 0 },
   { label: 'Style', thumbnail: imageData.hero_right[0], startIndex: 4 },

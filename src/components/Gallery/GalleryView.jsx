@@ -34,37 +34,74 @@ const Lightbox = ({ images, index, onClose, onPrev, onNext, lightboxRef }) => {
   )
 }
 
+const VISIBLE = 3
+
 export const GalleryView = ({
   sectionTag, title, followText, instagramUrl, instagramHandle,
-  showSeeAll, seeAllBtn, isMobile, stories, lightbox, allImages, allImageUrls, featuredImages, storyGroups
+  showSeeAll, seeAllBtn, isMobile, stories, lightbox, carousel, allImages, allImageUrls, storyGroups
 }) => (
   <section id="gallery" className="gallery-section">
     <div className="gallery-header">
       <SectionHeader tag={sectionTag} title={title} />
     </div>
     {!isMobile && (
-      <div className="gallery-featured">
-        {featuredImages.map((img, i) => {
-          const fullIndex = allImages.indexOf(img)
-          return (
+      <>
+        <div
+          className="gallery-carousel-wrap"
+          onMouseEnter={carousel.pause}
+          onMouseLeave={carousel.resume}
+        >
+          <button
+            className="gallery-carousel__arrow gallery-carousel__arrow--prev"
+            onClick={carousel.prev}
+            aria-label="Previous images"
+          >
+            &#8249;
+          </button>
+          <div className="gallery-carousel__viewport">
             <div
-              key={i}
-              className="gallery-featured__item"
-              onClick={() => lightbox.open(fullIndex)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && lightbox.open(fullIndex)}
+              className="gallery-carousel__track"
+              style={{ transform: `translateX(-${carousel.currentIndex * (100 / VISIBLE)}%)` }}
             >
-              <img
-                src={img.src}
-                alt={`TREND salon work ${i + 1}`}
-                width={img.width}
-                height={img.height}
-              />
+              {allImages.map((img, i) => (
+                <div
+                  key={i}
+                  className="gallery-carousel__slide"
+                  onClick={() => lightbox.open(i)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && lightbox.open(i)}
+                >
+                  <img
+                    src={img.src}
+                    alt={`TREND salon work ${i + 1}`}
+                    width={img.width}
+                    height={img.height}
+                    loading={i < 6 ? 'eager' : 'lazy'}
+                  />
+                </div>
+              ))}
             </div>
-          )
-        })}
-      </div>
+          </div>
+          <button
+            className="gallery-carousel__arrow gallery-carousel__arrow--next"
+            onClick={carousel.next}
+            aria-label="Next images"
+          >
+            &#8250;
+          </button>
+        </div>
+        <div className="gallery-carousel__dots">
+          {allImages.map((_, i) => (
+            <button
+              key={i}
+              className={`gallery-carousel__dot ${i === carousel.currentIndex ? 'gallery-carousel__dot--active' : ''}`}
+              onClick={() => carousel.goTo(i)}
+              aria-label={`Go to image ${i + 1}`}
+            />
+          ))}
+        </div>
+      </>
     )}
     {isMobile && (
       <StoriesHighlights groups={storyGroups} onOpen={stories.open} />
