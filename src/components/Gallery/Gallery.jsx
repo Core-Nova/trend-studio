@@ -2,7 +2,7 @@ import { useGallery } from '../../hooks/useGallery'
 import { useIsMobile } from '../../hooks/useIsMobile'
 import { useStories } from '../../hooks/useStories'
 import { useLightbox } from '../../hooks/useLightbox'
-import { allImages, allImageUrls, STORY_GROUPS } from '../../data/imageImports'
+import { allImages, allImageUrls, featuredImages, STORY_GROUPS } from '../../data/imageImports'
 import { GalleryView } from './GalleryView'
 
 export const Gallery = ({ showSeeAll = false }) => {
@@ -20,6 +20,7 @@ export const Gallery = ({ showSeeAll = false }) => {
       lightbox={lightbox}
       allImages={allImages}
       allImageUrls={allImageUrls}
+      featuredImages={featuredImages}
       storyGroups={STORY_GROUPS}
     />
   )

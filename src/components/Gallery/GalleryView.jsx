@@ -36,33 +36,34 @@ const Lightbox = ({ images, index, onClose, onPrev, onNext, lightboxRef }) => {
 
 export const GalleryView = ({
   sectionTag, title, followText, instagramUrl, instagramHandle,
-  showSeeAll, seeAllBtn, isMobile, stories, lightbox, allImages, allImageUrls, storyGroups
+  showSeeAll, seeAllBtn, isMobile, stories, lightbox, allImages, allImageUrls, featuredImages, storyGroups
 }) => (
   <section id="gallery" className="gallery-section">
     <div className="gallery-header">
       <SectionHeader tag={sectionTag} title={title} />
     </div>
     {!isMobile && (
-      <div className="gallery-masonry">
-        {allImages.map((img, i) => (
-          <div
-            key={i}
-            className="gallery-masonry__item"
-            style={{ aspectRatio: `${img.width} / ${img.height}` }}
-            onClick={() => lightbox.open(i)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && lightbox.open(i)}
-          >
-            <img
-              src={img.src}
-              alt={`TREND salon work ${i + 1}`}
-              width={img.width}
-              height={img.height}
-              loading={i < 6 ? 'eager' : 'lazy'}
-            />
-          </div>
-        ))}
+      <div className="gallery-featured">
+        {featuredImages.map((img, i) => {
+          const fullIndex = allImages.indexOf(img)
+          return (
+            <div
+              key={i}
+              className="gallery-featured__item"
+              onClick={() => lightbox.open(fullIndex)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && lightbox.open(fullIndex)}
+            >
+              <img
+                src={img.src}
+                alt={`TREND salon work ${i + 1}`}
+                width={img.width}
+                height={img.height}
+              />
+            </div>
+          )
+        })}
       </div>
     )}
     {isMobile && (

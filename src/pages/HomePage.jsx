@@ -7,7 +7,6 @@ import { Hero } from '../components/Hero/Hero'
 import { Gallery } from '../components/Gallery/Gallery'
 import { About } from '../components/About/About'
 import { Services } from '../components/Services/Services'
-import { Prices } from '../components/Prices/Prices'
 import { Reviews } from '../components/Reviews/Reviews'
 import { Contact } from '../components/Contact/Contact'
 
@@ -49,7 +48,6 @@ export const HomePage = () => {
       <Gallery showSeeAll />
       <About showSeeAll />
       <Services showSeeAll />
-      <Prices />
       <Reviews />
       <Contact />
     </>
