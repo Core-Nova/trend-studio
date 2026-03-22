@@ -9,7 +9,6 @@ const HOME_SCROLL_ITEMS = [
   { href: '#gallery', label: 'gallery' },
   { href: '#about', label: 'about' },
   { href: '#services', label: 'services' },
-  { href: '#prices', label: 'prices' },
   { href: '#reviews', label: 'reviews' },
   { href: '#contact', label: 'contact' },
 ]

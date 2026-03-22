@@ -269,20 +269,22 @@ img {
 
 .hero-slider {
     position: absolute;
-    top: 80px;
-    bottom: 80px;
-    width: 420px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 380px;
+    aspect-ratio: 2 / 3;
+    max-height: calc(100vh - 200px);
     z-index: 2;
-    border: 2px solid rgba(201, 162, 39, 0.3);
+    border: 2px solid rgba(176, 141, 58, 0.3);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .hero-slider-left {
-    left: 5%;
+    left: 4%;
 }
 
 .hero-slider-right {
-    right: 5%;
+    right: 4%;
 }
 
 section.hero .hero-slider canvas {
@@ -1358,27 +1360,37 @@ section {
     margin-left: 4px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1600px) and (min-width: 1201px) {
     .hero-slider {
-        width: 260px;
-        top: 100px;
-        bottom: 100px;
+        width: 320px;
     }
 
     .hero-slider-left {
-        left: 3%;
+        left: 2%;
     }
 
     .hero-slider-right {
-        right: 3%;
+        right: 2%;
+    }
+}
+
+@media (max-width: 1200px) {
+    .hero-slider {
+        width: 260px;
+    }
+
+    .hero-slider-left {
+        left: 2%;
+    }
+
+    .hero-slider-right {
+        right: 2%;
     }
 }
 
 @media (max-width: 992px) {
     .hero-slider {
         width: 200px;
-        top: 120px;
-        bottom: 120px;
     }
 
     .hero-title {

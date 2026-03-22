@@ -1,6 +1,6 @@
 export const googleReviews = {
   rating: 5.0,
-  totalCount: 57,
+  totalCount: 45,
   profileUrl: 'https://www.google.com/maps/place/Hair+Boutique+Studio+TREND/@42.6945,23.3255,17z/',
   reviews: [
     {
