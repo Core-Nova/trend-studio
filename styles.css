@@ -236,9 +236,14 @@ img {
 
 @media (min-width: 769px) {
     .hero-slider {
-        width: clamp(200px, 25vw, 450px);
-        top: clamp(40px, 8vh, 120px);
-        bottom: clamp(40px, 8vh, 120px);
+        /* Act as wide banners filling vertical space */
+        width: clamp(250px, 30vw, 800px);
+        top: 0;
+        bottom: 0;
+        /* Remove top/bottom borders to blend as a true full-bleed banner */
+        border-top: none;
+        border-bottom: none;
+        box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
     }
 }
 
@@ -248,6 +253,18 @@ img {
 
 .hero-slider-right {
     right: 5%;
+}
+
+@media (min-width: 769px) {
+    .hero-slider-left {
+        left: 0;
+        border-left: none;
+    }
+
+    .hero-slider-right {
+        right: 0;
+        border-right: none;
+    }
 }
 
 .hero-slider canvas {
