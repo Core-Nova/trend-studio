@@ -1,5 +1,6 @@
 import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { initAnalytics, trackPageView } from './lib/analytics'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { Navigation } from './components/Navigation/Navigation'
 import { Footer } from './components/Footer/Footer'
@@ -17,6 +18,7 @@ const AppRoutes = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0)
+    trackPageView(location.pathname)
   }, [location.pathname])
 
   return (
@@ -42,6 +44,7 @@ const AppRoutes = () => {
 
 const AppShell = () => {
   useEffect(() => {
+    initAnalytics()
     document.dispatchEvent(new Event('app-rendered'))
   }, [])
 

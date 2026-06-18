@@ -1,19 +1,21 @@
 import { SectionHeader } from '../components/atoms/SectionHeader'
+import { ResponsiveImage } from '../components/atoms/ResponsiveImage'
 import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
 import { usePageSEO } from '../hooks/usePageSEO'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useStories } from '../hooks/useStories'
 import { useLightbox } from '../hooks/useLightbox'
-import { allImages, allImageUrls, STORY_GROUPS } from '../data/imageImports'
+import { useGalleryImages } from '../hooks/useGalleryImages'
 import { StoriesHighlights } from '../components/Stories/StoriesHighlights'
 import { StoriesViewer } from '../components/Stories/StoriesViewer'
 
 export const GalleryPage = () => {
   const { t } = useLanguage()
   const isMobile = useIsMobile()
-  const stories = useStories({ images: allImageUrls, duration: 5000 })
-  const { lightboxIndex, lightboxRef, open: openLightbox, close: closeLightbox, prev: prevImage, next: nextImage } = useLightbox(allImages.length)
+  const { images, imageUrls, storyGroups, isLive } = useGalleryImages(12)
+  const stories = useStories({ images: imageUrls, duration: 5000 })
+  const { lightboxIndex, lightboxRef, open: openLightbox, close: closeLightbox, prev: prevImage, next: nextImage } = useLightbox(images.length)
 
   usePageSEO({
     title: t(translations.seo.galleryTitle),
@@ -27,10 +29,10 @@ export const GalleryPage = () => {
           <SectionHeader tag={t(translations.gallery.sectionTag)} title={t(translations.gallery.title)} />
         </div>
         {isMobile && (
-          <StoriesHighlights groups={STORY_GROUPS} onOpen={stories.open} />
+          <StoriesHighlights groups={storyGroups} onOpen={stories.open} />
         )}
         <div className="page-gallery-grid">
-          {allImages.map((img, i) => (
+          {images.map((img, i) => (
             <div
               key={i}
               className="page-gallery-grid__item"
@@ -39,10 +41,14 @@ export const GalleryPage = () => {
               tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && (isMobile ? stories.open(i) : openLightbox(i))}
             >
-              <img
+              <ResponsiveImage
                 src={img.src}
-                alt={`TREND salon work ${i + 1}`}
-                loading="lazy"
+                srcSetWebp={img.srcSetWebp}
+                srcSetAvif={img.srcSetAvif}
+                sizes="(max-width: 768px) 50vw, 33vw"
+                alt={img.alt || `TREND salon work ${i + 1}`}
+                loading={i < 6 ? 'eager' : 'lazy'}
+                decoding="async"
                 width={img.width}
                 height={img.height}
               />
@@ -50,7 +56,10 @@ export const GalleryPage = () => {
           ))}
         </div>
         <div className="gallery-instagram gallery-instagram--page">
-          <p>{t(translations.gallery.followText)}</p>
+          <p>
+            {isLive && <span className="live-badge">Live</span>}
+            {t(translations.gallery.followText)}
+          </p>
           <a
             href="https://instagram.com/trendbytedi"
             target="_blank"
@@ -78,9 +87,12 @@ export const GalleryPage = () => {
         >
           <button className="lightbox__close" onClick={closeLightbox} aria-label="Close lightbox">&times;</button>
           <button className="lightbox__prev" onClick={(e) => { e.stopPropagation(); prevImage() }} aria-label="Previous image">&lsaquo;</button>
-          <img
-            src={allImages[lightboxIndex].src}
-            alt={`TREND salon work ${lightboxIndex + 1}`}
+          <ResponsiveImage
+            src={images[lightboxIndex].src}
+            srcSetWebp={images[lightboxIndex].srcSetWebp}
+            srcSetAvif={images[lightboxIndex].srcSetAvif}
+            sizes="100vw"
+            alt={images[lightboxIndex].alt || `TREND salon work ${lightboxIndex + 1}`}
             className="lightbox__img"
             onClick={(e) => e.stopPropagation()}
           />
@@ -88,7 +100,7 @@ export const GalleryPage = () => {
         </div>
       )}
       <StoriesViewer
-        images={allImageUrls}
+        images={imageUrls}
         currentIndex={stories.currentIndex}
         progress={stories.progress}
         onClose={stories.close}

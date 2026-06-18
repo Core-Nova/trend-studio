@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { SectionHeader } from '../atoms/SectionHeader'
+import { ResponsiveImage } from '../atoms/ResponsiveImage'
 import { StoriesHighlights } from '../Stories/StoriesHighlights'
 import { StoriesViewer } from '../Stories/StoriesViewer'
 
@@ -23,9 +24,12 @@ const Lightbox = ({ images, index, onClose, onPrev, onNext, lightboxRef }) => {
     >
       <button className="lightbox__close" onClick={onClose} aria-label="Close lightbox">&times;</button>
       <button className="lightbox__prev" onClick={(e) => { e.stopPropagation(); onPrev() }} aria-label="Previous image">&lsaquo;</button>
-      <img
+      <ResponsiveImage
         src={images[index].src}
-        alt={`TREND salon work ${index + 1}`}
+        srcSetWebp={images[index].srcSetWebp}
+        srcSetAvif={images[index].srcSetAvif}
+        sizes="100vw"
+        alt={images[index].alt || `TREND salon work ${index + 1}`}
         className="lightbox__img"
         onClick={(e) => e.stopPropagation()}
       />
@@ -38,7 +42,7 @@ const VISIBLE = 4
 
 export const GalleryView = ({
   sectionTag, title, followText, instagramUrl, instagramHandle,
-  showSeeAll, seeAllBtn, isMobile, stories, lightbox, carousel, allImages, allImageUrls, storyGroups
+  showSeeAll, seeAllBtn, isMobile, isLive, stories, lightbox, carousel, allImages, allImageUrls, storyGroups
 }) => (
   <section id="gallery" className="gallery-section">
     <div className="gallery-header">
@@ -72,12 +76,16 @@ export const GalleryView = ({
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && lightbox.open(i)}
                 >
-                  <img
+                  <ResponsiveImage
                     src={img.src}
-                    alt={`TREND salon work ${i + 1}`}
+                    srcSetWebp={img.srcSetWebp}
+                    srcSetAvif={img.srcSetAvif}
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    alt={img.alt || `TREND salon work ${i + 1}`}
                     width={img.width}
                     height={img.height}
                     loading={i < 6 ? 'eager' : 'lazy'}
+                    decoding="async"
                   />
                 </div>
               ))}
@@ -107,7 +115,10 @@ export const GalleryView = ({
       <StoriesHighlights groups={storyGroups} onOpen={stories.open} />
     )}
     <div className="gallery-instagram">
-      <p>{followText}</p>
+      <p>
+        {isLive && <span className="live-badge">Live</span>}
+        {followText}
+      </p>
       <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="instagram-link">
         {instagramHandle}
       </a>

@@ -4,12 +4,18 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
   if (!container || !images.length) return null
   if (typeof THREE === 'undefined' || typeof TweenMax === 'undefined') return null
 
+  const fov = 80
   const root = new THREERoot(container, {
     antialias: window.devicePixelRatio === 1,
-    fov: 80
+    fov
   })
   root.renderer.setClearColor(0x000000, 0)
-  root.camera.position.set(0, 0, 60)
+
+  // Position the camera so the plane's full height exactly fills the viewport.
+  // The container CSS keeps the same aspect ratio as the plane (width/height),
+  // so the image is shown with no stretching and no cropping at any monitor size.
+  const fitDistance = (height / 2) / Math.tan((fov / 2) * Math.PI / 180)
+  root.camera.position.set(0, 0, fitDistance)
 
   const slideOut = new Slide(width, height, 'out')
   const slideIn = new Slide(width, height, 'in')
@@ -19,21 +25,20 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
   let disposed = false
   let pendingTimeout = null
 
-  const resizeToPowerOfTwo = (image) => {
-    const isPowerOfTwo = (value) => (value & (value - 1)) === 0 && value !== 0
-    if (isPowerOfTwo(image.width) && isPowerOfTwo(image.height)) {
-      return image
-    }
+  // Downscale only if larger than the cap, preserving the aspect ratio.
+  // (Non-power-of-two textures render correctly here because the material uses
+  // LinearFilter + ClampToEdge wrapping and no mipmaps — see createSlideMaterial.)
+  const MAX_TEXTURE_SIZE = 2048
+  const capTextureSize = (image) => {
+    const longest = Math.max(image.width, image.height)
+    if (longest <= MAX_TEXTURE_SIZE) return image
 
-    const pow2Width = Math.min(2048, Math.pow(2, Math.floor(Math.log2(image.width))))
-    const pow2Height = Math.min(2048, Math.pow(2, Math.floor(Math.log2(image.height))))
-
+    const scale = MAX_TEXTURE_SIZE / longest
     const canvas = document.createElement('canvas')
-    canvas.width = pow2Width
-    canvas.height = pow2Height
+    canvas.width = Math.round(image.width * scale)
+    canvas.height = Math.round(image.height * scale)
     const ctx = canvas.getContext('2d')
-    ctx.drawImage(image, 0, 0, pow2Width, pow2Height)
-
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
     return canvas
   }
 
@@ -44,10 +49,10 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
       loader.load(
         url,
         img => {
-          const potImage = resizeToPowerOfTwo(img)
-          slide.setImage(potImage)
+          const texImage = capTextureSize(img)
+          slide.setImage(texImage)
           slide.time = 0
-          resolve(potImage)
+          resolve(texImage)
         },
         undefined,
         reject
@@ -263,6 +268,9 @@ const createSlideMaterial = (phase) => {
   texture.generateMipmaps = false
   texture.minFilter = THREE.LinearFilter
   texture.magFilter = THREE.LinearFilter
+  // Required for non-power-of-two textures in WebGL1 (avoids black/blank planes)
+  texture.wrapS = THREE.ClampToEdgeWrapping
+  texture.wrapT = THREE.ClampToEdgeWrapping
 
   return new THREE.BAS.BasicAnimationMaterial(
     {

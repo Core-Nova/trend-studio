@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
-const BASE_URL = 'https://trendsalon.bg/trend-studio'
+const BASE_URL = 'https://trendsalon.bg'
 
 export const usePageSEO = ({ title, description }) => {
   const location = useLocation()

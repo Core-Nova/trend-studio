@@ -11,6 +11,12 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+
+# Backend
+backend/node_modules
+backend/.env
+backend/.cache
 
 public/images
 

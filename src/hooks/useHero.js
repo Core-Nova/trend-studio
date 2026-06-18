@@ -9,7 +9,7 @@ export const useHero = () => {
   return {
     subtitle: t(translations.hero.subtitle),
     tagline: t(translations.hero.tagline),
-    bookBtn: t(translations.hero.bookBtn),
+    bookBtn: translations.hero.bookBtn,
     isMobile,
     leftRef,
     rightRef

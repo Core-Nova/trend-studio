@@ -1,7 +1,8 @@
 import { ImageCrossfade } from '../ImageCrossfade/ImageCrossfade'
 import { BookingButton } from '../atoms/BookingButton'
+import { ResponsiveImage } from '../atoms/ResponsiveImage'
 import { RatingBadge } from '../Reviews/RatingBadge'
-import { imageData } from '../../data/imageImports'
+import { imageData, allImages } from '../../data/imageImports'
 import { googleReviews } from '../../data/reviews'
 
 const mobileImages = [...imageData.hero_left, ...imageData.hero_right]
@@ -17,7 +18,16 @@ export const HeroView = ({ subtitle, tagline, bookBtn, isMobile, leftRef, rightR
     )}
     {!isMobile && (
       <div className="hero-slider hero-slider-left">
-        <img src={imageData.hero_left[0]} alt="TREND salon" className="hero-slider__preview" />
+        <ResponsiveImage
+          src={imageData.hero_left[0]}
+          srcSetWebp={allImages[0].srcSetWebp}
+          srcSetAvif={allImages[0].srcSetAvif}
+          sizes="50vw"
+          alt={allImages[0].alt}
+          className="hero-slider__preview"
+          fetchpriority="high"
+          loading="eager"
+        />
         <div ref={leftRef} id="three-container-left"></div>
       </div>
     )}
@@ -25,7 +35,7 @@ export const HeroView = ({ subtitle, tagline, bookBtn, isMobile, leftRef, rightR
       <h1 className="hero-title">TREND</h1>
       <p className="hero-subtitle">{subtitle}</p>
       <p className="hero-tagline">{tagline}</p>
-      <BookingButton text={bookBtn} />
+      <BookingButton translations={bookBtn} />
       <RatingBadge
         rating={googleReviews.rating}
         totalCount={googleReviews.totalCount}
@@ -35,7 +45,16 @@ export const HeroView = ({ subtitle, tagline, bookBtn, isMobile, leftRef, rightR
     </div>
     {!isMobile && (
       <div className="hero-slider hero-slider-right">
-        <img src={imageData.hero_right[0]} alt="TREND salon" className="hero-slider__preview" />
+        <ResponsiveImage
+          src={imageData.hero_right[0]}
+          srcSetWebp={allImages[4].srcSetWebp}
+          srcSetAvif={allImages[4].srcSetAvif}
+          sizes="50vw"
+          alt={allImages[4].alt}
+          className="hero-slider__preview"
+          fetchpriority="high"
+          loading="eager"
+        />
         <div ref={rightRef} id="three-container-right"></div>
       </div>
     )}

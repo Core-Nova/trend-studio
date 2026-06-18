@@ -271,11 +271,19 @@ img {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 380px;
-    aspect-ratio: 2 / 3;
-    max-height: calc(100vh - 200px);
+    /* 9:16 box matching the hero images. Height is driven by viewport size and
+       capped so the two sliders never overlap the centered hero text:
+       reserve ~640px in the middle, split the rest between both sliders, then
+       convert that width back to height (×8/9 = ×16/9 ÷ 2). */
+    height: min(80vh, calc((100vw - 640px) * 8 / 9));
+    aspect-ratio: 9 / 16;
+    width: auto;
+    max-height: calc(100vh - 90px);
     z-index: 2;
-    border: 2px solid rgba(176, 141, 58, 0.3);
+    /* Outline (not border) so the content box stays exactly 9:16 — the WebGL
+       canvas fills it edge-to-edge and the plane maps without any crop. */
+    outline: 2px solid rgba(176, 141, 58, 0.3);
+    outline-offset: -2px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
@@ -384,6 +392,37 @@ section.hero .hero-slider canvas {
     background: transparent;
     color: var(--gold-primary);
     border: 1px solid var(--gold-primary);
+}
+
+/* Stable-width buttons: render every translation in the same grid cell so the
+   button's intrinsic width matches the widest label across languages. The
+   active label is visible; the rest are hidden but still size the cell. */
+.btn--stable {
+    display: inline-grid;
+    grid-template-areas: "stack";
+    place-items: center;
+}
+
+.btn--stable > .btn__label {
+    grid-area: stack;
+}
+
+.btn--stable > .btn__label--ghost {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Visually-hidden but readable by screen readers (the active label) */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 @media (hover: hover) {
@@ -1361,10 +1400,6 @@ section {
 }
 
 @media (max-width: 1600px) and (min-width: 1201px) {
-    .hero-slider {
-        width: 320px;
-    }
-
     .hero-slider-left {
         left: 2%;
     }
@@ -1375,10 +1410,6 @@ section {
 }
 
 @media (max-width: 1200px) {
-    .hero-slider {
-        width: 260px;
-    }
-
     .hero-slider-left {
         left: 2%;
     }
@@ -1389,39 +1420,10 @@ section {
 }
 
 @media (max-width: 992px) {
-    .hero-slider {
-        width: 200px;
-    }
-
-    .hero-title {
-        letter-spacing: 10px;
-    }
-
-    .contact-content {
-        grid-template-columns: 1fr;
-    }
-
-    .contact-map {
-        height: 350px;
-    }
-
-    .contact-map iframe {
-        height: 100%;
-    }
-}
-
-@media (max-width: 768px) {
+    /* Below 992px the side sliders would be too narrow — hide them and show the
+       full-bleed crossfade instead (matches useHeroSliders' HERO_SLIDER_BREAKPOINT). */
     .hero-slider {
         display: none;
-    }
-
-    .hero {
-        min-height: 100svh;
-    }
-
-    .hero-title {
-        font-size: clamp(3rem, 14vw, 5rem);
-        letter-spacing: 8px;
     }
 
     .hero-mobile-bg {
@@ -1445,6 +1447,33 @@ section {
             rgba(26, 26, 26, 0.7) 100%
         );
         z-index: 1;
+    }
+
+    .hero-title {
+        letter-spacing: 10px;
+    }
+
+    .contact-content {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-map {
+        height: 350px;
+    }
+
+    .contact-map iframe {
+        height: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        min-height: 100svh;
+    }
+
+    .hero-title {
+        font-size: clamp(3rem, 14vw, 5rem);
+        letter-spacing: 8px;
     }
 
     .hero-content {
@@ -1815,7 +1844,7 @@ section {
 
 .page-content {
     padding-top: 80px;
-    animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: pageEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes pageEnter {
@@ -2391,6 +2420,193 @@ section {
     border-radius: 20px;
     font-weight: 600;
     font-size: 0.85rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Modern polish layer — refined stories UI, carousel, live badge
+   ═══════════════════════════════════════════════════════════════ */
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Instagram-style story rings: richer conic gradient + press feedback */
+.stories-highlights {
+    justify-content: center;
+    scroll-snap-type: x proximity;
+    padding: 24px 20px;
+}
+
+.stories-highlight {
+    scroll-snap-align: center;
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stories-highlight:active {
+    transform: scale(0.94);
+}
+
+.stories-highlight__ring {
+    width: 76px;
+    height: 76px;
+    padding: 3px;
+    background: conic-gradient(
+        from 210deg,
+        var(--gold-dark),
+        var(--gold-light) 90deg,
+        var(--burgundy) 200deg,
+        var(--gold-primary) 300deg,
+        var(--gold-dark)
+    );
+    box-shadow: 0 2px 12px rgba(176, 141, 58, 0.35);
+}
+
+.stories-highlight__img {
+    border: 3px solid var(--black);
+}
+
+.stories-highlight__label {
+    color: var(--cream);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+/* Stories viewer: thicker rounded progress, glassy close button */
+.stories-progress {
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 12px 0;
+    gap: 5px;
+}
+
+.stories-progress__segment {
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.stories-progress__bar {
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--gold-light), var(--white));
+}
+
+.stories-viewer__close {
+    top: calc(28px + env(safe-area-inset-top, 0px));
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 1.6rem;
+    padding: 0;
+}
+
+.stories-viewer__image {
+    animation: storyImageIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes storyImageIn {
+    from { opacity: 0.4; transform: scale(1.02); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.stories-viewer__cta-link {
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(201, 162, 39, 0.35);
+}
+
+.stories-viewer__cta-call {
+    background: var(--gold-primary);
+    border: 1px solid var(--gold-primary);
+}
+
+/* Gallery carousel: richer hover, pill-shaped active dot */
+.gallery-carousel__slide img {
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.45s ease,
+                box-shadow 0.45s ease;
+}
+
+@media (hover: hover) {
+    .gallery-carousel__slide:hover img {
+        transform: scale(1.04) translateY(-2px);
+        filter: brightness(1.06);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    }
+}
+
+.gallery-carousel__dot {
+    transition: background 0.3s ease, width 0.3s ease, border-radius 0.3s ease;
+}
+
+.gallery-carousel__dot--active {
+    width: 22px;
+    border-radius: 4px;
+    transform: none;
+}
+
+/* Lightbox entrance */
+.lightbox__img {
+    animation: lightboxIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+}
+
+@keyframes lightboxIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Live-from-Instagram indicator */
+.live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 10px;
+    color: var(--gold-light);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.live-badge::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #3ddc84;
+    box-shadow: 0 0 6px rgba(61, 220, 132, 0.8);
+    animation: livePulse 2s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
+
+/* Mobile rendering performance: skip offscreen section layout.
+   NOT applied to .gallery-section — it hosts fixed-position overlays
+   (stories viewer, lightbox) that paint containment would clip. */
+@media (max-width: 768px) {
+    .reviews,
+    .services-section,
+    .about,
+    .contact {
+        content-visibility: auto;
+        contain-intrinsic-size: auto 600px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

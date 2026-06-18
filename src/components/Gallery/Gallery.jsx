@@ -3,27 +3,30 @@ import { useIsMobile } from '../../hooks/useIsMobile'
 import { useStories } from '../../hooks/useStories'
 import { useLightbox } from '../../hooks/useLightbox'
 import { useCarousel } from '../../hooks/useCarousel'
-import { allImages, allImageUrls, STORY_GROUPS } from '../../data/imageImports'
+import { useGalleryImages } from '../../hooks/useGalleryImages'
 import { GalleryView } from './GalleryView'
 
 export const Gallery = ({ showSeeAll = false }) => {
   const data = useGallery()
   const isMobile = useIsMobile()
-  const stories = useStories({ images: allImageUrls, duration: 5000 })
-  const lightbox = useLightbox(allImages.length)
-  const carousel = useCarousel({ totalItems: allImages.length, visibleCount: 4, interval: 5000 })
+  const { images, imageUrls, storyGroups, isLive } = useGalleryImages(12)
+
+  const stories = useStories({ images: imageUrls, duration: 5000 })
+  const lightbox = useLightbox(images.length)
+  const carousel = useCarousel({ totalItems: images.length, visibleCount: 4, interval: 5000 })
 
   return (
     <GalleryView
       {...data}
       showSeeAll={showSeeAll}
       isMobile={isMobile}
+      isLive={isLive}
       stories={stories}
       lightbox={lightbox}
       carousel={carousel}
-      allImages={allImages}
-      allImageUrls={allImageUrls}
-      storyGroups={STORY_GROUPS}
+      allImages={images}
+      allImageUrls={imageUrls}
+      storyGroups={storyGroups}
     />
   )
 }

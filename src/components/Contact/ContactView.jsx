@@ -1,4 +1,5 @@
 import { SectionHeader } from '../atoms/SectionHeader'
+import { BookingButton } from '../atoms/BookingButton'
 
 export const ContactView = ({
   sectionTag, title, addressLabel, addressLines, phoneLabel, phone, phoneHref,
@@ -50,14 +51,7 @@ export const ContactView = ({
             </div>
           </div>
           <div className="contact-actions">
-            <a
-              href={bookUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary booking-btn"
-            >
-              {bookBtn}
-            </a>
+            <BookingButton translations={bookBtn} url={bookUrl} className="booking-btn" />
             <a href={phoneHref} className="btn btn-secondary contact-call-btn">
               &#9742; {phone}
             </a>

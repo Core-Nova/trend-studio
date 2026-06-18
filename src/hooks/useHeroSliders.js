@@ -1,9 +1,21 @@
+/* globals THREE, TweenMax */
 import { useRef, useEffect } from 'react'
 import { useIsMobile } from './useIsMobile'
-import { imageData, allImages } from '../data/imageImports'
+import { imageData } from '../data/imageImports'
+
+// World-space plane dimensions for the WebGL sliders. The ratio (63/112) is
+// exactly 9:16 — identical to the hero images — so they map without distortion.
+// The CSS box (.hero-slider) carries the same 9:16 ratio, and the camera in
+// slider.js is positioned to fit this plane exactly at any viewport size.
+const PLANE_WIDTH = 63
+const PLANE_HEIGHT = 112
+
+// Below this width the two side sliders would be too narrow to look good, so
+// the hero falls back to the full-bleed crossfade (same imagery, no slivers).
+const HERO_SLIDER_BREAKPOINT = 992
 
 export const useHeroSliders = () => {
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile(HERO_SLIDER_BREAKPOINT)
   const leftRef = useRef(null)
   const rightRef = useRef(null)
   const disposersRef = useRef([])
@@ -13,25 +25,6 @@ export const useHeroSliders = () => {
 
     let mounted = true
     let pollTimer = null
-
-    const updateBannerWidths = () => {
-      const homeDiv = document.getElementById('home')
-      if (!homeDiv || !leftRef.current || !rightRef.current) return
-
-      const homeHeight = homeDiv.clientHeight
-
-      const leftImg = allImages.find(img => img.src === imageData.hero_left[0])
-      if (leftImg && leftRef.current.parentElement) {
-        const leftRatio = leftImg.width / leftImg.height
-        leftRef.current.parentElement.style.width = `${homeHeight * leftRatio}px`
-      }
-
-      const rightImg = allImages.find(img => img.src === imageData.hero_right[0])
-      if (rightImg && rightRef.current.parentElement) {
-        const rightRatio = rightImg.width / rightImg.height
-        rightRef.current.parentElement.style.width = `${homeHeight * rightRatio}px`
-      }
-    }
 
     const tryInit = () => {
       if (!mounted) return
@@ -47,8 +40,8 @@ export const useHeroSliders = () => {
           const d = createImageSlider({
             container: leftRef.current,
             images: imageData.hero_left,
-            width: 70,
-            height: 105
+            width: PLANE_WIDTH,
+            height: PLANE_HEIGHT
           })
           if (d) disposersRef.current.push(d)
         }
@@ -57,8 +50,8 @@ export const useHeroSliders = () => {
           const d = createImageSlider({
             container: rightRef.current,
             images: imageData.hero_right,
-            width: 70,
-            height: 105
+            width: PLANE_WIDTH,
+            height: PLANE_HEIGHT
           })
           if (d) disposersRef.current.push(d)
         }
@@ -66,13 +59,10 @@ export const useHeroSliders = () => {
     }
 
     tryInit()
-    updateBannerWidths()
-    window.addEventListener('resize', updateBannerWidths)
 
     return () => {
       mounted = false
       if (pollTimer) clearTimeout(pollTimer)
-      window.removeEventListener('resize', updateBannerWidths)
       disposersRef.current.forEach(d => d())
       disposersRef.current = []
     }

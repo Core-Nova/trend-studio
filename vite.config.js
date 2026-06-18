@@ -1,10 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
+import { imagetools } from 'vite-imagetools'
+
+const isIntegrated = process.env.VITE_DEPLOY_MODE === 'integrated'
+
+// Base URL strategy:
+//   - integrated mode (backend serves the SPA from `/`)         → '/'
+//   - custom domain (default GitHub Pages with CNAME → root)    → '/'
+//   - GitHub Pages without custom domain (user.github.io/repo/) → set VITE_BASE_PATH='/trend-studio/'
+const basePath = process.env.VITE_BASE_PATH ?? '/'
 
 export default defineConfig({
   plugins: [
     react(),
+    imagetools(),
     ViteImageOptimizer({
       png: { quality: 80 },
       jpeg: { quality: 80 },
@@ -12,7 +22,7 @@ export default defineConfig({
       webp: { quality: 80 },
     })
   ],
-  base: '/trend-studio/',
+  base: isIntegrated ? '/' : basePath,
   test: {
     environment: 'happy-dom',
     globals: true,
