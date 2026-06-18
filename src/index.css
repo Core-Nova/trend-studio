@@ -1157,10 +1157,17 @@ section {
 
 .contact-map {
     border: 3px solid var(--gold-primary);
+    display: flex;
+    flex-direction: column;
+    min-height: 500px;
 }
 
 .contact-map iframe {
     display: block;
+    width: 100%;
+    flex: 1;
+    min-height: 400px;
+    border: 0;
 }
 
 .map-link {
@@ -1182,8 +1189,7 @@ section {
 }
 
 .booking-btn {
-    margin-top: 25px;
-    display: inline-block;
+    margin-top: 0;
 }
 
 .footer {
@@ -2347,9 +2353,19 @@ section {
     flex-wrap: wrap;
 }
 
+/* Both Contact CTAs share equal width — sized to the longer one — and
+   center their text so the column reads as a tidy pair. */
+.contact-actions > * {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+    justify-content: center;
+}
+
 .contact-call-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
 }
 

@@ -4,15 +4,8 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
 import { useIsMobile } from './useIsMobile'
 
-const HOME_SCROLL_ITEMS = [
-  { href: '#home', label: 'home' },
-  { href: '#gallery', label: 'gallery' },
-  { href: '#about', label: 'about' },
-  { href: '#services', label: 'services' },
-  { href: '#reviews', label: 'reviews' },
-  { href: '#contact', label: 'contact' },
-]
-
+/* Nav always uses real routes — clicking Gallery/About/Services/Contact
+   navigates to the dedicated page instead of scrolling within the home page. */
 const PAGE_NAV_ITEMS = [
   { to: '/', label: 'home' },
   { to: '/gallery', label: 'gallery' },
@@ -27,9 +20,6 @@ export const useNavigation = () => {
   const location = useLocation()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-
-  const isHomePage = location.pathname === '/'
-  const useScrollNav = isHomePage && !isMobile
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50)
@@ -53,9 +43,7 @@ export const useNavigation = () => {
   const toggleMenu = () => setMenuOpen(prev => !prev)
   const closeMenu = () => setMenuOpen(false)
 
-  const navItems = useScrollNav
-    ? HOME_SCROLL_ITEMS.map(item => ({ ...item, text: t(translations.nav[item.label]) }))
-    : PAGE_NAV_ITEMS.map(item => ({ ...item, text: t(translations.nav[item.label]) }))
+  const navItems = PAGE_NAV_ITEMS.map(item => ({ ...item, text: t(translations.nav[item.label]) }))
 
   return {
     lang,
@@ -63,7 +51,6 @@ export const useNavigation = () => {
     isMobile,
     scrolled,
     menuOpen,
-    useScrollNav,
     toggleMenu,
     closeMenu,
     navItems,

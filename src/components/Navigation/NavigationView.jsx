@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
 export const NavigationView = ({
-  lang, changeLanguage, isMobile, scrolled, menuOpen, useScrollNav,
+  lang, changeLanguage, isMobile, scrolled, menuOpen,
   toggleMenu, closeMenu, navItems, bookBtnText, callText, phoneHref, currentPath
 }) => (
   <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
@@ -38,18 +38,14 @@ export const NavigationView = ({
           </li>
         )}
         {navItems.map(item => (
-          <li key={item.href || item.to}>
-            {useScrollNav ? (
-              <a href={item.href} onClick={closeMenu}>{item.text}</a>
-            ) : (
-              <Link
-                to={item.to}
-                onClick={closeMenu}
-                aria-current={currentPath === item.to ? 'page' : undefined}
-              >
-                {item.text}
-              </Link>
-            )}
+          <li key={item.to}>
+            <Link
+              to={item.to}
+              onClick={closeMenu}
+              aria-current={currentPath === item.to ? 'page' : undefined}
+            >
+              {item.text}
+            </Link>
           </li>
         ))}
         {menuOpen && isMobile && (

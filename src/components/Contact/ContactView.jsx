@@ -60,9 +60,6 @@ export const ContactView = ({
         <div className="contact-map">
           <iframe
             src={mapEmbedUrl}
-            width="100%"
-            height="400"
-            style={{ border: 0 }}
             allowFullScreen=""
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
