@@ -269,16 +269,13 @@ img {
 
 .hero-slider {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    /* 9:16 box matching the hero images. Height is driven by viewport size and
-       capped so the two sliders never overlap the centered hero text:
-       reserve ~640px in the middle, split the rest between both sliders, then
-       convert that width back to height (×8/9 = ×16/9 ÷ 2). */
-    height: min(80vh, calc((100vw - 640px) * 8 / 9));
+    /* Curtain from just below the fixed header to the bottom of the viewport.
+       Height is capped at viewport-minus-header AND at whatever 9:16 width fits
+       after reserving ~540px in the middle for the hero text/button. */
+    top: 90px;
+    height: min(calc(100vh - 90px), calc((100vw - 540px) / 2 * 16 / 9));
     aspect-ratio: 9 / 16;
     width: auto;
-    max-height: calc(100vh - 90px);
     z-index: 2;
     /* Outline (not border) so the content box stays exactly 9:16 — the WebGL
        canvas fills it edge-to-edge and the plane maps without any crop. */
@@ -841,7 +838,6 @@ section {
 
 .gallery-carousel-wrap {
     position: relative;
-    max-width: 1600px;
     margin: 20px auto 0;
     padding: 0 60px;
 }
@@ -857,7 +853,7 @@ section {
 }
 
 .gallery-carousel__slide {
-    flex: 0 0 calc(100% / 4);
+    flex: 0 0 calc(100% / var(--gallery-visible, 6));
     padding: 0 6px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
@@ -865,7 +861,8 @@ section {
 
 .gallery-carousel__slide img {
     width: 100%;
-    aspect-ratio: 3 / 4;
+    /* Match the salon photos' native phone-portrait ratio so no crop happens */
+    aspect-ratio: 9 / 16;
     object-fit: cover;
     border-radius: 6px;
     display: block;
