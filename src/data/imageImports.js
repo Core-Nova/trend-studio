@@ -83,7 +83,7 @@ const ALTS = [
   'Premium styling result at TREND Hair Boutique Studio Sofia',
 ]
 
-export const allImages = [...heroLeft, ...heroRight, ...gallery].map((v, i) => ({
+const rawImages = [...heroLeft, ...heroRight, ...gallery].map((v, i) => ({
   src: v.src,
   srcSet: v.srcSet,
   srcSetWebp: v.srcSetWebp,
@@ -93,6 +93,13 @@ export const allImages = [...heroLeft, ...heroRight, ...gallery].map((v, i) => (
   height: DIMENSIONS[i][1],
   alt: ALTS[i],
 }))
+
+const seen = new Set()
+export const allImages = rawImages.filter(img => {
+  if (seen.has(img.src)) return false
+  seen.add(img.src)
+  return true
+})
 
 export const allImageUrls = allImages.map(img => img.src)
 

@@ -1,42 +1,10 @@
 import { useEffect, useRef } from 'react'
-import { useSlider } from '../../hooks/useSlider'
 
 export const StoriesViewer = ({
   images, currentIndex, progress, onClose, onNext, onPrev, onPause, onResume,
   instagramUrl, instagramHandle, phoneHref, callText
 }) => {
   const viewerRef = useRef(null)
-  const canvasRef = useRef(null)
-  const prevIndexRef = useRef(null)
-  const isOpen = currentIndex !== null
-
-  const { ready, controls } = useSlider({
-    containerRef: canvasRef,
-    images,
-    autoPlay: false,
-    enabled: isOpen
-  })
-
-  useEffect(() => {
-    if (currentIndex === null || !controls.current) return
-    if (prevIndexRef.current === null) {
-      prevIndexRef.current = currentIndex
-      return
-    }
-    if (currentIndex !== prevIndexRef.current) {
-      const diff = currentIndex - prevIndexRef.current
-      if (diff > 0 || (prevIndexRef.current === images.length - 1 && currentIndex === 0)) {
-        controls.current.next()
-      } else {
-        controls.current.prev()
-      }
-      prevIndexRef.current = currentIndex
-    }
-  }, [currentIndex, controls, images.length])
-
-  useEffect(() => {
-    if (!isOpen) prevIndexRef.current = null
-  }, [isOpen])
 
   useEffect(() => {
     if (currentIndex !== null && viewerRef.current) {
@@ -75,14 +43,11 @@ export const StoriesViewer = ({
         ))}
       </div>
       <button className="stories-viewer__close" onClick={onClose} aria-label="Close">&times;</button>
-      {!ready && (
-        <img
-          src={images[currentIndex]}
-          alt={`TREND salon work ${currentIndex + 1}`}
-          className="stories-viewer__image"
-        />
-      )}
-      <div ref={canvasRef} className="stories-viewer__canvas" />
+      <img
+        src={images[currentIndex]}
+        alt={`TREND salon work ${currentIndex + 1}`}
+        className="stories-viewer__image"
+      />
       <div
         className="stories-viewer__tap-zones"
         onTouchStart={onPause}
@@ -98,6 +63,7 @@ export const StoriesViewer = ({
           aria-label="Previous image"
           onKeyDown={(e) => e.key === 'Enter' && onPrev()}
         />
+        <div className="stories-viewer__tap-center" />
         <div
           className="stories-viewer__tap-right"
           onClick={onNext}
