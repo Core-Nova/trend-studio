@@ -109,7 +109,7 @@ export const GalleryPage = () => {
         onPause={stories.pause}
         onResume={stories.resume}
         instagramUrl="https://instagram.com/trendbytedi"
-        instagramHandle="@trendbytedi"
+        instagramHandle="trendbytedi"
       />
     </div>
   )

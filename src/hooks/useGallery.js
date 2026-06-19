@@ -10,6 +10,6 @@ export const useGallery = () => {
     followText: t(translations.gallery.followText),
     seeAllBtn: t(translations.gallery.seeAllBtn),
     instagramUrl: 'https://instagram.com/trendbytedi',
-    instagramHandle: '@trendbytedi'
+    instagramHandle: 'trendbytedi'
   }
 }

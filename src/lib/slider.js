@@ -1,6 +1,6 @@
 /* globals THREE, TweenMax, Power0 */
 
-export const createImageSlider = ({ container, images, width, height, delay = 0 }) => {
+export const createImageSlider = ({ container, images, width, height, delay = 0, autoPlay = true }) => {
   if (!container || !images.length) return null
   if (typeof THREE === 'undefined' || typeof TweenMax === 'undefined') return null
 
@@ -11,9 +11,6 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
   })
   root.renderer.setClearColor(0x000000, 0)
 
-  // Position the camera so the plane's full height exactly fills the viewport.
-  // The container CSS keeps the same aspect ratio as the plane (width/height),
-  // so the image is shown with no stretching and no cropping at any monitor size.
   const fitDistance = (height / 2) / Math.tan((fov / 2) * Math.PI / 180)
   root.camera.position.set(0, 0, fitDistance)
 
@@ -24,10 +21,9 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
   let currentIndex = 0
   let disposed = false
   let pendingTimeout = null
+  let transitioning = false
+  let paused = false
 
-  // Downscale only if larger than the cap, preserving the aspect ratio.
-  // (Non-power-of-two textures render correctly here because the material uses
-  // LinearFilter + ClampToEdge wrapping and no mipmaps — see createSlideMaterial.)
   const MAX_TEXTURE_SIZE = 2048
   const capTextureSize = (image) => {
     const longest = Math.max(image.width, image.height)
@@ -59,32 +55,48 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
       )
     })
 
-  const runTransition = () => {
-    if (disposed) return
+  const runTransition = (nextIdx) => {
+    if (disposed || transitioning) return
+    transitioning = true
 
-    TweenMax.to(slideOut, 3.0, {
-      time: slideOut.totalDuration,
-      ease: Power0.easeInOut
-    })
+    if (nextIdx !== undefined) {
+      currentIndex = ((nextIdx % images.length) + images.length) % images.length
+    }
 
-    TweenMax.to(slideIn, 3.0, {
-      time: slideIn.totalDuration,
-      ease: Power0.easeInOut,
-      onComplete: () => {
-        if (disposed) return
+    const targetIndex = nextIdx !== undefined
+      ? currentIndex
+      : (currentIndex + 1) % images.length
 
-        currentIndex = (currentIndex + 1) % images.length
-        const nextIndex = (currentIndex + 1) % images.length
+    loadImage(images[targetIndex], slideIn).then(() => {
+      if (disposed) return
 
-        const currentImg = slideIn.material.uniforms.map.value.image
-        slideOut.setImage(currentImg)
-        slideOut.time = 0
+      TweenMax.to(slideOut, 3.0, {
+        time: slideOut.totalDuration,
+        ease: Power0.easeInOut
+      })
 
-        loadImage(images[nextIndex], slideIn).catch(() => { })
+      TweenMax.to(slideIn, 3.0, {
+        time: slideIn.totalDuration,
+        ease: Power0.easeInOut,
+        onComplete: () => {
+          if (disposed) return
+          transitioning = false
 
-        pendingTimeout = setTimeout(runTransition, 1000)
-      }
-    })
+          currentIndex = targetIndex
+
+          const currentImg = slideIn.material.uniforms.map.value.image
+          slideOut.setImage(currentImg)
+          slideOut.time = 0
+
+          const preloadIndex = (currentIndex + 1) % images.length
+          loadImage(images[preloadIndex], slideIn).catch(() => {})
+
+          if (autoPlay && !paused) {
+            pendingTimeout = setTimeout(() => runTransition(), 1000)
+          }
+        }
+      })
+    }).catch(() => { transitioning = false })
   }
 
   const initialLoads = [loadImage(images[0], slideOut)]
@@ -95,13 +107,17 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
   Promise.all(initialLoads)
     .then(() => {
       if (disposed) return
-      pendingTimeout = setTimeout(runTransition, delay + 1000)
+      if (autoPlay && !paused) {
+        pendingTimeout = setTimeout(() => runTransition(), delay + 1000)
+      }
     })
-    .catch(() => { })
+    .catch(() => {})
 
   const dispose = () => {
     disposed = true
     if (pendingTimeout) clearTimeout(pendingTimeout)
+    TweenMax.killTweensOf(slideOut)
+    TweenMax.killTweensOf(slideIn)
     root.dispose()
 
     if (slideOut.material.uniforms.map.value.image) {
@@ -117,7 +133,37 @@ export const createImageSlider = ({ container, images, width, height, delay = 0 
     slideIn.material.dispose()
   }
 
-  return dispose
+  return {
+    dispose,
+    next() {
+      if (disposed) return
+      if (pendingTimeout) clearTimeout(pendingTimeout)
+      const nextIdx = (currentIndex + 1) % images.length
+      runTransition(nextIdx)
+    },
+    prev() {
+      if (disposed) return
+      if (pendingTimeout) clearTimeout(pendingTimeout)
+      const prevIdx = (currentIndex - 1 + images.length) % images.length
+      runTransition(prevIdx)
+    },
+    pause() {
+      paused = true
+      if (pendingTimeout) {
+        clearTimeout(pendingTimeout)
+        pendingTimeout = null
+      }
+    },
+    resume() {
+      paused = false
+      if (autoPlay && !transitioning && !pendingTimeout) {
+        pendingTimeout = setTimeout(() => runTransition(), 1000)
+      }
+    },
+    getCurrentIndex() {
+      return currentIndex
+    }
+  }
 }
 
 class Slide extends THREE.Mesh {
@@ -268,7 +314,6 @@ const createSlideMaterial = (phase) => {
   texture.generateMipmaps = false
   texture.minFilter = THREE.LinearFilter
   texture.magFilter = THREE.LinearFilter
-  // Required for non-power-of-two textures in WebGL1 (avoids black/blank planes)
   texture.wrapS = THREE.ClampToEdgeWrapping
   texture.wrapT = THREE.ClampToEdgeWrapping
 

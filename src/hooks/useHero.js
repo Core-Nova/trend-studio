@@ -4,7 +4,7 @@ import { useHeroSliders } from './useHeroSliders'
 
 export const useHero = () => {
   const { t } = useLanguage()
-  const { leftRef, rightRef, isMobile } = useHeroSliders()
+  const { leftRef, rightRef, mobileRef, isMobile, sliderReady } = useHeroSliders()
 
   return {
     subtitle: t(translations.hero.subtitle),
@@ -12,6 +12,8 @@ export const useHero = () => {
     bookBtn: translations.hero.bookBtn,
     isMobile,
     leftRef,
-    rightRef
+    rightRef,
+    mobileRef,
+    sliderReady
   }
 }

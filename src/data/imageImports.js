@@ -97,7 +97,5 @@ export const allImages = [...heroLeft, ...heroRight, ...gallery].map((v, i) => (
 export const allImageUrls = allImages.map(img => img.src)
 
 export const STORY_GROUPS = [
-  { label: 'Hair', thumbnail: heroLeft[0].thumb, startIndex: 0 },
-  { label: 'Style', thumbnail: heroRight[0].thumb, startIndex: 4 },
-  { label: 'Gallery', thumbnail: gallery[0].thumb, startIndex: 9 },
+  { label: 'Gallery', thumbnail: gallery[0].thumb, startIndex: 0 },
 ]

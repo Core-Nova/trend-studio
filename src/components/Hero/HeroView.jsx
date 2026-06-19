@@ -9,12 +9,13 @@ import logoSrcAvif from '../../assets/brand/trend-logo.png?w=1378&format=avif&qu
 
 const mobileImages = [...imageData.hero_left, ...imageData.hero_right]
 
-export const HeroView = ({ subtitle, tagline, bookBtn, isMobile, leftRef, rightRef }) => (
+export const HeroView = ({ subtitle, tagline, bookBtn, isMobile, leftRef, rightRef, mobileRef, sliderReady }) => (
   <section id="home" className="hero">
     <div className="hero-overlay"></div>
     {isMobile && (
       <div className="hero-mobile-bg">
-        <ImageCrossfade images={mobileImages} interval={4000} />
+        {!sliderReady && <ImageCrossfade images={mobileImages} interval={4000} />}
+        <div ref={mobileRef} className="hero-mobile-slider" />
         <div className="hero-mobile-bg__overlay"></div>
       </div>
     )}
