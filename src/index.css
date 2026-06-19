@@ -2540,7 +2540,7 @@ section {
     transform: translateX(-50%);
     display: flex;
     gap: 12px;
-    z-index: 10;
+    z-index: 2003;
 }
 
 .stories-viewer__cta-call {
