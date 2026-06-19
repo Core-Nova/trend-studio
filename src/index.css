@@ -129,11 +129,20 @@ img {
 }
 
 .logo {
-    font-family: var(--font-display);
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--gold-primary);
-    letter-spacing: 4px;
+    display: flex;
+    align-items: center;
+    /* The brand mark image. Wider on desktop, slightly smaller when scrolled. */
+}
+
+.logo__img {
+    height: 44px;
+    width: auto;
+    display: block;
+    transition: height 0.3s ease;
+}
+
+.navbar.scrolled .logo__img {
+    height: 38px;
 }
 
 .nav-links {
@@ -339,6 +348,28 @@ section.hero .hero-slider canvas {
     text-shadow: 0 0 60px rgba(201, 162, 39, 0.3);
 }
 
+/* When the title is a logo image, drop the text-based styling and size the
+   picture itself. The h1 becomes a thin centering wrapper. */
+.hero-title--logo {
+    font-size: 0;
+    letter-spacing: 0;
+    text-shadow: none;
+    margin-bottom: 24px;
+    line-height: 1;
+}
+
+.hero-title--logo picture {
+    display: inline-block;
+}
+
+.hero-title--logo img {
+    width: clamp(280px, 42vw, 620px);
+    height: auto;
+    display: block;
+    /* Subtle ambient lift; smaller blur radius = sharper edges */
+    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45));
+}
+
 .hero-subtitle {
     font-family: var(--font-script);
     font-size: clamp(1.3rem, 3vw, 2rem);
@@ -488,6 +519,24 @@ section {
     font-weight: 400;
     color: var(--charcoal);
     letter-spacing: 3px;
+}
+
+/* When the section title is a logo image (Welcome to TREND section etc.),
+   strip the text styling and size the picture instead. */
+.section-title--logo {
+    font-size: 0;
+    line-height: 1;
+    letter-spacing: 0;
+}
+
+.section-title--logo picture {
+    display: inline-block;
+}
+
+.section-title--logo img {
+    width: clamp(220px, 32vw, 440px);
+    height: auto;
+    display: block;
 }
 
 .ornament {
@@ -1208,6 +1257,18 @@ section {
     color: var(--gold-primary);
     letter-spacing: 8px;
     margin-bottom: 10px;
+}
+
+.footer-logo--img {
+    margin-bottom: 14px;
+}
+
+.footer-logo--img img {
+    width: clamp(180px, 28vw, 320px);
+    height: auto;
+    display: inline-block;
+    /* The logo subtitle is dark; lift it slightly on the black footer */
+    filter: brightness(1.05);
 }
 
 .footer-tagline {

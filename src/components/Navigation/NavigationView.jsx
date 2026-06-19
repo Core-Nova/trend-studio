@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom'
+import logoSrc from '../../assets/brand/trend-logo.png?w=320&format=webp'
+import logoSrcAvif from '../../assets/brand/trend-logo.png?w=320&format=avif'
 
 export const NavigationView = ({
   lang, changeLanguage, isMobile, scrolled, menuOpen,
@@ -7,7 +9,12 @@ export const NavigationView = ({
   <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
     <a href="#main-content" className="skip-link">Skip to content</a>
     <div className="nav-container">
-      <Link to="/" className="logo">TREND</Link>
+      <Link to="/" className="logo" aria-label="TREND Hair Boutique Studio — home">
+        <picture>
+          <source type="image/avif" srcSet={logoSrcAvif} />
+          <img src={logoSrc} alt="" className="logo__img" />
+        </picture>
+      </Link>
       <button
         className={`mobile-menu-btn ${menuOpen ? 'active' : ''}`}
         aria-label="Toggle menu"

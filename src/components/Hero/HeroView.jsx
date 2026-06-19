@@ -4,6 +4,8 @@ import { ResponsiveImage } from '../atoms/ResponsiveImage'
 import { RatingBadge } from '../Reviews/RatingBadge'
 import { imageData, allImages } from '../../data/imageImports'
 import { googleReviews } from '../../data/reviews'
+import logoSrc from '../../assets/brand/trend-logo.png?w=1378&format=webp&quality=92'
+import logoSrcAvif from '../../assets/brand/trend-logo.png?w=1378&format=avif&quality=80'
 
 const mobileImages = [...imageData.hero_left, ...imageData.hero_right]
 
@@ -32,8 +34,13 @@ export const HeroView = ({ subtitle, tagline, bookBtn, isMobile, leftRef, rightR
       </div>
     )}
     <div className="hero-content">
-      <h1 className="hero-title">TREND</h1>
-      <p className="hero-subtitle">{subtitle}</p>
+      <h1 className="hero-title hero-title--logo">
+        <picture>
+          <source type="image/avif" srcSet={logoSrcAvif} />
+          <img src={logoSrc} alt="TREND Hair Boutique Studio" fetchpriority="high" />
+        </picture>
+        <span className="sr-only">TREND</span>
+      </h1>
       <p className="hero-tagline">{tagline}</p>
       <BookingButton translations={bookBtn} />
       <RatingBadge
