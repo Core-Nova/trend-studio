@@ -873,7 +873,8 @@ section {
 
 .gallery-section--page {
     min-height: auto;
-    padding-top: 30px;
+    margin-top: -80px;
+    padding-top: 110px;
 }
 
 .gallery-header {

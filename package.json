@@ -14,7 +14,9 @@
     "format": "prettier --write \"src/**/*.{js,jsx,css,json}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,css,json}\"",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "fetch-reviews": "node backend/scripts/fetch-reviews.mjs",
+    "fetch-reviews:override": "node backend/scripts/fetch-reviews.mjs --override"
   },
   "lint-staged": {
     "*.{js,jsx}": [
@@ -45,6 +47,7 @@
     "globals": "^16.5.0",
     "happy-dom": "^20.7.0",
     "lint-staged": "^16.3.1",
+    "playwright": "^1.61.0",
     "prettier": "^3.8.1",
     "sharp": "^0.34.5",
     "svgo": "^3.3.2",

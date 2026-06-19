@@ -9,11 +9,27 @@ export const useReviews = () => {
   const [live, setLive] = useState(null)
 
   useEffect(() => {
-    if (!apiEnabled) return
     let cancelled = false
-    fetchGoogleReviews().then(data => {
-      if (!cancelled && data) setLive(data)
-    })
+
+    // Priority 1: live backend API
+    if (apiEnabled) {
+      fetchGoogleReviews().then(data => {
+        if (!cancelled && data) setLive(data)
+      })
+      return () => { cancelled = true }
+    }
+
+    // Priority 2: static reviews.json (written by CI)
+    fetch(`${import.meta.env.BASE_URL}reviews.json`)
+      .then(r => {
+        if (!r.ok) throw new Error(r.status)
+        return r.json()
+      })
+      .then(data => {
+        if (!cancelled && data?.reviews?.length) setLive(data)
+      })
+      .catch(() => {})
+
     return () => { cancelled = true }
   }, [])
 
