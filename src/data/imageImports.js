@@ -10,25 +10,25 @@
  * <img> is enough (stories viewer), and a 320w WebP feeds the highlight rings.
  */
 
-const srcsetAvifGlob = import.meta.glob('../assets/images/**/*.jpg', {
+const srcsetAvifGlob = import.meta.glob('../assets/images/**/*.{jpg,png}', {
   eager: true,
   import: 'default',
   query: { format: 'avif', w: '480;768;1080;1600', as: 'srcset' },
 })
 
-const srcsetWebpGlob = import.meta.glob('../assets/images/**/*.jpg', {
+const srcsetWebpGlob = import.meta.glob('../assets/images/**/*.{jpg,png}', {
   eager: true,
   import: 'default',
   query: { format: 'webp', w: '480;768;1080;1600', as: 'srcset' },
 })
 
-const mediumGlob = import.meta.glob('../assets/images/**/*.jpg', {
+const mediumGlob = import.meta.glob('../assets/images/**/*.{jpg,png}', {
   eager: true,
   import: 'default',
   query: { format: 'webp', w: '1080' },
 })
 
-const thumbGlob = import.meta.glob('../assets/images/**/*.jpg', {
+const thumbGlob = import.meta.glob('../assets/images/**/*.{jpg,png}', {
   eager: true,
   import: 'default',
   query: { format: 'webp', w: '320' },
