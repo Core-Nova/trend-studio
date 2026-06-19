@@ -45,8 +45,8 @@ const variant = (category, file) => ({
 })
 
 const HERO_LEFT = ['1-story.jpg', '2-story.jpg', 'evastoryedit3.jpg', 'girl1-story.jpg']
-const HERO_RIGHT = ['1-diana.jpg', '1-story.jpg', '5-story.jpg', 'danielastory.jpg']
-const GALLERY = ['1-post.jpg', '3-post.jpg', 'BS5A9854editmogi.jpg', 'evapostedit3.jpg']
+const HERO_RIGHT = ['1-diana.jpg', '1-story.jpg', '5-story.jpg', '1-story.png', 'story.png']
+const GALLERY = ['1-post.jpg', 'evapostedit3.jpg', '1-story.png', 'story.png']
 
 const heroLeft = HERO_LEFT.map(f => variant('hero-left', f))
 const heroRight = HERO_RIGHT.map(f => variant('hero-right', f))
@@ -59,9 +59,12 @@ export const imageData = {
 }
 
 const DIMENSIONS = [
+  // hero-left: 1-story.jpg, 2-story.jpg, evastoryedit3.jpg, girl1-story.jpg
   [3024, 5363], [2646, 4706], [1080, 1920], [1080, 1920],
-  [2636, 4692], [2308, 4103], [2956, 5255], [1080, 1920],
-  [2685, 3356], [3300, 4116], [4480, 6720], [3061, 3827],
+  // hero-right: 1-diana.jpg, 1-story.jpg, 5-story.jpg, 1-story.png, story.png
+  [2636, 4692], [2308, 4103], [2956, 5255], [2933, 5224], [2734, 4537],
+  // gallery: 1-post.jpg, evapostedit3.jpg, 1-story.png, story.png
+  [2685, 3356], [3061, 3827], [2933, 5224], [2734, 4537],
 ]
 
 const ALTS = [
@@ -72,11 +75,12 @@ const ALTS = [
   'Balayage and coloring result at TREND Hair Boutique Studio',
   'Hair colour transformation at TREND salon Sofia',
   'Luxury hair treatment result at TREND Hair Boutique Studio',
-  'Professional hair styling session at TREND salon Sofia',
+  'Professional hair styling at TREND Hair Boutique Studio Sofia',
+  'Elegant styling at TREND Hair Boutique Studio Sofia',
   'Hair styling and colour work by TREND Hair Boutique Studio Sofia',
-  'Premium coloring and highlights at TREND salon Sofia',
-  'Professional hair transformation at TREND Hair Boutique Studio',
   'Elegant styling result at TREND Hair Boutique Studio Sofia',
+  'Professional hair transformation at TREND Hair Boutique Studio',
+  'Premium styling result at TREND Hair Boutique Studio Sofia',
 ]
 
 export const allImages = [...heroLeft, ...heroRight, ...gallery].map((v, i) => ({
@@ -95,5 +99,5 @@ export const allImageUrls = allImages.map(img => img.src)
 export const STORY_GROUPS = [
   { label: 'Hair', thumbnail: heroLeft[0].thumb, startIndex: 0 },
   { label: 'Style', thumbnail: heroRight[0].thumb, startIndex: 4 },
-  { label: 'Gallery', thumbnail: gallery[0].thumb, startIndex: 8 },
+  { label: 'Gallery', thumbnail: gallery[0].thumb, startIndex: 9 },
 ]
