@@ -110,52 +110,52 @@ export const translations = {
 
   seo: {
     title: {
-      en: 'TREND | Hair Boutique Studio - Professional Hairstyling in Sofia',
-      bg: 'TREND | Бутиково фризьорско студио - Професионално фризьорство в София'
+      en: 'TREND Hair Boutique Studio Sofia | Best Hairdresser & Hair Salon Near You',
+      bg: 'TREND Бутиково фризьорско студио София | Най-добър фризьор и салон близо до вас'
     },
     description: {
-      en: 'TREND Hair Boutique Studio at Tsar Kaloyan 8, Sofia. Luxury hair styling, premium coloring with KYDRA, ALTERNA and Olaplex treatments, eyelash extensions. Book your appointment today.',
-      bg: 'TREND Бутиково фризьорско студио на ул. Цар Калоян 8, София. Луксозно подстригване, премиум боядисване с KYDRA, терапии с ALTERNA и Olaplex, удължаване на мигли. Запазете час днес.'
+      en: 'TREND Hair Boutique Studio — luxury hair salon at Tsar Kaloyan 8, central Sofia. Professional haircuts, balayage, hair coloring with KYDRA, Olaplex & ALTERNA treatments, eyelash extensions. Book your appointment online today.',
+      bg: 'TREND Бутиково фризьорско студио — луксозен фризьорски салон на ул. Цар Калоян 8, център София. Професионално подстригване, балеаж, боядисване с KYDRA, терапии с Olaplex и ALTERNA, удължаване на мигли. Запазете час онлайн.'
     },
     galleryTitle: {
-      en: 'TREND Gallery | Hair Styling Portfolio Sofia',
-      bg: 'TREND Галерия | Портфолио фризьорство София'
+      en: 'Hair Styling Gallery | Balayage, Coloring & Haircuts Sofia — TREND Studio',
+      bg: 'Галерия фризьорство | Балеаж, боядисване и подстригване София — TREND Студио'
     },
     galleryDescription: {
-      en: 'Browse our portfolio of hair styling, coloring, and treatments at TREND Hair Boutique Studio, Sofia.',
-      bg: 'Разгледайте нашето портфолио от подстригвания, боядисвания и терапии в TREND Бутиково фризьорско студио, София.'
+      en: 'See our latest hair transformations — balayage, hair coloring, blow dry styling, and haircuts at TREND Hair Boutique Studio in Sofia. Real results from our expert stylists.',
+      bg: 'Вижте последните ни трансформации — балеаж, боядисване, оформяне със сешоар и подстригване в TREND Бутиково фризьорско студио, София. Реални резултати от нашите стилисти.'
     },
     servicesTitle: {
-      en: 'Hair Services & Prices | TREND Sofia',
-      bg: 'Фризьорски услуги и цени | TREND София'
+      en: 'Hair Services & Prices | Haircuts, Coloring, Treatments — TREND Sofia',
+      bg: 'Фризьорски услуги и цени | Подстригване, боядисване, терапии — TREND София'
     },
     servicesDescription: {
-      en: 'Professional haircuts, premium coloring, hair treatments, and eyelash extensions. See our full price list.',
-      bg: 'Професионално подстригване, премиум боядисване, терапии за коса и удължаване на мигли. Вижте пълния ценоразпис.'
+      en: 'Full price list — women\'s haircuts, blow dry, balayage, premium hair coloring with KYDRA, Olaplex & ALTERNA hair treatments, eyelash extensions. Best hair salon in central Sofia.',
+      bg: 'Пълен ценоразпис — дамско подстригване, сешоар, балеаж, премиум боядисване с KYDRA, терапии с Olaplex и ALTERNA, удължаване на мигли. Най-добрият салон в центъра на София.'
     },
     aboutTitle: {
-      en: 'About TREND | Luxury Hair Salon Sofia',
-      bg: 'За TREND | Луксозен фризьорски салон София'
+      en: 'About TREND | Luxury Hair Salon in Central Sofia, Bulgaria',
+      bg: 'За TREND | Луксозен фризьорски салон в центъра на София'
     },
     aboutDescription: {
-      en: 'TREND Hair Boutique Studio combines baroque elegance with modern techniques. Expert stylists, premium products, luxurious atmosphere.',
-      bg: 'TREND Бутиково фризьорско студио съчетава барокова елегантност със съвременни техники. Експерт стилисти, първокласни продукти, луксозна атмосфера.'
+      en: 'TREND Hair Boutique Studio — expert stylists, premium brands (ALTERNA, Olaplex, KYDRA), baroque-inspired atmosphere. The best hairdresser experience in Sofia.',
+      bg: 'TREND Бутиково фризьорско студио — експерт стилисти, премиум марки (ALTERNA, Olaplex, KYDRA), барокова атмосфера. Най-доброто фризьорско изживяване в София.'
     },
     contactTitle: {
-      en: 'Contact TREND | Tsar Kaloyan 8, Sofia',
-      bg: 'Контакти TREND | Цар Калоян 8, София'
+      en: 'Contact & Book Appointment | TREND Hair Salon — Tsar Kaloyan 8, Sofia',
+      bg: 'Контакти и запази час | TREND Фризьорски салон — Цар Калоян 8, София'
     },
     contactDescription: {
-      en: 'Visit TREND Hair Boutique Studio at 8 Tsar Kaloyan St., Sofia. Book your appointment online or call us.',
-      bg: 'Посетете TREND Бутиково фризьорско студио на ул. Цар Калоян 8, София. Запазете час онлайн или ни се обадете.'
+      en: 'Book your appointment at TREND Hair Boutique Studio — 8 Tsar Kaloyan St., central Sofia. Call, Viber, or book online. Open Mon–Sun.',
+      bg: 'Запазете час в TREND Бутиково фризьорско студио — ул. Цар Калоян 8, центъра на София. Обадете се, пишете във Viber или резервирайте онлайн. Отворено Пон–Нед.'
     },
     notFoundTitle: {
-      en: 'TREND | Page Not Found',
-      bg: 'TREND | Страницата не е намерена'
+      en: 'Page Not Found | TREND Hair Boutique Studio Sofia',
+      bg: 'Страницата не е намерена | TREND Фризьорско студио София'
     },
     notFoundDescription: {
-      en: 'The page you are looking for does not exist.',
-      bg: 'Страницата, която търсите, не съществува.'
+      en: 'The page you are looking for does not exist. Visit our homepage to explore TREND Hair Boutique Studio services.',
+      bg: 'Страницата, която търсите, не съществува. Посетете началната ни страница за услугите на TREND Бутиково фризьорско студио.'
     }
   },
 
