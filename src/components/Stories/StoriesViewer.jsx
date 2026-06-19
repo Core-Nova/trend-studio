@@ -7,6 +7,7 @@ export const StoriesViewer = ({
 }) => {
   const viewerRef = useRef(null)
   const canvasRef = useRef(null)
+  const prevIndexRef = useRef(null)
   const isOpen = currentIndex !== null
 
   const { ready, controls } = useSlider({
@@ -16,15 +17,26 @@ export const StoriesViewer = ({
     enabled: isOpen
   })
 
-  const handleNext = () => {
-    if (controls.current) controls.current.next()
-    onNext()
-  }
+  useEffect(() => {
+    if (currentIndex === null || !controls.current) return
+    if (prevIndexRef.current === null) {
+      prevIndexRef.current = currentIndex
+      return
+    }
+    if (currentIndex !== prevIndexRef.current) {
+      const diff = currentIndex - prevIndexRef.current
+      if (diff > 0 || (prevIndexRef.current === images.length - 1 && currentIndex === 0)) {
+        controls.current.next()
+      } else {
+        controls.current.prev()
+      }
+      prevIndexRef.current = currentIndex
+    }
+  }, [currentIndex, controls, images.length])
 
-  const handlePrev = () => {
-    if (controls.current) controls.current.prev()
-    onPrev()
-  }
+  useEffect(() => {
+    if (!isOpen) prevIndexRef.current = null
+  }, [isOpen])
 
   useEffect(() => {
     if (currentIndex !== null && viewerRef.current) {
@@ -36,8 +48,8 @@ export const StoriesViewer = ({
 
   const handleKeyDown = (e) => {
     if (e.key === 'Escape') onClose()
-    else if (e.key === 'ArrowLeft') handlePrev()
-    else if (e.key === 'ArrowRight') handleNext()
+    else if (e.key === 'ArrowLeft') onPrev()
+    else if (e.key === 'ArrowRight') onNext()
   }
 
   return (
@@ -80,19 +92,19 @@ export const StoriesViewer = ({
       >
         <div
           className="stories-viewer__tap-left"
-          onClick={handlePrev}
+          onClick={onPrev}
           role="button"
           tabIndex={0}
           aria-label="Previous image"
-          onKeyDown={(e) => e.key === 'Enter' && handlePrev()}
+          onKeyDown={(e) => e.key === 'Enter' && onPrev()}
         />
         <div
           className="stories-viewer__tap-right"
-          onClick={handleNext}
+          onClick={onNext}
           role="button"
           tabIndex={0}
           aria-label="Next image"
-          onKeyDown={(e) => e.key === 'Enter' && handleNext()}
+          onKeyDown={(e) => e.key === 'Enter' && onNext()}
         />
       </div>
       <div className="stories-viewer__cta">
