@@ -11,7 +11,7 @@ export const ReviewsView = ({
     <div className="container">
       <SectionHeader tag={sectionTag} title={title} />
       <RatingBadge rating={rating} totalCount={totalCount} profileUrl={googleUrl} />
-      <ReviewsCarousel reviews={reviews} lang={lang} />
+      <ReviewsCarousel reviews={reviews} lang={lang} googleUrl={googleUrl} />
       <div className="google-reviews-link">
         <a
           href={googleUrl}

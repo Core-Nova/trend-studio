@@ -1121,6 +1121,7 @@ section {
 .reviews--bg > .container {
     position: relative;
     z-index: 1;
+    text-align: center;
 }
 
 .reviews--bg .section-tag,
@@ -2330,8 +2331,16 @@ section {
     text-align: center;
 }
 
+.reviews-carousel__track {
+    height: 350px;
+    display: flex;
+    align-items: flex-start;
+    overflow: hidden;
+}
+
 .review-card {
     padding: 30px 20px;
+    width: 100%;
 }
 
 .review-card__stars {
@@ -2359,13 +2368,23 @@ section {
     margin: 0 0 20px;
     padding: 0;
     border: none;
+    max-height: none;
+    overflow: hidden;
 }
 
-.review-card__author {
+a.review-card__author {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+a.review-card__author:hover {
+    opacity: 0.8;
 }
 
 .review-card__avatar {
