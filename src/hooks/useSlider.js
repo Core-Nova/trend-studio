@@ -38,12 +38,15 @@ export const useSlider = ({
           width,
           height,
           delay,
-          autoPlay
+          autoPlay,
+          onReady: () => {
+            if (!mounted) return
+            setReady(true)
+          }
         })
 
         if (slider) {
           controlsRef.current = slider
-          setReady(true)
         }
       }).catch(() => {})
     }

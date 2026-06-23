@@ -2,17 +2,17 @@ import { useState, useEffect } from 'react'
 
 export const ImageCrossfade = ({ images, interval = 4000, className = '' }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [loaded, setLoaded] = useState(false)
+  const [cycling, setCycling] = useState(false)
 
   useEffect(() => {
-    if (!images.length) return
+    if (images.length < 2) return
     const img = new Image()
-    img.onload = () => setLoaded(true)
-    img.src = images[0]
+    img.onload = () => setCycling(true)
+    img.src = images[1]
   }, [images])
 
   useEffect(() => {
-    if (!loaded || images.length < 2) return
+    if (!cycling || images.length < 2) return
 
     const timer = setInterval(() => {
       setCurrentIndex(prev => {
@@ -24,7 +24,7 @@ export const ImageCrossfade = ({ images, interval = 4000, className = '' }) => {
     }, interval)
 
     return () => clearInterval(timer)
-  }, [loaded, images.length, interval])
+  }, [cycling, images.length, interval])
 
   if (!images.length) return null
 
@@ -41,6 +41,7 @@ export const ImageCrossfade = ({ images, interval = 4000, className = '' }) => {
         src={images[currentIndex]}
         alt="TREND Hair Boutique Studio"
         className="image-crossfade__img image-crossfade__img--active"
+        loading="eager"
       />
     </div>
   )

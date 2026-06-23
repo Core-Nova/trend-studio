@@ -1,6 +1,6 @@
 /* globals THREE, TweenMax, Power0 */
 
-export const createImageSlider = ({ container, images, width, height, delay = 0, autoPlay = true }) => {
+export const createImageSlider = ({ container, images, width, height, delay = 0, autoPlay = true, onReady }) => {
   if (!container || !images.length) return null
   if (typeof THREE === 'undefined' || typeof TweenMax === 'undefined') return null
 
@@ -16,7 +16,6 @@ export const createImageSlider = ({ container, images, width, height, delay = 0,
 
   const slideOut = new Slide(width, height, 'out')
   const slideIn = new Slide(width, height, 'in')
-  root.scene.add(slideOut, slideIn)
 
   let currentIndex = 0
   let disposed = false
@@ -107,6 +106,8 @@ export const createImageSlider = ({ container, images, width, height, delay = 0,
   Promise.all(initialLoads)
     .then(() => {
       if (disposed) return
+      root.scene.add(slideOut, slideIn)
+      if (onReady) onReady()
       if (autoPlay && !paused) {
         pendingTimeout = setTimeout(() => runTransition(), delay + 1000)
       }

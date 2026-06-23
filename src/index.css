@@ -323,7 +323,6 @@ section.hero .hero-slider canvas {
     display: block;
     width: 100%;
     height: 100%;
-    background-image: radial-gradient(#444, #222);
     cursor: default;
 }
 
