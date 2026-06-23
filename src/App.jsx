@@ -5,7 +5,9 @@ import { LanguageProvider } from './contexts/LanguageContext'
 import { Navigation } from './components/Navigation/Navigation'
 import { Footer } from './components/Footer/Footer'
 import { StickyBooking } from './components/StickyBooking/StickyBooking'
+import { BackToTop } from './components/BackToTop/BackToTop'
 import { HomePage } from './pages/HomePage'
+import logoSrc from './assets/brand/trend-logo.png?w=200&format=webp&quality=80'
 
 const GalleryPage = lazy(() => import('./pages/GalleryPage'))
 const ServicesPage = lazy(() => import('./pages/ServicesPage'))
@@ -25,7 +27,7 @@ const AppRoutes = () => {
     <>
       <Navigation />
       <main id="main-content">
-        <Suspense fallback={<div className="page-loading" />}>
+        <Suspense fallback={<div className="page-loading"><img src={logoSrc} alt="" className="page-loading__logo" /></div>}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/gallery" element={<GalleryPage />} />
@@ -38,6 +40,7 @@ const AppRoutes = () => {
       </main>
       <Footer />
       <StickyBooking currentRoute={location.pathname} />
+      <BackToTop />
     </>
   )
 }

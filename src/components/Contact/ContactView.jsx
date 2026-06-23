@@ -1,12 +1,15 @@
 import { SectionHeader } from '../atoms/SectionHeader'
 import { BookingButton } from '../atoms/BookingButton'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 
 export const ContactView = ({
   sectionTag, title, addressLabel, addressLines, phoneLabel, phone, phoneHref,
   viberUrl, viberText, emailLabel, email, emailHref, hoursLabel, hoursLines,
   bookBtn, bookUrl, mapLink, mapEmbedUrl, mapSearchUrl
-}) => (
-  <section id="contact" className="contact">
+}) => {
+  const { ref, revealed } = useScrollReveal()
+  return (
+  <section id="contact" className={`contact scroll-reveal ${revealed ? 'scroll-reveal--visible' : ''}`} ref={ref}>
     <div className="container">
       <SectionHeader tag={sectionTag} title={title} />
       <div className="contact-content">
@@ -77,4 +80,5 @@ export const ContactView = ({
       </div>
     </div>
   </section>
-)
+  )
+}

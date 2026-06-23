@@ -1,6 +1,7 @@
 import { useState, memo } from 'react'
 import { Link } from 'react-router-dom'
 import { SectionHeader } from '../atoms/SectionHeader'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 
 const ExpandIcon = ({ expanded }) => (
   <svg
@@ -101,8 +102,10 @@ const CategoryCard = memo(({ icon, name, count, description, items, preview, has
 export const ServicesView = ({
   sectionTag, title, categories, note, ctaText, ctaUrl,
   showSeeAll, seeAllBtn
-}) => (
-  <section id="services" className="services-section">
+}) => {
+  const { ref, revealed } = useScrollReveal()
+  return (
+  <section id="services" className={`services-section scroll-reveal ${revealed ? 'scroll-reveal--visible' : ''}`} ref={ref}>
     <div className="container">
       <SectionHeader tag={sectionTag} title={title} />
       <div className="svc-grid">
@@ -125,4 +128,5 @@ export const ServicesView = ({
       )}
     </div>
   </section>
-)
+  )
+}

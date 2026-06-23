@@ -38,6 +38,9 @@ export const HomePage = () => {
             </Link>
           ))}
         </div>
+        <Gallery showSeeAll />
+        <Reviews />
+        <Contact />
       </>
     )
   }

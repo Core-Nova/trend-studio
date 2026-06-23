@@ -3,6 +3,7 @@ import { SectionHeader } from '../atoms/SectionHeader'
 import { ResponsiveImage } from '../atoms/ResponsiveImage'
 import { StoriesHighlights } from '../Stories/StoriesHighlights'
 import { StoriesViewer } from '../Stories/StoriesViewer'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 
 const Lightbox = ({ images, index, onClose, onPrev, onNext, lightboxRef }) => {
   if (index === null) return null
@@ -43,8 +44,10 @@ const VISIBLE = 6
 export const GalleryView = ({
   sectionTag, title, followText, instagramUrl, instagramHandle,
   showSeeAll, seeAllBtn, isMobile, isLive, stories, lightbox, carousel, allImages, allImageUrls, storyGroups
-}) => (
-  <section id="gallery" className="gallery-section">
+}) => {
+  const { ref, revealed } = useScrollReveal()
+  return (
+  <section id="gallery" className={`gallery-section scroll-reveal ${revealed ? 'scroll-reveal--visible' : ''}`} ref={ref}>
     <div className="gallery-header">
       <SectionHeader tag={sectionTag} title={title} />
     </div>
@@ -153,4 +156,5 @@ export const GalleryView = ({
       />
     )}
   </section>
-)
+  )
+}
