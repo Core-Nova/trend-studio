@@ -59,11 +59,11 @@ export const translations = {
     consultCta: {
       title: { en: 'Not sure which service?', bg: 'Не сте сигурни коя услуга?' },
       body: {
-        en: 'Get a personal hair consultation at TREND Hair Boutique Studio in central Sofia. Free expert advice to choose the right cut, colour, or treatment for your hair.',
-        bg: 'Получете персонална консултация в TREND Бутиково фризьорско студио в центъра на София. Безплатен експертен съвет за избор на правилно подстригване, боядисване или терапия.'
+        en: 'Message us on Viber with a photo of your hair — Tedi will recommend the right service for you. Free, no booking required.',
+        bg: 'Пишете ни във Viber със снимка на косата си — Теди ще ви препоръча правилната услуга. Безплатно, без запазен час.'
       },
-      ctaText: { en: 'Call to book a consultation', bg: 'Обадете се за консултация' },
-      phone: { en: '+359 888 599 590', bg: '+359 888 599 590' }
+      ctaText: { en: 'Chat on Viber for a consultation', bg: 'Пишете във Viber за консултация' },
+      handle: { en: '+359 888 599 590', bg: '+359 888 599 590' }
     }
   },
 

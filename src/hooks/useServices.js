@@ -41,8 +41,8 @@ export const useServices = ({ withPricing = false } = {}) => {
     title: t(translations.services.consultCta.title),
     body: t(translations.services.consultCta.body),
     ctaText: t(translations.services.consultCta.ctaText),
-    phone: t(translations.services.consultCta.phone),
-    phoneHref: 'tel:+359888599590'
+    handle: t(translations.services.consultCta.handle),
+    href: 'viber://chat?number=%2B359888599590'
   } : null
 
   return {
