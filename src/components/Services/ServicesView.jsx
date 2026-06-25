@@ -2,6 +2,25 @@ import { useState, memo } from 'react'
 import { Link } from 'react-router-dom'
 import { SectionHeader } from '../atoms/SectionHeader'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { trackEvent } from '../../lib/analytics'
+
+const ConsultationCTA = memo(({ title, body, ctaText, phone, phoneHref }) => (
+  <a
+    href={phoneHref}
+    className="svc-consult"
+    onClick={() => trackEvent('contact', { method: 'phone', location: 'services_consultation_cta' })}
+  >
+    <span className="svc-consult__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+        <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1.003 1.003 0 011.01-.24c1.12.37 2.33.57 3.57.57.55 0 1.01.46 1.01 1.01v3.49c0 .55-.46 1.01-1.01 1.01C10.07 21.02 2.98 13.93 2.98 5.02c0-.55.46-1.01 1.01-1.01H7.5c.55 0 1.01.46 1.01 1.01 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.01l-2.22 2.19z"/>
+      </svg>
+    </span>
+    <h3 className="svc-consult__title">{title}</h3>
+    <p className="svc-consult__body">{body}</p>
+    <span className="svc-consult__cta">{ctaText}</span>
+    <span className="svc-consult__phone">{phone}</span>
+  </a>
+))
 
 const ExpandIcon = ({ expanded }) => (
   <svg
@@ -101,7 +120,7 @@ const CategoryCard = memo(({ icon, name, count, description, items, preview, has
 
 export const ServicesView = ({
   sectionTag, title, categories, note, ctaText, ctaUrl,
-  showSeeAll, seeAllBtn
+  showSeeAll, seeAllBtn, consultCta
 }) => {
   const { ref, revealed } = useScrollReveal()
   return (
@@ -109,9 +128,17 @@ export const ServicesView = ({
     <div className="container">
       <SectionHeader tag={sectionTag} title={title} />
       <div className="svc-grid">
-        {categories.map(category => (
-          <CategoryCard key={category.id} {...category} />
-        ))}
+        {categories.map((category, i) => {
+          if (consultCta && i === 1) {
+            return (
+              <div key={category.id} className="svc-col-stack">
+                <CategoryCard {...category} />
+                <ConsultationCTA {...consultCta} />
+              </div>
+            )
+          }
+          return <CategoryCard key={category.id} {...category} />
+        })}
       </div>
       {note && <p className="svc-note">{note}</p>}
       {ctaUrl && (

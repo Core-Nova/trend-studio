@@ -92,6 +92,19 @@
             "price_bgn": 9.99,
             "price_note": null,
             "options": null
+          },
+          {
+            "name": { "en": "Flat Iron / Curling Iron", "bg": "Преса / Маша" },
+            "duration": { "en": "45 min - 1h 15min", "bg": "45 мин. - 1 ч. 15 мин." },
+            "price_eur": 23.01,
+            "price_bgn": 45.00,
+            "price_note": { "en": "from", "bg": "от" },
+            "options": [
+              { "name": { "en": "Long hair (L, no wash)", "bg": "размер L (без измиване)" }, "duration": "45 min", "eur": 23.01, "bgn": 45.00 },
+              { "name": { "en": "Very long (XL, no wash)", "bg": "размер XL (без измиване)" }, "duration": "1h", "eur": 33.23, "bgn": 64.99 },
+              { "name": { "en": "XXL (no wash)", "bg": "размер XXL (без измиване)" }, "duration": "1h 15min", "eur": 56.24, "bgn": 110.00 },
+              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "1h 15min", "eur": 56.24, "bgn": 110.00 }
+            ]
           }
         ]
       },
@@ -147,25 +160,6 @@
             "options": [
               { "name": { "en": "Nourishing toner", "bg": "подхранващо тониране" }, "duration": "40 min", "eur": 30.68, "bgn": 60.00 },
               { "name": { "en": "Nourishing toner (premium)", "bg": "подхранващо тониране (premium)" }, "duration": "40 min", "eur": 40.90, "bgn": 79.99 }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "curling-straightening",
-        "name": { "en": "Curling & Straightening", "bg": "Къдрене и изправяне" },
-        "items": [
-          {
-            "name": { "en": "Flat Iron / Curling Iron", "bg": "Преса / Маша" },
-            "duration": { "en": "45 min - 1h 15min", "bg": "45 мин. - 1 ч. 15 мин." },
-            "price_eur": 23.01,
-            "price_bgn": 45.00,
-            "price_note": { "en": "from", "bg": "от" },
-            "options": [
-              { "name": { "en": "Long hair (L, no wash)", "bg": "размер L (без измиване)" }, "duration": "45 min", "eur": 23.01, "bgn": 45.00 },
-              { "name": { "en": "Very long (XL, no wash)", "bg": "размер XL (без измиване)" }, "duration": "1h", "eur": 33.23, "bgn": 64.99 },
-              { "name": { "en": "XXL (no wash)", "bg": "размер XXL (без измиване)" }, "duration": "1h 15min", "eur": 56.24, "bgn": 110.00 },
-              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "1h 15min", "eur": 56.24, "bgn": 110.00 }
             ]
           }
         ]

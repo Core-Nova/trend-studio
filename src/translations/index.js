@@ -43,23 +43,28 @@ export const translations = {
     title: { en: 'Our Services', bg: 'Нашите услуги' },
     descriptions: [
       {
-        en: 'Precision cuts, blow drying, and formal hairstyles tailored to your personal style.',
-        bg: 'Прецизни подстригвания, сешоар и официални прически, съобразени с вашия стил.'
+        en: 'Precision cuts, blow drying, flat iron and curling iron styling, and formal hairstyles tailored to your personal style.',
+        bg: 'Прецизни подстригвания, сешоар, стилизиране с преса и маша, и официални прически, съобразени с вашия стил.'
       },
       {
         en: 'Premium coloring, highlights, balayage, and bonding care with top-class products.',
         bg: 'Премиум боядисване, кичури, балеаж и бондинг грижа с първокласни продукти.'
       },
       {
-        en: 'Professional flat iron and curling iron styling for all hair lengths.',
-        bg: 'Професионално стилизиране с преса и маша за всички дължини коса.'
-      },
-      {
         en: 'Revitalizing treatments with ALTERNA, REDKEN, and exclusive formulas to restore and strengthen.',
         bg: 'Ревитализиращи терапии с ALTERNA, REDKEN и ексклузивни формули за възстановяване и укрепване.'
       }
     ],
-    seeAllBtn: { en: 'See All Services & Prices', bg: 'Вижте всички услуги и цени' }
+    seeAllBtn: { en: 'See All Services & Prices', bg: 'Вижте всички услуги и цени' },
+    consultCta: {
+      title: { en: 'Not sure which service?', bg: 'Не сте сигурни коя услуга?' },
+      body: {
+        en: 'Get a personal hair consultation at TREND Hair Boutique Studio in central Sofia. Free expert advice to choose the right cut, colour, or treatment for your hair.',
+        bg: 'Получете персонална консултация в TREND Бутиково фризьорско студио в центъра на София. Безплатен експертен съвет за избор на правилно подстригване, боядисване или терапия.'
+      },
+      ctaText: { en: 'Call to book a consultation', bg: 'Обадете се за консултация' },
+      phone: { en: '+359 888 599 590', bg: '+359 888 599 590' }
+    }
   },
 
   prices: {

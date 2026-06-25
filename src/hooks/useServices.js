@@ -2,7 +2,7 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
 import servicesData from '../data/services.json'
 
-const SERVICE_ICONS = ['\u2702', '\u2726', '\u2727', '\u2726']
+const SERVICE_ICONS = ['\u2702', '\u2726', '\u2727']
 const PREVIEW_LIMIT = 4
 
 export const useServices = ({ withPricing = false } = {}) => {
@@ -37,6 +37,14 @@ export const useServices = ({ withPricing = false } = {}) => {
     }
   })
 
+  const consultCta = withPricing ? {
+    title: t(translations.services.consultCta.title),
+    body: t(translations.services.consultCta.body),
+    ctaText: t(translations.services.consultCta.ctaText),
+    phone: t(translations.services.consultCta.phone),
+    phoneHref: 'tel:+359888599590'
+  } : null
+
   return {
     sectionTag: t(translations.services.sectionTag),
     title: t(translations.services.title),
@@ -44,6 +52,7 @@ export const useServices = ({ withPricing = false } = {}) => {
     note: withPricing ? t(servicesData.price_note) : null,
     ctaText: withPricing ? t(translations.prices.ctaText) : null,
     ctaUrl: withPricing ? 'https://studio24.bg/hair-boutique-studio-trend-s4258' : null,
-    categories
+    categories,
+    consultCta
   }
 }
