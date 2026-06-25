@@ -46,7 +46,7 @@ export const HeroView = ({ subtitle, tagline, bookBtn, isMobile, leftRef, rightR
         </span>
       </h1>
       <p className="hero-tagline">{tagline}</p>
-      <BookingButton translations={bookBtn} />
+      <BookingButton translations={bookBtn} location="hero" />
       <RatingBadge
         rating={googleReviews.rating}
         totalCount={googleReviews.totalCount}

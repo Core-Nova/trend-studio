@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { useLanguage } from '../../contexts/LanguageContext'
+import { trackEvent } from '../../lib/analytics'
 
 const BOOKING_URL = 'https://studio24.bg/hair-boutique-studio-trend-s4258'
 
@@ -11,9 +12,16 @@ const BOOKING_URL = 'https://studio24.bg/hair-boutique-studio-trend-s4258'
  * language code) — the active language is shown, the others are rendered
  * invisibly in the same grid cell to size the button. Backwards-compatible:
  * a plain `text` prop still works for one-off callers.
+ *
+ * `location` (e.g. 'hero', 'sticky_bar', 'footer') is sent as an analytics
+ * param so we can attribute bookings to surface.
  */
-export const BookingButton = memo(({ translations, text, url = BOOKING_URL, className = '' }) => {
+export const BookingButton = memo(({ translations, text, url = BOOKING_URL, className = '', location = 'unknown' }) => {
   const { lang, t } = useLanguage()
+
+  const handleClick = () => {
+    trackEvent('generate_lead', { method: 'booking_link', location, language: lang })
+  }
 
   if (!translations) {
     return (
@@ -22,6 +30,7 @@ export const BookingButton = memo(({ translations, text, url = BOOKING_URL, clas
         target="_blank"
         rel="noopener noreferrer"
         className={`btn btn-primary ${className}`}
+        onClick={handleClick}
       >
         {text}
       </a>
@@ -35,6 +44,7 @@ export const BookingButton = memo(({ translations, text, url = BOOKING_URL, clas
       target="_blank"
       rel="noopener noreferrer"
       className={`btn btn-primary btn--stable ${className}`}
+      onClick={handleClick}
     >
       {langs.map(code => (
         <span

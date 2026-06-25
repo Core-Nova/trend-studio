@@ -1,11 +1,9 @@
 /**
- * Google Analytics 4 integration.
- *
- * Enabled only when VITE_GA_MEASUREMENT_ID is set (e.g. G-XXXXXXXXXX),
- * so local dev and forks don't send hits by default.
+ * Google Analytics 4 integration. Enabled by default — production property
+ * `G-MEJCZTPTG5` is used unless VITE_GA_MEASUREMENT_ID overrides it.
  */
 
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID
+const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-MEJCZTPTG5'
 
 let initialized = false
 

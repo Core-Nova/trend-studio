@@ -4,6 +4,7 @@ import { ResponsiveImage } from '../atoms/ResponsiveImage'
 import { StoriesHighlights } from '../Stories/StoriesHighlights'
 import { StoriesViewer } from '../Stories/StoriesViewer'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { trackEvent } from '../../lib/analytics'
 
 const Lightbox = ({ images, index, onClose, onPrev, onNext, lightboxRef }) => {
   if (index === null) return null
@@ -122,7 +123,13 @@ export const GalleryView = ({
         {isLive && <span className="live-badge">Live</span>}
         {followText}
       </p>
-      <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="instagram-link">
+      <a
+        href={instagramUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="instagram-link"
+        onClick={() => trackEvent('share', { method: 'instagram', location: 'gallery_section' })}
+      >
         {instagramHandle}
       </a>
     </div>
