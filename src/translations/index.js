@@ -29,8 +29,8 @@ export const translations = {
       bg: 'Стъпете в свят на барокова елегантност и модерна изтънченост. В TREND Hair Boutique Studio вярваме, че всеки клиент заслужава кралско отношение. Нашето студио съчетава вечни традиции в красотата със съвременни техники, за да създаде визия, която е уникално ваша.'
     },
     paragraph2: {
-      en: 'We work exclusively with world-renowned professional brands including ALTERNA Haircare, Olaplex, and KYDRA by Phyto. Our expert stylists bring years of experience and passion to ensure you leave feeling confident and beautiful.',
-      bg: 'Работим изключително със световноизвестни професионални марки, включително ALTERNA Haircare, Olaplex и KYDRA by Phyto. Нашите експерт стилисти носят години опит и страст, за да се уверим, че си тръгвате уверени и красиви.'
+      en: 'We work exclusively with world-renowned professional brands including ALTERNA Haircare, REDKEN, and KYDRA by Phyto. Our expert stylists bring years of experience and passion to ensure you leave feeling confident and beautiful.',
+      bg: 'Работим изключително със световноизвестни професионални марки, включително ALTERNA Haircare, REDKEN и KYDRA by Phyto. Нашите експерт стилисти носят години опит и страст, за да се уверим, че си тръгвате уверени и красиви.'
     },
     feature1: { en: 'Expert Stylists', bg: 'Експерт стилисти' },
     feature2: { en: 'Premium Products', bg: 'Първокласни продукти' },
@@ -55,8 +55,8 @@ export const translations = {
         bg: 'Професионално стилизиране с преса и маша за всички дължини коса.'
       },
       {
-        en: 'Revitalizing treatments with ALTERNA, Olaplex, and exclusive formulas to restore and strengthen.',
-        bg: 'Ревитализиращи терапии с ALTERNA, Olaplex и ексклузивни формули за възстановяване и укрепване.'
+        en: 'Revitalizing treatments with ALTERNA, REDKEN, and exclusive formulas to restore and strengthen.',
+        bg: 'Ревитализиращи терапии с ALTERNA, REDKEN и ексклузивни формули за възстановяване и укрепване.'
       }
     ],
     seeAllBtn: { en: 'See All Services & Prices', bg: 'Вижте всички услуги и цени' }
@@ -114,8 +114,8 @@ export const translations = {
       bg: 'TREND Бутиково фризьорско студио София | Най-добър фризьор и салон близо до вас'
     },
     description: {
-      en: 'TREND Hair Boutique Studio — luxury hair salon at Tsar Kaloyan 8, central Sofia. Professional haircuts, balayage, hair coloring with KYDRA, Olaplex & ALTERNA treatments, eyelash extensions. Book your appointment online today.',
-      bg: 'TREND Бутиково фризьорско студио — луксозен фризьорски салон на ул. Цар Калоян 8, център София. Професионално подстригване, балеаж, боядисване с KYDRA, терапии с Olaplex и ALTERNA, удължаване на мигли. Запазете час онлайн.'
+      en: 'TREND Hair Boutique Studio — luxury hair salon at Tsar Kaloyan 8, central Sofia. Professional haircuts, balayage, hair coloring with KYDRA, REDKEN & ALTERNA treatments, eyelash extensions. Book your appointment online today.',
+      bg: 'TREND Бутиково фризьорско студио — луксозен фризьорски салон на ул. Цар Калоян 8, център София. Професионално подстригване, балеаж, боядисване с KYDRA, терапии с REDKEN и ALTERNA, удължаване на мигли. Запазете час онлайн.'
     },
     galleryTitle: {
       en: 'Hair Styling Gallery | Balayage, Coloring & Haircuts Sofia — TREND Studio',
@@ -130,16 +130,16 @@ export const translations = {
       bg: 'Фризьорски услуги и цени | Подстригване, боядисване, терапии — TREND София'
     },
     servicesDescription: {
-      en: 'Full price list — women\'s haircuts, blow dry, balayage, premium hair coloring with KYDRA, Olaplex & ALTERNA hair treatments, eyelash extensions. Best hair salon in central Sofia.',
-      bg: 'Пълен ценоразпис — дамско подстригване, сешоар, балеаж, премиум боядисване с KYDRA, терапии с Olaplex и ALTERNA, удължаване на мигли. Най-добрият салон в центъра на София.'
+      en: 'Full price list — women\'s haircuts, blow dry, balayage, premium hair coloring with KYDRA, REDKEN & ALTERNA hair treatments, eyelash extensions. Best hair salon in central Sofia.',
+      bg: 'Пълен ценоразпис — дамско подстригване, сешоар, балеаж, премиум боядисване с KYDRA, терапии с REDKEN и ALTERNA, удължаване на мигли. Най-добрият салон в центъра на София.'
     },
     aboutTitle: {
       en: 'About TREND | Luxury Hair Salon in Central Sofia, Bulgaria',
       bg: 'За TREND | Луксозен фризьорски салон в центъра на София'
     },
     aboutDescription: {
-      en: 'TREND Hair Boutique Studio — expert stylists, premium brands (ALTERNA, Olaplex, KYDRA), baroque-inspired atmosphere. The best hairdresser experience in Sofia.',
-      bg: 'TREND Бутиково фризьорско студио — експерт стилисти, премиум марки (ALTERNA, Olaplex, KYDRA), барокова атмосфера. Най-доброто фризьорско изживяване в София.'
+      en: 'TREND Hair Boutique Studio — expert stylists, premium brands (ALTERNA, REDKEN, KYDRA), baroque-inspired atmosphere. The best hairdresser experience in Sofia.',
+      bg: 'TREND Бутиково фризьорско студио — експерт стилисти, премиум марки (ALTERNA, REDKEN, KYDRA), барокова атмосфера. Най-доброто фризьорско изживяване в София.'
     },
     contactTitle: {
       en: 'Contact & Book Appointment | TREND Hair Salon — Tsar Kaloyan 8, Sofia',
@@ -163,6 +163,83 @@ export const translations = {
     heading: { en: 'Page Not Found', bg: 'Страницата не е намерена' },
     message: { en: 'The page you are looking for does not exist.', bg: 'Страницата, която търсите, не съществува.' },
     backBtn: { en: 'Back to Home', bg: 'Към начало' }
+  },
+
+  faq: {
+    sectionTag: { en: 'FAQ', bg: 'Често задавани' },
+    title: { en: 'Good to know', bg: 'Полезно да знаете' },
+    items: [
+      {
+        q: {
+          en: 'Where are you?',
+          bg: 'Къде се намирате?'
+        },
+        a: {
+          en: '8 Tsar Kaloyan St., Mezzanine — central Sofia, 2 min from Serdika metro.',
+          bg: 'ул. Цар Калоян 8, мецанин — център София, на 2 мин. от метростанция Сердика.'
+        }
+      },
+      {
+        q: {
+          en: 'What services do you offer?',
+          bg: 'Какви услуги предлагате?'
+        },
+        a: {
+          en: 'Cuts, blow dry, balayage, premium coloring (KYDRA), REDKEN & ALTERNA treatments, bridal styling, lash extensions.',
+          bg: 'Подстригване, сешоар, балеаж, премиум боядисване (KYDRA), терапии с REDKEN и ALTERNA, сватбени прически, удължаване на мигли.'
+        }
+      },
+      {
+        q: {
+          en: 'How much is a haircut?',
+          bg: 'Колко струва подстригването?'
+        },
+        a: {
+          en: "From 35 EUR. Blow dry from 33 EUR, coloring from 45 EUR, treatments from 100 EUR.",
+          bg: 'От 35 EUR. Сешоар от 33 EUR, боядисване от 45 EUR, терапии от 100 EUR.'
+        }
+      },
+      {
+        q: {
+          en: 'Do you do balayage?',
+          bg: 'Правите ли балеаж?'
+        },
+        a: {
+          en: 'Yes — KYDRA color, finished with REDKEN bonding.',
+          bg: 'Да — боядисване с KYDRA, завършено с REDKEN bonding.'
+        }
+      },
+      {
+        q: {
+          en: 'Opening hours?',
+          bg: 'Работно време?'
+        },
+        a: {
+          en: 'Mon, Wed, Fri 09:00–19:30 · Sat, Sun 09:00–19:00 · Tue & Thu closed.',
+          bg: 'Пон, Сряда, Пет 09:00–19:30 · Съб, Нед 09:00–19:00 · Вт и Чет — почивен.'
+        }
+      },
+      {
+        q: {
+          en: 'Do you speak English?',
+          bg: 'Говорите ли английски?'
+        },
+        a: {
+          en: 'Bulgarian primarily — English with the support of translation software.',
+          bg: 'Основно български — английски с помощта на софтуер за превод.'
+        }
+      },
+      {
+        q: {
+          en: 'How do I book?',
+          bg: 'Как да запазя час?'
+        },
+        a: {
+          en: 'Online via Studio24, call +359 888 599 590, or Viber.',
+          bg: 'Онлайн в Studio24, на +359 888 599 590 или във Viber.'
+        }
+      }
+    ]
   },
 
   mobile: {

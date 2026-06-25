@@ -2,6 +2,7 @@ import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { initAnalytics, trackPageView } from './lib/analytics'
 import { LanguageProvider } from './contexts/LanguageContext'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { Navigation } from './components/Navigation/Navigation'
 import { Footer } from './components/Footer/Footer'
 import { StickyBooking } from './components/StickyBooking/StickyBooking'
@@ -59,9 +60,11 @@ const AppShell = () => {
 }
 
 export const App = () => (
-  <LanguageProvider>
-    <AppShell />
-  </LanguageProvider>
+  <ErrorBoundary>
+    <LanguageProvider>
+      <AppShell />
+    </LanguageProvider>
+  </ErrorBoundary>
 )
 
 export default App

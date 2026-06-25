@@ -1,10 +1,15 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const BASE_URL = 'https://trendbytedi.com'
 
+const OG_LOCALE = { en: 'en_US', bg: 'bg_BG' }
+const OG_LOCALE_ALT = { en: 'bg_BG', bg: 'en_US' }
+
 export const usePageSEO = ({ title, description }) => {
   const location = useLocation()
+  const { lang } = useLanguage()
 
   useEffect(() => {
     if (title) {
@@ -37,5 +42,10 @@ export const usePageSEO = ({ title, description }) => {
 
     const canonical = document.querySelector('link[rel="canonical"]')
     if (canonical) canonical.setAttribute('href', pageUrl)
-  }, [title, description, location.pathname])
+
+    const ogLocale = document.querySelector('meta[property="og:locale"]')
+    if (ogLocale && OG_LOCALE[lang]) ogLocale.setAttribute('content', OG_LOCALE[lang])
+    const ogLocaleAlt = document.querySelector('meta[property="og:locale:alternate"]')
+    if (ogLocaleAlt && OG_LOCALE_ALT[lang]) ogLocaleAlt.setAttribute('content', OG_LOCALE_ALT[lang])
+  }, [title, description, location.pathname, lang])
 }

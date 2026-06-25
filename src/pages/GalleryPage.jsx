@@ -1,8 +1,10 @@
+import { useMemo } from 'react'
 import { SectionHeader } from '../components/atoms/SectionHeader'
 import { ResponsiveImage } from '../components/atoms/ResponsiveImage'
 import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
 import { usePageSEO } from '../hooks/usePageSEO'
+import { useBreadcrumbSchema } from '../hooks/useBreadcrumbSchema'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useStories } from '../hooks/useStories'
 import { useLightbox } from '../hooks/useLightbox'
@@ -21,6 +23,12 @@ export const GalleryPage = () => {
     title: t(translations.seo.galleryTitle),
     description: t(translations.seo.galleryDescription)
   })
+
+  const crumbs = useMemo(() => [
+    { name: t(translations.nav.home), path: '/' },
+    { name: t(translations.nav.gallery), path: '/gallery' },
+  ], [t])
+  useBreadcrumbSchema(crumbs)
 
   return (
     <div className="page-content">

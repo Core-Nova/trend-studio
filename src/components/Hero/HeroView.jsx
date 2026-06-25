@@ -40,7 +40,10 @@ export const HeroView = ({ subtitle, tagline, bookBtn, isMobile, leftRef, rightR
           <source type="image/avif" srcSet={logoSrcAvif} />
           <img src={logoSrc} alt="TREND Hair Boutique Studio" fetchpriority="high" />
         </picture>
-        <span className="sr-only">TREND</span>
+        <span className="sr-only">
+          TREND Hair Boutique Studio — Best Hairdresser in Central Sofia ·
+          TREND Бутиково фризьорско студио — фризьор в центъра на София
+        </span>
       </h1>
       <p className="hero-tagline">{tagline}</p>
       <BookingButton translations={bookBtn} />

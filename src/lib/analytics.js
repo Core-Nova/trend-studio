@@ -5,7 +5,7 @@
  * so local dev and forks don't send hits by default.
  */
 
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-MEJCZTPTG5'
+const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID
 
 let initialized = false
 

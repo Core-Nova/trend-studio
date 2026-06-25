@@ -68,19 +68,19 @@ const DIMENSIONS = [
 ]
 
 const ALTS = [
-  'Hair styling result at TREND Hair Boutique Studio Sofia',
-  'Premium blow dry and hair styling at TREND salon Sofia',
-  'Elegant hair look created at TREND Hair Boutique Studio',
-  'Professional hairstyling at TREND Hair Boutique Studio Sofia',
-  'Balayage and coloring result at TREND Hair Boutique Studio',
-  'Hair colour transformation at TREND salon Sofia',
-  'Luxury hair treatment result at TREND Hair Boutique Studio',
-  'Professional hair styling at TREND Hair Boutique Studio Sofia',
-  'Elegant styling at TREND Hair Boutique Studio Sofia',
-  'Hair styling and colour work by TREND Hair Boutique Studio Sofia',
-  'Elegant styling result at TREND Hair Boutique Studio Sofia',
-  'Professional hair transformation at TREND Hair Boutique Studio',
-  'Premium styling result at TREND Hair Boutique Studio Sofia',
+  'Long brunette blowout with face-framing waves — TREND hair salon Sofia',
+  'Premium silk-press blow dry on long hair — TREND Hair Boutique Studio Sofia center',
+  'Balayage highlights with caramel tones on long hair — TREND Sofia hairdresser',
+  'Soft beach-wave styling on layered haircut — TREND Hair Boutique Studio Sofia',
+  'Honey balayage and root toner colour work — TREND hair salon Sofia',
+  'Full hair colour change with KYDRA by Phyto — TREND Sofia salon',
+  'Hydrating REDKEN hair treatment with glossy finish — TREND Sofia',
+  'Bridal updo with soft curls — special occasion styling at TREND Sofia',
+  'Modern bob haircut with sleek finish — TREND Hair Boutique Studio Sofia',
+  'Sun-kissed balayage on long wavy hair — Sofia center hairdresser TREND',
+  'Special occasion evening hairstyle — TREND Hair Boutique Studio Sofia',
+  'Ash-blonde balayage with toner — premium hair colour Sofia at TREND',
+  'Glossy blow dry with volume and shine — best hairdresser Sofia TREND',
 ]
 
 const rawImages = [...heroLeft, ...heroRight, ...gallery].map((v, i) => ({

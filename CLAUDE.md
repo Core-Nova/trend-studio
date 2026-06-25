@@ -9,7 +9,7 @@ TREND Hair Boutique Studio is a luxury hair salon in central Sofia, Bulgaria.
 - **Booking:** [studio24.bg/hair-boutique-studio-trend-s4258](https://studio24.bg/hair-boutique-studio-trend-s4258)
 - **Email:** trendstudiotedi@gmail.com
 - **Domain:** trendbytedi.com
-- **Services:** Haircuts, blow dries, coloring (KYDRA by Phyto), hair treatments (ALTERNA, Olaplex), eyelash extensions, special occasion styling
+- **Services:** Haircuts, blow dries, coloring (KYDRA by Phyto), hair treatments (ALTERNA, REDKEN), eyelash extensions, special occasion styling
 - **Prices in EUR.** Opening hours vary by day (Mon/Wed/Fri 09–19:30, Tue/Thu 10–19, Sat/Sun 09–19).
 - **Languages:** English + Bulgarian (bilingual throughout the UI)
 - **Google rating:** 5.0 (45+ reviews)
