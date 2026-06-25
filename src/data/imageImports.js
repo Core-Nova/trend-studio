@@ -104,5 +104,5 @@ export const allImages = rawImages.filter(img => {
 export const allImageUrls = allImages.map(img => img.src)
 
 export const STORY_GROUPS = [
-  { label: 'Gallery', thumbnail: gallery[0].thumb, startIndex: 0 },
+  { label: 'Gallery', thumbnail: gallery[2].thumb, startIndex: 0 },
 ]
