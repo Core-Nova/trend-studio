@@ -10,8 +10,8 @@ export const ReviewsView = ({
 }) => {
   const { ref, revealed } = useScrollReveal()
   return (
-  <section id="reviews" className={`reviews reviews--bg scroll-reveal ${revealed ? 'scroll-reveal--visible' : ''}`} style={{ backgroundImage: `url(${bgImage})` }} ref={ref}>
-    <div className="container">
+  <section id="reviews" className="reviews reviews--bg" style={{ backgroundImage: `url(${bgImage})` }}>
+    <div className={`container scroll-reveal ${revealed ? 'scroll-reveal--visible' : ''}`} ref={ref}>
       <SectionHeader tag={sectionTag} title={title} />
       <RatingBadge rating={rating} totalCount={totalCount} profileUrl={googleUrl} />
       <ReviewsCarousel reviews={reviews} lang={lang} googleUrl={googleUrl} />
