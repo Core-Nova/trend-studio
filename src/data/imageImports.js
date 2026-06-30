@@ -45,8 +45,8 @@ const variant = (category, file) => ({
 })
 
 const HERO_LEFT = ['1-story.jpg', '2-story.jpg', 'evastoryedit3.jpg', 'girl1-story.jpg']
-const HERO_RIGHT = ['1-diana.jpg', '1-story.jpg', '5-story.jpg', '1-story.png', 'story.png']
-const GALLERY = ['1-post.jpg', 'evapostedit3.jpg', '1-story.png', 'story.png']
+const HERO_RIGHT = ['1-diana.jpg', '5-story.jpg', 'beatrice.jpg', 'elia.jpg', 'vanessa.jpg']
+const GALLERY = ['evapostedit3.jpg', 'elia.jpg', 'elly.jpg', 'georgi.jpg', 'vanessa.jpg']
 
 const heroLeft = HERO_LEFT.map(f => variant('hero-left', f))
 const heroRight = HERO_RIGHT.map(f => variant('hero-right', f))
@@ -61,26 +61,30 @@ export const imageData = {
 const DIMENSIONS = [
   // hero-left: 1-story.jpg, 2-story.jpg, evastoryedit3.jpg, girl1-story.jpg
   [3024, 5363], [2646, 4706], [1080, 1920], [1080, 1920],
-  // hero-right: 1-diana.jpg, 1-story.jpg, 5-story.jpg, 1-story.png, story.png
-  [2636, 4692], [2308, 4103], [2956, 5255], [2933, 5224], [2734, 4537],
-  // gallery: 1-post.jpg, evapostedit3.jpg, 1-story.png, story.png
-  [2685, 3356], [3061, 3827], [2933, 5224], [2734, 4537],
+  // hero-right: 1-diana.jpg, 5-story.jpg, beatrice.jpg, elia.jpg, vanessa.jpg
+  [2636, 4692], [2956, 5255], [2308, 4103], [2552, 4537], [2933, 5224],
+  // gallery: evapostedit3.jpg, elia.jpg, elly.jpg, georgi.jpg, vanessa.jpg
+  [2153, 3827], [2552, 4537], [2410, 4284], [1888, 3356], [2933, 5224],
 ]
 
 const ALTS = [
+  // hero-left
   'Long brunette blowout with face-framing waves — TREND hair salon Sofia',
   'Premium silk-press blow dry on long hair — TREND Hair Boutique Studio Sofia center',
   'Balayage highlights with caramel tones on long hair — TREND Sofia hairdresser',
   'Soft beach-wave styling on layered haircut — TREND Hair Boutique Studio Sofia',
+  // hero-right
   'Honey balayage and root toner colour work — TREND hair salon Sofia',
-  'Full hair colour change with KYDRA by Phyto — TREND Sofia salon',
   'Hydrating REDKEN hair treatment with glossy finish — TREND Sofia',
-  'Bridal updo with soft curls — special occasion styling at TREND Sofia',
-  'Modern bob haircut with sleek finish — TREND Hair Boutique Studio Sofia',
-  'Sun-kissed balayage on long wavy hair — Sofia center hairdresser TREND',
+  'Voluminous blow dry with soft waves — TREND Hair Boutique Studio Sofia',
+  'Glossy hair styling with luminous finish — TREND Sofia hairdresser',
+  'Sleek long hair styling with rich shine — TREND Hair Boutique Studio Sofia',
+  // gallery
   'Special occasion evening hairstyle — TREND Hair Boutique Studio Sofia',
-  'Ash-blonde balayage with toner — premium hair colour Sofia at TREND',
-  'Glossy blow dry with volume and shine — best hairdresser Sofia TREND',
+  'Glossy salon finish on long hair — TREND Sofia hairdresser',
+  'Layered haircut with soft movement — TREND Hair Boutique Studio Sofia',
+  'Precision haircut with modern styling — TREND Sofia salon',
+  'Sleek blow dry with luminous shine — best hairdresser Sofia TREND',
 ]
 
 const rawImages = [...heroLeft, ...heroRight, ...gallery].map((v, i) => ({
@@ -104,5 +108,5 @@ export const allImages = rawImages.filter(img => {
 export const allImageUrls = allImages.map(img => img.src)
 
 export const STORY_GROUPS = [
-  { label: 'Gallery', thumbnail: gallery[2].thumb, startIndex: 0 },
+  { label: 'Gallery', thumbnail: gallery[0].thumb, startIndex: 0 },
 ]
