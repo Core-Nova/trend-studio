@@ -2,7 +2,7 @@ import { SectionHeader } from '../atoms/SectionHeader'
 import { RatingBadge } from './RatingBadge'
 import { ReviewsCarousel } from './ReviewsCarousel'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
-import bgImage from '../../assets/images/gallery/evapostedit3.jpg?w=1920&h=1080&fit=cover&position=attention&format=webp'
+import bgImage from '../../assets/images/gallery/evapostedit3.jpg'
 
 export const ReviewsView = ({
   sectionTag, title, googleBtn, note, googleUrl,
