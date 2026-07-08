@@ -2,7 +2,10 @@ import { SectionHeader } from '../atoms/SectionHeader'
 import { RatingBadge } from './RatingBadge'
 import { ReviewsCarousel } from './ReviewsCarousel'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { trackEvent } from '../../lib/analytics'
 import bgImage from '../../assets/backgrounds/reviews-bg.jpg'
+
+const trackGoogleReviews = () => trackEvent('select_content', { content_type: 'google_reviews', location: 'reviews_section' })
 
 export const ReviewsView = ({
   sectionTag, title, googleBtn, note, googleUrl,
@@ -21,6 +24,7 @@ export const ReviewsView = ({
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-secondary"
+          onClick={trackGoogleReviews}
         >
           <span className="google-icon">G</span>
           <span>{googleBtn}</span>

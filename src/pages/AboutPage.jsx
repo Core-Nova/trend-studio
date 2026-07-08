@@ -23,7 +23,7 @@ export const AboutPage = () => {
 
   return (
     <div className="page-content">
-      <About />
+      <About showProducts />
       <FAQ />
       <Reviews />
     </div>

@@ -1,7 +1,7 @@
 import { useAbout } from '../../hooks/useAbout'
 import { AboutView } from './AboutView'
 
-export const About = ({ showSeeAll = false }) => {
+export const About = ({ showSeeAll = false, showProducts = false }) => {
   const data = useAbout()
-  return <AboutView {...data} showSeeAll={showSeeAll} />
+  return <AboutView {...data} showSeeAll={showSeeAll} showProducts={showProducts} />
 }

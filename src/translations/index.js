@@ -29,12 +29,43 @@ export const translations = {
       bg: 'Стъпете в свят на барокова елегантност и модерна изтънченост. В TREND Hair Boutique Studio вярваме, че всеки клиент заслужава кралско отношение. Нашето студио съчетава вечни традиции в красотата със съвременни техники, за да създаде визия, която е уникално ваша.'
     },
     paragraph2: {
-      en: 'We work exclusively with world-renowned professional brands including ALTERNA Haircare, REDKEN, and KYDRA by Phyto. Our expert stylists bring years of experience and passion to ensure you leave feeling confident and beautiful.',
-      bg: 'Работим изключително със световноизвестни професионални марки, включително ALTERNA Haircare, REDKEN и KYDRA by Phyto. Нашите експерт стилисти носят години опит и страст, за да се уверим, че си тръгвате уверени и красиви.'
+      en: 'We work exclusively with world-renowned professional brands — REDKEN, K18 Molecular Repair, ALTERNA Caviar, and KYDRA by Phyto — because your hair deserves nothing less. Our expert stylists bring years of experience and passion to ensure you leave feeling confident and beautiful.',
+      bg: 'Работим изключително със световноизвестни професионални марки — REDKEN, K18 Molecular Repair, ALTERNA Caviar и KYDRA by Phyto — защото косата ви заслужава само най-доброто. Нашите експерт стилисти носят години опит и страст, за да се уверим, че си тръгвате уверени и красиви.'
     },
     feature1: { en: 'Expert Stylists', bg: 'Експерт стилисти' },
     feature2: { en: 'Premium Products', bg: 'Първокласни продукти' },
     feature3: { en: 'Luxurious Atmosphere', bg: 'Луксозна атмосфера' },
+    productsTitle: { en: 'The Brands We Trust', bg: 'Марките, на които вярваме' },
+    products: [
+      {
+        name: 'REDKEN',
+        desc: {
+          en: 'The #1 professional brand in the US, pioneering pH-balanced science since 1960. Redken\'s salon-exclusive formulas keep color vibrant and hair resilient between visits.',
+          bg: 'Марка №1 сред професионалните брандове в САЩ, пионер в pH-балансираната наука от 1960 г. Салонните формули на Redken запазват цвета ярък и косата здрава между посещенията.'
+        }
+      },
+      {
+        name: 'K18',
+        desc: {
+          en: 'A biotech breakthrough — the patented K18Peptide™ reconnects broken keratin chains in just 4 minutes, reversing damage from bleach, color, and heat at a molecular level.',
+          bg: 'Биотехнологичен пробив — патентованият K18Peptide™ възстановява разкъсаните кератинови вериги само за 4 минути, обръщайки щетите от обезцветяване, боядисване и топлина на молекулярно ниво.'
+        }
+      },
+      {
+        name: 'ALTERNA',
+        desc: {
+          en: 'Luxury clean haircare since 1997. Alterna\'s Caviar Anti-Aging line harnesses omega-3-rich caviar extract to restore shine, elasticity, and youthful vibrancy — all without sulfates or parabens.',
+          bg: 'Луксозна чиста грижа за косата от 1997 г. Линията Caviar Anti-Aging на Alterna използва богат на омега-3 хайверен екстракт за възстановяване на блясъка, еластичността и младежката жизненост — без сулфати и парабени.'
+        }
+      },
+      {
+        name: 'KYDRA',
+        desc: {
+          en: 'Crafted in France by Phyto, Kydra\'s formulas are 80 % natural-origin — delivering rich, long-lasting salon color with minimal ammonia and maximum respect for the hair fiber.',
+          bg: 'Създадена във Франция от Phyto, формулите на Kydra са 80 % от натурален произход — осигуряващи богат и дълготраен салонен цвят с минимален амоняк и максимално уважение към влакното на косата.'
+        }
+      }
+    ],
     seeAllBtn: { en: 'Learn More About Us', bg: 'Научете повече за нас' }
   },
 
@@ -190,8 +221,18 @@ export const translations = {
           bg: 'Какви услуги предлагате?'
         },
         a: {
-          en: 'Cuts, blow dry, balayage, premium coloring (KYDRA), REDKEN & ALTERNA treatments, bridal styling, lash extensions.',
-          bg: 'Подстригване, сешоар, балеаж, премиум боядисване (KYDRA), терапии с REDKEN и ALTERNA, сватбени прически, удължаване на мигли.'
+          en: 'Cuts, blow dry, balayage, premium coloring (KYDRA), REDKEN & ALTERNA treatments, K18 molecular repair, bridal styling, lash extensions.',
+          bg: 'Подстригване, сешоар, балеаж, премиум боядисване (KYDRA), терапии с REDKEN и ALTERNA, K18 молекулярно възстановяване, сватбени прически, удължаване на мигли.'
+        }
+      },
+      {
+        q: {
+          en: 'What products do you use?',
+          bg: 'Какви продукти използвате?'
+        },
+        a: {
+          en: 'We use only salon-exclusive professional brands: REDKEN for daily care and styling, K18 Molecular Repair for deep keratin restoration, ALTERNA Caviar for luxury anti-aging treatments, and KYDRA by Phyto for gentle, long-lasting color.',
+          bg: 'Използваме само салонни професионални марки: REDKEN за ежедневна грижа и стилизиране, K18 Molecular Repair за дълбоко кератиново възстановяване, ALTERNA Caviar за луксозни anti-aging терапии и KYDRA by Phyto за нежно и дълготрайно боядисване.'
         }
       },
       {
