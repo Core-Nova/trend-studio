@@ -44,7 +44,7 @@ const VISIBLE = 6
 
 export const GalleryView = ({
   sectionTag, title, followText, instagramUrl, instagramHandle,
-  showSeeAll, seeAllBtn, isMobile, isLive, stories, lightbox, carousel, allImages, allImageUrls, storyGroups
+  showSeeAll, seeAllBtn, isMobile, stories, lightbox, carousel, allImages, allImageUrls, storyGroups
 }) => {
   const { ref, revealed } = useScrollReveal()
   return (
@@ -119,10 +119,7 @@ export const GalleryView = ({
       <StoriesHighlights groups={storyGroups} onOpen={stories.open} />
     )}
     <div className="gallery-instagram">
-      <p>
-        {isLive && <span className="live-badge">Live</span>}
-        {followText}
-      </p>
+      <p>{followText}</p>
       <a
         href={instagramUrl}
         target="_blank"

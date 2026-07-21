@@ -1,5 +1,6 @@
 import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
+import { SITE } from '../lib/constants'
 
 export const useGallery = () => {
   const { t } = useLanguage()
@@ -9,7 +10,7 @@ export const useGallery = () => {
     title: t(translations.gallery.title),
     followText: t(translations.gallery.followText),
     seeAllBtn: t(translations.gallery.seeAllBtn),
-    instagramUrl: 'https://instagram.com/trendbytedi',
-    instagramHandle: 'trendbytedi'
+    instagramUrl: SITE.instagramUrl,
+    instagramHandle: SITE.instagramHandle
   }
 }

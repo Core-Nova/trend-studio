@@ -108,5 +108,8 @@ export const allImages = rawImages.filter(img => {
 export const allImageUrls = allImages.map(img => img.src)
 
 export const STORY_GROUPS = [
-  { label: 'Gallery', thumbnail: gallery[0].thumb, startIndex: 0 },
+  // Highlight ring uses girl1-story.jpg — a clean studio portrait (sleek dark
+  // blowout) whose face sits in the upper-middle, so the circular center-crop
+  // frames it as a face portrait.
+  { label: 'Gallery', thumbnail: heroLeft[3].thumb, startIndex: 0 },
 ]

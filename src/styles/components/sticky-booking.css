@@ -1,0 +1,51 @@
+/* Sticky Booking component styles. */
+
+.sticky-booking {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  display: none;
+  align-items: stretch;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.sticky-booking__book {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  min-height: 52px;
+  background: var(--gold-primary);
+  color: var(--white);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.sticky-booking__call {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  min-height: 52px;
+  background: var(--charcoal);
+  color: var(--gold-primary);
+  font-size: 1.4rem;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .sticky-booking {
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .sticky-booking__book:active {
+    background: var(--gold-light);
+  }
+}

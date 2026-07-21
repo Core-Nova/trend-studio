@@ -6,13 +6,13 @@ TREND Hair Boutique Studio is a luxury hair salon in central Sofia, Bulgaria.
 - **Address:** 8 Tsar Kaloyan St., Mezzanine, Sofia 1000
 - **Phone:** +359 888 599 590
 - **Instagram:** [@trendbytedi](https://instagram.com/trendbytedi)
-- **Booking:** [studio24.bg/hair-boutique-studio-trend-s4258](https://studio24.bg/hair-boutique-studio-trend-s4258)
+- **Booking:** in-site flow at `/book` (primary); [studio24.bg/hair-boutique-studio-trend-s4258](https://studio24.bg/hair-boutique-studio-trend-s4258) kept as secondary fallback
 - **Email:** trendstudiotedi@gmail.com
 - **Domain:** trendbytedi.com
 - **Services:** Haircuts, blow dries, coloring (KYDRA by Phyto), hair treatments (ALTERNA, REDKEN), eyelash extensions, special occasion styling
 - **Prices in EUR.** Opening hours vary by day (Mon/Wed/Fri 09–19:30, Tue/Thu 10–19, Sat/Sun 09–19).
 - **Languages:** English + Bulgarian (bilingual throughout the UI)
-- **Google rating:** 5.0 (45+ reviews)
+- **Google rating:** 5.0 (50 reviews)
 
 ## Tech Stack
 
@@ -22,7 +22,7 @@ TREND Hair Boutique Studio is a luxury hair salon in central Sofia, Bulgaria.
 | Build | Vite 7, vite-imagetools 10 (AVIF + WebP srcsets at 480/768/1080/1600w) |
 | 3D effects | Three.js r73 + BAS (Buffer Animation System) + TweenMax/GSAP 1.18 — loaded from CDN via `requestIdleCallback`, not npm |
 | Hosting | GitHub Pages (`gh-pages -d dist`), SPA with 404.html copy |
-| Styling | Single CSS file (`src/index.css`), no CSS modules or preprocessor |
+| Styling | Modular plain CSS under `src/styles/` (tokens/base/utilities/components/pages/motion), bundled via the `@import` manifest `src/index.css`; no CSS modules or preprocessor |
 | Testing | Vitest + happy-dom + @testing-library/react |
 | Linting | ESLint 9 + Prettier, lint-staged |
 | Image optimization | vite-plugin-image-optimizer (quality 80) + vite-imagetools for responsive variants |
@@ -33,18 +33,26 @@ TREND Hair Boutique Studio is a luxury hair salon in central Sofia, Bulgaria.
 src/
   App.jsx                  — Router setup, lazy-loaded pages (all except HomePage)
   main.jsx                 — ReactDOM.createRoot entry
-  index.css                — All styles (single file, ~2500 lines)
+  index.css                — @import manifest only; cascade order = tokens → base → utilities → components → pages → motion
+  styles/
+    tokens.css             — :root design tokens (colors + *-rgb triplets, fonts, shadows)
+    base.css               — reset, element defaults, .container, loading, global keyframes
+    utilities.css          — .btn* family, .section-header, .sr-only, .scroll-reveal, mobile tiles
+    components/*.css       — one file per component (navbar, hero, services, booking, …), responsive rules co-located
+    pages.css              — .page-content, 404, gallery-page grid
+    motion.css             — prefers-reduced-motion overrides (must stay the LAST import)
   lib/
     slider.js              — WebGL particle-transition engine (pure JS, no React)
-    api.js                 — Optional backend client (Instagram feed, Google reviews)
     analytics.js           — GA4 analytics
+    bookingApi.js          — Apps Script client (availability, booking, live reviews)
+    bookingUtils.js        — Booking selection/validation helpers
+    constants.js           — SITE object: phone/viber/Studio24/Instagram/Maps URLs
   hooks/
     useSlider.js           — Generic reusable hook wrapping slider.js lifecycle
     useHeroSliders.js      — Creates 2 desktop sliders (left/right) or 1 mobile slider
     useHero.js             — Hero section data + slider refs
     useStories.js          — Stories viewer state machine (open/close/next/prev/pause/resume + rAF progress bar)
-    useGalleryImages.js    — Prefers live Instagram feed, falls back to bundled images
-    useInstagramFeed.js    — Fetches from optional backend
+    useGalleryImages.js    — Bundled gallery images + story groups
     useIsMobile.js         — Responsive breakpoint hook
     useLightbox.js         — Desktop lightbox for gallery
     ...                    — Other section-specific hooks
@@ -57,7 +65,7 @@ src/
     Gallery/               — Gallery grid section (home page)
     ImageCrossfade/        — CSS crossfade fallback until WebGL loads
     atoms/                 — ResponsiveImage, SectionHeader, BookingButton
-    ...                    — Other sections (About, Services, Prices, Contact, Reviews, Navigation, Footer, StickyBooking)
+    ...                    — Other sections (About, Services, Contact, Reviews, Navigation, Footer, StickyBooking, Booking)
   pages/
     HomePage.jsx           — Eagerly loaded, composes all home sections
     GalleryPage.jsx        — Dedicated gallery with stories (mobile) or lightbox (desktop)
@@ -96,12 +104,16 @@ src/
 ### Gallery Page
 - Mobile: tapping an image opens the stories viewer
 - Desktop: tapping opens a CSS lightbox (`useLightbox` hook)
-- Images come from `useGalleryImages` which tries the Instagram API first, falls back to bundled `allImages`
+- Images come from `useGalleryImages` (bundled `allImages` + `STORY_GROUPS`)
 
-### Backend (Optional)
-- `src/lib/api.js` — tiny client for an optional Node backend at `VITE_API_URL` (default `localhost:3001` in dev, disabled in prod)
-- Provides live Instagram feed and Google reviews
-- Every consumer handles `null` and falls back to bundled data
+### Booking Backend (Google Apps Script)
+- Free serverless backend under trendstudiotedi@gmail.com — availability from Google Calendar + working-hours spreadsheet, event creation with client invites, Studio24 email sync (5-min Gmail poll), live Google reviews
+- Source in `apps-script/` (one `.gs` per function, copy-pasted into script.google.com); deployment guide in `apps-script/README.md`
+- Frontend: `/book` wizard (`src/components/Booking/`, `useBookingFlow`, `src/lib/bookingApi.js`), env `VITE_BOOKING_URL` = the deployed /exec URL (unset → fallback card, bundled reviews)
+- CORS constraint: POSTs are text/plain string bodies with NO custom headers (Apps Script can't answer preflight)
+- Service durations live in TWO places: `services.json` `minutes` (wizard) and the config spreadsheet's Services tab (Studio24 sync) — keep in sync
+- Live Google reviews come exclusively from `apps-script/Reviews.gs` (`fetchLiveReviews`); bundled `src/data/reviews.js` is the only fallback
+- Full contracts and gotchas: `.claude/skills/trend-booking-backend/SKILL.md`
 
 ### Bilingual Support
 - `LanguageContext` provides `t()` function
@@ -123,18 +135,18 @@ npm run format       # Prettier
 
 ## Important CSS Notes
 
+- Styles live in `src/styles/` — one file per component; `src/index.css` is a pure `@import` manifest whose order defines the cascade (`motion.css` MUST stay last so reduced-motion wins)
+- **No duplicate selectors** is the invariant: each selector is defined exactly once, in its owner file; responsive `@media` rules are co-located at the bottom of the same file (descending breakpoint order)
+- Alpha colors use RGB-triplet tokens: `rgba(var(--gold-primary-rgb), 0.3)` — never raw channel values (plain black/white shadows may stay literal); all tokens in `src/styles/tokens.css`
 - Hero slider containers use `position: absolute; top: 0` (not `90px`) to avoid gap between navbar and hero
 - `.hero-mobile-slider` and its canvas fill the parent container absolutely
-- `.stories-viewer__canvas` is absolutely positioned to fill the viewer
-- `.stories-viewer__cta` has `background: none` — no gradient overlay (earlier duplicate rule with gradient was removed)
+- `.stories-viewer__cta` has `background: none` — no gradient overlay
 - `.page-content` has a `pageEnter` CSS entrance animation (opacity 0 → 1)
-- Single CSS file — search for class name to find styles, be aware of duplicate selectors at different media queries
 
 ## Deployment
 
 - Static site on GitHub Pages via `gh-pages` package
 - `vite.config.js` supports `VITE_BASE_PATH` env var for non-root deployments
-- `VITE_DEPLOY_MODE=integrated` for backend-served SPA mode
 - Structured data (JSON-LD `HairSalon` schema) in `index.html`
 
 ## Pending Work

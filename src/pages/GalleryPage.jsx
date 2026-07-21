@@ -12,11 +12,12 @@ import { useGalleryImages } from '../hooks/useGalleryImages'
 import { StoriesHighlights } from '../components/Stories/StoriesHighlights'
 import { StoriesViewer } from '../components/Stories/StoriesViewer'
 import { trackEvent } from '../lib/analytics'
+import { SITE } from '../lib/constants'
 
 export const GalleryPage = () => {
   const { t } = useLanguage()
   const isMobile = useIsMobile()
-  const { images, imageUrls, storyGroups, isLive } = useGalleryImages(12)
+  const { images, imageUrls, storyGroups } = useGalleryImages()
   const stories = useStories({ images: imageUrls, duration: 5000 })
   const { lightboxIndex, lightboxRef, open: openLightbox, close: closeLightbox, prev: prevImage, next: nextImage } = useLightbox(images.length)
 
@@ -65,12 +66,9 @@ export const GalleryPage = () => {
           ))}
         </div>
         <div className="gallery-instagram gallery-instagram--page">
-          <p>
-            {isLive && <span className="live-badge">Live</span>}
-            {t(translations.gallery.followText)}
-          </p>
+          <p>{t(translations.gallery.followText)}</p>
           <a
-            href="https://instagram.com/trendbytedi"
+            href={SITE.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="instagram-link"
@@ -122,8 +120,8 @@ export const GalleryPage = () => {
         onPrev={stories.prev}
         onPause={stories.pause}
         onResume={stories.resume}
-        instagramUrl="https://instagram.com/trendbytedi"
-        instagramHandle="trendbytedi"
+        instagramUrl={SITE.instagramUrl}
+        instagramHandle={SITE.instagramHandle}
       />
     </div>
   )

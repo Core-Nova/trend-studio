@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import { trackEvent } from '../../lib/analytics'
+import { SITE } from '../../lib/constants'
+import { BookingLink } from '../atoms/BookingLink'
 import logoSrc from '../../assets/brand/trend-logo.png?w=320&format=webp'
 import logoSrcAvif from '../../assets/brand/trend-logo.png?w=320&format=avif'
 
 const trackPhone = location => () => trackEvent('contact', { method: 'phone', location })
 const trackIG = location => () => trackEvent('share', { method: 'instagram', location })
-const trackBooking = location => () => trackEvent('generate_lead', { method: 'booking_link', location })
 const trackLang = code => () => trackEvent('language_switch', { language: code })
 
 export const NavigationView = ({
@@ -34,15 +35,13 @@ export const NavigationView = ({
       <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
         {menuOpen && isMobile && (
           <li className="nav-links__book-mobile">
-            <a
-              href="https://studio24.bg/hair-boutique-studio-trend-s4258"
-              target="_blank"
-              rel="noopener noreferrer"
+            <BookingLink
               className="btn btn-primary"
-              onClick={() => { trackBooking('mobile_menu')(); closeMenu() }}
+              location="mobile_menu"
+              onClick={closeMenu}
             >
               {bookBtnText}
-            </a>
+            </BookingLink>
             {phoneHref && (
               <a
                 href={phoneHref}
@@ -92,7 +91,7 @@ export const NavigationView = ({
           </svg>
         </a>
         <a
-          href="https://instagram.com/trendbytedi"
+          href={SITE.instagramUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="nav-instagram"

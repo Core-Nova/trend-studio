@@ -1,19 +1,13 @@
 import { trackEvent } from '../../lib/analytics'
+import { BookingLink } from '../atoms/BookingLink'
 
-const trackBooking = () => trackEvent('generate_lead', { method: 'booking_link', location: 'sticky_bar' })
 const trackPhone = () => trackEvent('contact', { method: 'phone', location: 'sticky_bar' })
 
-export const StickyBookingView = ({ text, url, phoneHref, callText }) => (
+export const StickyBookingView = ({ text, phoneHref, callText }) => (
   <div className="sticky-booking">
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="sticky-booking__book"
-      onClick={trackBooking}
-    >
+    <BookingLink className="sticky-booking__book" location="sticky_bar">
       {text}
-    </a>
+    </BookingLink>
     {phoneHref && (
       <a href={phoneHref} className="sticky-booking__call" aria-label={callText} onClick={trackPhone}>
         &#9742;

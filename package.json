@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node -e \"require('fs').copyFileSync('dist/index.html', 'dist/404.html')\"",
-    "build:integrated": "cross-env VITE_DEPLOY_MODE=integrated vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
@@ -15,8 +14,8 @@
     "format:check": "prettier --check \"src/**/*.{js,jsx,css,json}\"",
     "test": "vitest",
     "test:run": "vitest run",
-    "fetch-reviews": "node backend/scripts/fetch-reviews.mjs",
-    "fetch-reviews:override": "node backend/scripts/fetch-reviews.mjs --override"
+    "fetch-reviews": "node scripts/fetch-reviews.mjs",
+    "fetch-reviews:override": "node scripts/fetch-reviews.mjs --override"
   },
   "lint-staged": {
     "*.{js,jsx}": [
@@ -39,7 +38,6 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
-    "cross-env": "^10.1.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.0.1",

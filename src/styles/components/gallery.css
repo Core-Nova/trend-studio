@@ -1,0 +1,260 @@
+/* Gallery component styles. */
+
+.gallery-section {
+  background: var(--black);
+  padding: 40px 0 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.gallery-section--page {
+  min-height: auto;
+  margin-top: -80px;
+  padding-top: 110px;
+}
+
+.gallery-header {
+  text-align: center;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 10;
+}
+
+.gallery-header .section-header {
+  margin-bottom: 10px;
+}
+
+.gallery-header .ornament {
+  margin-top: 10px;
+}
+
+.gallery-section .section-tag {
+  color: var(--gold-primary);
+}
+
+.gallery-section .section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 400;
+  color: var(--gold-primary);
+  letter-spacing: 3px;
+}
+
+.gallery-carousel-wrap {
+  position: relative;
+  margin: 20px auto 0;
+  padding: 0 60px;
+}
+
+.gallery-carousel__viewport {
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.gallery-carousel__track {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.gallery-carousel__slide {
+  flex: 0 0 calc(100% / var(--gallery-visible, 6));
+  padding: 0 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gallery-carousel__slide img {
+  width: 100%;
+  /* Match the salon photos' native phone-portrait ratio so no crop happens */
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.45s ease,
+    box-shadow 0.45s ease;
+}
+
+@media (hover: hover) {
+  .gallery-carousel__slide:hover img {
+    transform: scale(1.04) translateY(-2px);
+    filter: brightness(1.06);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  }
+}
+
+.gallery-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 1px solid rgba(var(--gold-glow-rgb), 0.4);
+  color: var(--gold-primary);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+  z-index: 10;
+  line-height: 1;
+}
+
+.gallery-carousel__arrow--prev {
+  left: 8px;
+}
+.gallery-carousel__arrow--next {
+  right: 8px;
+}
+
+@media (hover: hover) {
+  .gallery-carousel__arrow:hover {
+    background: var(--gold-primary);
+    border-color: var(--gold-primary);
+    color: var(--black);
+  }
+}
+
+.gallery-carousel__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.gallery-carousel__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-dark);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background 0.3s ease,
+    width 0.3s ease,
+    border-radius 0.3s ease;
+}
+
+.gallery-carousel__dot--active {
+  background: var(--gold-primary);
+  width: 22px;
+  border-radius: 4px;
+  transform: none;
+}
+
+.gallery-instagram {
+  text-align: center;
+  margin-top: 16px;
+  padding: 0 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.gallery-instagram--page {
+  padding-bottom: 40px;
+}
+
+.gallery-instagram p {
+  color: var(--gray-light);
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.instagram-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--gold-primary);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+@media (hover: hover) {
+  .instagram-link:hover {
+    color: var(--gold-light);
+  }
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: storiesEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lightbox__img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 4px;
+  animation: lightboxIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes lightboxIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.lightbox__close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 2.5rem;
+  cursor: pointer;
+  padding: 10px;
+  line-height: 1;
+  z-index: 2001;
+}
+
+.lightbox__prev,
+.lightbox__next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 3rem;
+  cursor: pointer;
+  padding: 20px;
+  line-height: 1;
+  z-index: 2001;
+  transition: color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .lightbox__prev:hover,
+  .lightbox__next:hover {
+    color: var(--gold-primary);
+  }
+}
+
+.lightbox__prev {
+  left: 10px;
+}
+
+.lightbox__next {
+  right: 10px;
+}

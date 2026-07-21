@@ -1,0 +1,29 @@
+/* Error Boundary component styles. */
+
+.error-boundary {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream);
+  padding: 24px;
+}
+
+.error-boundary__inner {
+  max-width: 560px;
+  text-align: center;
+}
+
+.error-boundary__title {
+  font-family: var(--font-display);
+  color: var(--charcoal);
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin: 0 0 16px;
+}
+
+.error-boundary__body {
+  font-family: var(--font-body);
+  color: var(--gray);
+  margin: 0 0 30px;
+  line-height: 1.6;
+}

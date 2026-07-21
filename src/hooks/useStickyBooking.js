@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
+import { SITE } from '../lib/constants'
 import { useIsMobile } from './useIsMobile'
 
 export const useStickyBooking = (currentRoute) => {
   const { t } = useLanguage()
   const isMobile = useIsMobile()
   const [visible, setVisible] = useState(true)
-  const isContactPage = currentRoute === '/contact'
+  // Hidden wherever a booking CTA is already on the page: home (hero button),
+  // /book (the flow itself), /contact (has its own actions).
+  const hasOwnCta = currentRoute === '/' || currentRoute === '/contact' || currentRoute === '/book'
 
   useEffect(() => {
-    if (!isMobile || isContactPage) return
+    if (!isMobile || hasOwnCta) return
 
     const contactSection = document.getElementById('contact')
     if (!contactSection) {
@@ -25,13 +28,12 @@ export const useStickyBooking = (currentRoute) => {
     observer.observe(contactSection)
 
     return () => observer.disconnect()
-  }, [isMobile, isContactPage])
+  }, [isMobile, hasOwnCta])
 
   return {
-    show: isMobile && !isContactPage && visible,
+    show: isMobile && !hasOwnCta && visible,
     text: t(translations.hero.bookBtn),
-    bookUrl: 'https://studio24.bg/hair-boutique-studio-trend-s4258',
-    phoneHref: 'tel:+359888599590',
+    phoneHref: SITE.phoneHref,
     callText: t(translations.contact.phone)
   }
 }

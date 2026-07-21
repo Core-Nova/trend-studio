@@ -13,12 +13,11 @@ dist-ssr
 *.local
 .env
 
-# Backend
-backend/node_modules
-backend/.env
-backend/.cache
-
 public/images
+
+# Scraped reviews — generated in CI by the Update Google Reviews action,
+# deployed but never committed (src/data/reviews.js is the committed fallback)
+public/reviews.json
 
 # Editor directories and files
 .vscode/*

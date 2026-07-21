@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
+import { SITE } from '../lib/constants'
 import { useIsMobile } from './useIsMobile'
 
 /* Nav always uses real routes — clicking Gallery/About/Services/Contact
@@ -56,7 +57,7 @@ export const useNavigation = () => {
     navItems,
     bookBtnText: t(translations.hero.bookBtn),
     callText: t(translations.contact.callBtn),
-    phoneHref: 'tel:+359888599590',
+    phoneHref: SITE.phoneHref,
     currentPath: location.pathname
   }
 }

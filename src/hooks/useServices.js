@@ -1,5 +1,6 @@
 import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
+import { SITE } from '../lib/constants'
 import servicesData from '../data/services.json'
 
 const SERVICE_ICONS = ['\u2702', '\u2726', '\u2727']
@@ -42,7 +43,7 @@ export const useServices = ({ withPricing = false } = {}) => {
     body: t(translations.services.consultCta.body),
     ctaText: t(translations.services.consultCta.ctaText),
     handle: t(translations.services.consultCta.handle),
-    href: 'viber://chat?number=%2B359888599590'
+    href: SITE.viberUrl
   } : null
 
   return {
@@ -50,8 +51,8 @@ export const useServices = ({ withPricing = false } = {}) => {
     title: t(translations.services.title),
     seeAllBtn: t(translations.services.seeAllBtn),
     note: withPricing ? t(servicesData.price_note) : null,
-    ctaText: withPricing ? t(translations.prices.ctaText) : null,
-    ctaUrl: withPricing ? 'https://studio24.bg/hair-boutique-studio-trend-s4258' : null,
+    ctaText: withPricing ? t(translations.hero.bookBtn) : null,
+    showBookCta: withPricing,
     categories,
     consultCta
   }

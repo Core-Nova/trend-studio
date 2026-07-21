@@ -14,6 +14,7 @@ const GalleryPage = lazy(() => import('./pages/GalleryPage'))
 const ServicesPage = lazy(() => import('./pages/ServicesPage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
+const BookingPage = lazy(() => import('./pages/BookingPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 const AppRoutes = () => {
@@ -35,6 +36,7 @@ const AppRoutes = () => {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/book" element={<BookingPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

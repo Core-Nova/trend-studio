@@ -8,86 +8,93 @@
           {
             "name": { "en": "Women's Haircut", "bg": "Дамско подстригване" },
             "duration": { "en": "45 min - 1 h", "bg": "45 мин. - 1 ч." },
+            "minutes": 60,
             "price_eur": 17.90,
             "price_bgn": 35.01,
             "price_note": { "en": "from", "bg": "от" },
             "options": [
-              { "name": { "en": "with Standard care", "bg": "с клас Standard грижа" }, "duration": "45 min", "eur": 17.90, "bgn": 35.01 },
-              { "name": { "en": "with Premium care", "bg": "с клас Premium грижа" }, "duration": "45 min", "eur": 23.01, "bgn": 45.00 },
-              { "name": { "en": "with Premium Trend care", "bg": "с Premium Trend грижа" }, "duration": "1 h", "eur": 38.35, "bgn": 75.01 }
+              { "name": { "en": "with Standard care", "bg": "с клас Standard грижа" }, "duration": "45 min", "minutes": 45, "eur": 17.90, "bgn": 35.01 },
+              { "name": { "en": "with Premium care", "bg": "с клас Premium грижа" }, "duration": "45 min", "minutes": 45, "eur": 23.01, "bgn": 45.00 },
+              { "name": { "en": "with Premium Trend care", "bg": "с Premium Trend грижа" }, "duration": "1 h", "minutes": 60, "eur": 38.35, "bgn": 75.01 }
             ]
           },
           {
             "name": { "en": "Haircut + Blow Dry (Standard)", "bg": "Подстригване + сешоар Standard" },
             "duration": { "en": "1h 30min - 1h 50min", "bg": "1 ч. 30 мин. - 1 ч. 50 мин." },
+            "minutes": 110,
             "price_eur": 31.70,
             "price_bgn": 62.00,
             "price_note": { "en": "from", "bg": "от" },
             "options": [
-              { "name": { "en": "Medium hair (M)", "bg": "средно дълга коса, размер M" }, "duration": "1h 30min", "eur": 31.70, "bgn": 62.00 },
-              { "name": { "en": "Long hair (L)", "bg": "дълга коса, размер L" }, "duration": "1h 30min", "eur": 34.77, "bgn": 68.00 },
-              { "name": { "en": "Very long (XL)", "bg": "много дълга коса, размер XL" }, "duration": "1h 50min", "eur": 40.90, "bgn": 79.99 },
-              { "name": { "en": "XXL", "bg": "много много дълга коса, размер XXL" }, "duration": "1h 50min", "eur": 46.02, "bgn": 90.01 }
+              { "name": { "en": "Medium hair (M)", "bg": "средно дълга коса, размер M" }, "duration": "1h 30min", "minutes": 90, "eur": 31.70, "bgn": 62.00 },
+              { "name": { "en": "Long hair (L)", "bg": "дълга коса, размер L" }, "duration": "1h 30min", "minutes": 90, "eur": 34.77, "bgn": 68.00 },
+              { "name": { "en": "Very long (XL)", "bg": "много дълга коса, размер XL" }, "duration": "1h 50min", "minutes": 110, "eur": 40.90, "bgn": 79.99 },
+              { "name": { "en": "XXL", "bg": "много много дълга коса, размер XXL" }, "duration": "1h 50min", "minutes": 110, "eur": 46.02, "bgn": 90.01 }
             ]
           },
           {
             "name": { "en": "Haircut + Blow Dry (Premium)", "bg": "Подстригване + сешоар Premium" },
             "duration": { "en": "1h 15min - 2h", "bg": "1 ч. 15 мин. - 2 ч." },
+            "minutes": 120,
             "price_eur": 39.88,
             "price_bgn": 78.00,
             "price_note": { "en": "from", "bg": "от" },
             "options": [
-              { "name": { "en": "Medium hair (M)", "bg": "средно дълга коса, размер M" }, "duration": "1h 15min", "eur": 39.88, "bgn": 78.00 },
-              { "name": { "en": "Long hair (L)", "bg": "дълга коса, размер L" }, "duration": "1h 30min", "eur": 44.99, "bgn": 87.99 },
-              { "name": { "en": "Very long (XL)", "bg": "много дълга коса, размер XL" }, "duration": "1h 40min", "eur": 50.11, "bgn": 98.01 },
-              { "name": { "en": "XXL", "bg": "много много дълга коса, размер XXL" }, "duration": "2h", "eur": 55.22, "bgn": 108.00 },
-              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "2h", "eur": 55.22, "bgn": 108.00 }
+              { "name": { "en": "Medium hair (M)", "bg": "средно дълга коса, размер M" }, "duration": "1h 15min", "minutes": 75, "eur": 39.88, "bgn": 78.00 },
+              { "name": { "en": "Long hair (L)", "bg": "дълга коса, размер L" }, "duration": "1h 30min", "minutes": 90, "eur": 44.99, "bgn": 87.99 },
+              { "name": { "en": "Very long (XL)", "bg": "много дълга коса, размер XL" }, "duration": "1h 40min", "minutes": 100, "eur": 50.11, "bgn": 98.01 },
+              { "name": { "en": "XXL", "bg": "много много дълга коса, размер XXL" }, "duration": "2h", "minutes": 120, "eur": 55.22, "bgn": 108.00 },
+              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "2h", "minutes": 120, "eur": 55.22, "bgn": 108.00 }
             ]
           },
           {
             "name": { "en": "Blow Dry (Standard care)", "bg": "Сешоар Standard грижа" },
             "duration": { "en": "50 min - 1h", "bg": "50 мин. - 1 ч." },
+            "minutes": 60,
             "price_eur": 16.87,
             "price_bgn": 32.99,
             "price_note": { "en": "from", "bg": "от" },
             "options": [
-              { "name": { "en": "Medium hair (M)", "bg": "средно дълга коса, размер M" }, "duration": "50 min", "eur": 16.87, "bgn": 32.99 },
-              { "name": { "en": "Long hair (L)", "bg": "дълга коса, размер L" }, "duration": "50 min", "eur": 23.01, "bgn": 45.00 },
-              { "name": { "en": "Very long (XL)", "bg": "много дълга коса, размер XL" }, "duration": "50 min", "eur": 23.01, "bgn": 45.00 },
-              { "name": { "en": "XXL", "bg": "много много дълга коса, размер XXL" }, "duration": "1h", "eur": 28.12, "bgn": 55.00 },
-              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "50 min", "eur": 35.79, "bgn": 70.00 }
+              { "name": { "en": "Medium hair (M)", "bg": "средно дълга коса, размер M" }, "duration": "50 min", "minutes": 50, "eur": 16.87, "bgn": 32.99 },
+              { "name": { "en": "Long hair (L)", "bg": "дълга коса, размер L" }, "duration": "50 min", "minutes": 50, "eur": 23.01, "bgn": 45.00 },
+              { "name": { "en": "Very long (XL)", "bg": "много дълга коса, размер XL" }, "duration": "50 min", "minutes": 50, "eur": 23.01, "bgn": 45.00 },
+              { "name": { "en": "XXL", "bg": "много много дълга коса, размер XXL" }, "duration": "1h", "minutes": 60, "eur": 28.12, "bgn": 55.00 },
+              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "50 min", "minutes": 50, "eur": 35.79, "bgn": 70.00 }
             ]
           },
           {
             "name": { "en": "Blow Dry (Premium Luxury care)", "bg": "Сешоар Premium Luxury грижа" },
             "duration": { "en": "40 min - 1h", "bg": "40 мин. - 1 ч." },
+            "minutes": 60,
             "price_eur": 20.45,
             "price_bgn": 40.00,
             "price_note": { "en": "from", "bg": "от" },
             "options": [
-              { "name": { "en": "Medium hair (M)", "bg": "средно дълга коса, размер M" }, "duration": "40 min", "eur": 20.45, "bgn": 40.00 },
-              { "name": { "en": "Long hair (L)", "bg": "дълга коса, размер L" }, "duration": "45 min", "eur": 28.12, "bgn": 55.00 },
-              { "name": { "en": "Very long (XL)", "bg": "много дълга коса, размер XL" }, "duration": "50 min", "eur": 33.23, "bgn": 64.99 },
-              { "name": { "en": "XXL", "bg": "много много дълга коса, размер XXL" }, "duration": "1h", "eur": 38.35, "bgn": 75.01 },
-              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "55 min", "eur": 38.35, "bgn": 75.01 }
+              { "name": { "en": "Medium hair (M)", "bg": "средно дълга коса, размер M" }, "duration": "40 min", "minutes": 40, "eur": 20.45, "bgn": 40.00 },
+              { "name": { "en": "Long hair (L)", "bg": "дълга коса, размер L" }, "duration": "45 min", "minutes": 45, "eur": 28.12, "bgn": 55.00 },
+              { "name": { "en": "Very long (XL)", "bg": "много дълга коса, размер XL" }, "duration": "50 min", "minutes": 50, "eur": 33.23, "bgn": 64.99 },
+              { "name": { "en": "XXL", "bg": "много много дълга коса, размер XXL" }, "duration": "1h", "minutes": 60, "eur": 38.35, "bgn": 75.01 },
+              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "55 min", "minutes": 55, "eur": 38.35, "bgn": 75.01 }
             ]
           },
           {
             "name": { "en": "Formal Hairstyle", "bg": "Официална прическа" },
             "duration": { "en": "2h - 3h 30min", "bg": "2 ч. - 3 ч. 30 мин." },
+            "minutes": 210,
             "price_eur": 30.68,
             "price_bgn": 60.00,
             "price_note": { "en": "from", "bg": "от" },
             "options": [
-              { "name": { "en": "Standard updo", "bg": "стандартен кок" }, "duration": "2h", "eur": 46.02, "bgn": 90.01 },
-              { "name": { "en": "Complex updo", "bg": "сложен кок" }, "duration": "3h", "eur": 61.36, "bgn": 120.01 },
-              { "name": { "en": "Updo with extras", "bg": "кок с екстри" }, "duration": "3h 30min", "eur": 76.69, "bgn": 149.99 },
-              { "name": { "en": "Trial hairstyle", "bg": "пробна прическа" }, "duration": "2h", "eur": 30.68, "bgn": 60.00 }
+              { "name": { "en": "Standard updo", "bg": "стандартен кок" }, "duration": "2h", "minutes": 120, "eur": 46.02, "bgn": 90.01 },
+              { "name": { "en": "Complex updo", "bg": "сложен кок" }, "duration": "3h", "minutes": 180, "eur": 61.36, "bgn": 120.01 },
+              { "name": { "en": "Updo with extras", "bg": "кок с екстри" }, "duration": "3h 30min", "minutes": 210, "eur": 76.69, "bgn": 149.99 },
+              { "name": { "en": "Trial hairstyle", "bg": "пробна прическа" }, "duration": "2h", "minutes": 120, "eur": 30.68, "bgn": 60.00 }
             ]
           },
           {
             "name": { "en": "Bangs Trim", "bg": "Подстригване на бретон" },
             "duration": { "en": "15 min", "bg": "15 мин." },
+            "minutes": 15,
             "price_eur": 5.11,
             "price_bgn": 9.99,
             "price_note": null,
@@ -96,14 +103,15 @@
           {
             "name": { "en": "Flat Iron / Curling Iron", "bg": "Преса / Маша" },
             "duration": { "en": "45 min - 1h 15min", "bg": "45 мин. - 1 ч. 15 мин." },
+            "minutes": 75,
             "price_eur": 23.01,
             "price_bgn": 45.00,
             "price_note": { "en": "from", "bg": "от" },
             "options": [
-              { "name": { "en": "Long hair (L, no wash)", "bg": "размер L (без измиване)" }, "duration": "45 min", "eur": 23.01, "bgn": 45.00 },
-              { "name": { "en": "Very long (XL, no wash)", "bg": "размер XL (без измиване)" }, "duration": "1h", "eur": 33.23, "bgn": 64.99 },
-              { "name": { "en": "XXL (no wash)", "bg": "размер XXL (без измиване)" }, "duration": "1h 15min", "eur": 56.24, "bgn": 110.00 },
-              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "1h 15min", "eur": 56.24, "bgn": 110.00 }
+              { "name": { "en": "Long hair (L, no wash)", "bg": "размер L (без измиване)" }, "duration": "45 min", "minutes": 45, "eur": 23.01, "bgn": 45.00 },
+              { "name": { "en": "Very long (XL, no wash)", "bg": "размер XL (без измиване)" }, "duration": "1h", "minutes": 60, "eur": 33.23, "bgn": 64.99 },
+              { "name": { "en": "XXL (no wash)", "bg": "размер XXL (без измиване)" }, "duration": "1h 15min", "minutes": 75, "eur": 56.24, "bgn": 110.00 },
+              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "1h 15min", "minutes": 75, "eur": 56.24, "bgn": 110.00 }
             ]
           }
         ]
@@ -115,23 +123,25 @@
           {
             "name": { "en": "Coloring (Premium dye)", "bg": "Боядисване с Premium боя" },
             "duration": { "en": "5 min - 2h 30min", "bg": "5 мин. - 2 ч. 30 мин." },
+            "minutes": 150,
             "price_eur": 23.01,
             "price_bgn": 45.00,
             "price_note": { "en": "from", "bg": "от" },
             "options": [
-              { "name": { "en": "Roots", "bg": "на корени" }, "duration": "1h 40min", "eur": 38.35, "bgn": 75.01 },
-              { "name": { "en": "Size S", "bg": "размер S" }, "duration": "1h 30min", "eur": 43.46, "bgn": 85.00 },
-              { "name": { "en": "Size M", "bg": "размер M" }, "duration": "1h 45min", "eur": 48.57, "bgn": 94.99 },
-              { "name": { "en": "Size L", "bg": "размер L" }, "duration": "2h 30min", "eur": 58.80, "bgn": 115.00 },
-              { "name": { "en": "Size XL", "bg": "размер XL" }, "duration": "2h 15min", "eur": 69.02, "bgn": 134.99 },
-              { "name": { "en": "Size XXL", "bg": "размер XXL" }, "duration": "2h 15min", "eur": 99.70, "bgn": 195.00 },
-              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "2h 15min", "eur": 99.70, "bgn": 195.00 },
-              { "name": { "en": "Premium elixir (optional)", "bg": "premium еликсир (по желание)" }, "duration": "5 min", "eur": 23.01, "bgn": 45.00 }
+              { "name": { "en": "Roots", "bg": "на корени" }, "duration": "1h 40min", "minutes": 100, "eur": 38.35, "bgn": 75.01 },
+              { "name": { "en": "Size S", "bg": "размер S" }, "duration": "1h 30min", "minutes": 90, "eur": 43.46, "bgn": 85.00 },
+              { "name": { "en": "Size M", "bg": "размер M" }, "duration": "1h 45min", "minutes": 105, "eur": 48.57, "bgn": 94.99 },
+              { "name": { "en": "Size L", "bg": "размер L" }, "duration": "2h 30min", "minutes": 150, "eur": 58.80, "bgn": 115.00 },
+              { "name": { "en": "Size XL", "bg": "размер XL" }, "duration": "2h 15min", "minutes": 135, "eur": 69.02, "bgn": 134.99 },
+              { "name": { "en": "Size XXL", "bg": "размер XXL" }, "duration": "2h 15min", "minutes": 135, "eur": 99.70, "bgn": 195.00 },
+              { "name": { "en": "Extensions", "bg": "коса с екстеншъни" }, "duration": "2h 15min", "minutes": 135, "eur": 99.70, "bgn": 195.00 },
+              { "name": { "en": "Premium elixir (optional)", "bg": "premium еликсир (по желание)" }, "duration": "5 min", "minutes": 5, "eur": 23.01, "bgn": 45.00 }
             ]
           },
           {
             "name": { "en": "Highlights / Balayage / Contouring", "bg": "Кичури / Балеаж / Контуринг" },
             "duration": { "en": "30 min (consultation required)", "bg": "30 мин. (само след консултация)" },
+            "minutes": 30,
             "price_eur": 15.34,
             "price_bgn": 30.00,
             "price_note": null,
@@ -140,26 +150,28 @@
           {
             "name": { "en": "Coloring Premium + Bonding care", "bg": "Боядисване Premium + бондинг грижа" },
             "duration": { "en": "1h 45min - 2h", "bg": "1 ч. 45 мин. - 2 ч." },
+            "minutes": 120,
             "price_eur": 61.36,
             "price_bgn": 120.01,
             "price_note": { "en": "from", "bg": "от" },
             "options": [
-              { "name": { "en": "Roots", "bg": "на корени" }, "duration": "1h 45min", "eur": 61.36, "bgn": 120.01 },
-              { "name": { "en": "Size S", "bg": "размер S" }, "duration": "1h 45min", "eur": 74.14, "bgn": 145.01 },
-              { "name": { "en": "Size M", "bg": "размер M" }, "duration": "1h 45min", "eur": 84.36, "bgn": 164.99 },
-              { "name": { "en": "Size L", "bg": "размер L" }, "duration": "2h", "eur": 99.70, "bgn": 195.00 },
-              { "name": { "en": "Size XL", "bg": "размер XL" }, "duration": "2h", "eur": 99.70, "bgn": 195.00 }
+              { "name": { "en": "Roots", "bg": "на корени" }, "duration": "1h 45min", "minutes": 105, "eur": 61.36, "bgn": 120.01 },
+              { "name": { "en": "Size S", "bg": "размер S" }, "duration": "1h 45min", "minutes": 105, "eur": 74.14, "bgn": 145.01 },
+              { "name": { "en": "Size M", "bg": "размер M" }, "duration": "1h 45min", "minutes": 105, "eur": 84.36, "bgn": 164.99 },
+              { "name": { "en": "Size L", "bg": "размер L" }, "duration": "2h", "minutes": 120, "eur": 99.70, "bgn": 195.00 },
+              { "name": { "en": "Size XL", "bg": "размер XL" }, "duration": "2h", "minutes": 120, "eur": 99.70, "bgn": 195.00 }
             ]
           },
           {
             "name": { "en": "Toning", "bg": "Тониране" },
             "duration": { "en": "40 min", "bg": "40 мин." },
+            "minutes": 40,
             "price_eur": 30.68,
             "price_bgn": 60.00,
             "price_note": { "en": "from", "bg": "от" },
             "options": [
-              { "name": { "en": "Nourishing toner", "bg": "подхранващо тониране" }, "duration": "40 min", "eur": 30.68, "bgn": 60.00 },
-              { "name": { "en": "Nourishing toner (premium)", "bg": "подхранващо тониране (premium)" }, "duration": "40 min", "eur": 40.90, "bgn": 79.99 }
+              { "name": { "en": "Nourishing toner", "bg": "подхранващо тониране" }, "duration": "40 min", "minutes": 40, "eur": 30.68, "bgn": 60.00 },
+              { "name": { "en": "Nourishing toner (premium)", "bg": "подхранващо тониране (premium)" }, "duration": "40 min", "minutes": 40, "eur": 40.90, "bgn": 79.99 }
             ]
           }
         ]
@@ -171,6 +183,7 @@
           {
             "name": { "en": "Rhiannon Hair Treatment", "bg": "Терапия за коса с Рианон" },
             "duration": { "en": "1h", "bg": "1 ч." },
+            "minutes": 60,
             "price_eur": 51.13,
             "price_bgn": 100.00,
             "price_note": null,
@@ -179,6 +192,7 @@
           {
             "name": { "en": "Aphrodite Treatment (Hydrating)", "bg": "Терапия Афродита (хидратираща)" },
             "duration": { "en": "1h", "bg": "1 ч." },
+            "minutes": 60,
             "price_eur": 62.89,
             "price_bgn": 123.00,
             "price_note": null,
@@ -187,6 +201,7 @@
           {
             "name": { "en": "Conventina Treatment (Shine)", "bg": "Терапия Конвентина (блясък)" },
             "duration": { "en": "40 min", "bg": "40 мин." },
+            "minutes": 40,
             "price_eur": 35.79,
             "price_bgn": 70.00,
             "price_note": null,
@@ -195,6 +210,7 @@
           {
             "name": { "en": "Abundancia Treatment (Damaged hair)", "bg": "Терапия Абунданция (изтощена коса)" },
             "duration": { "en": "1h", "bg": "1 ч." },
+            "minutes": 60,
             "price_eur": 66.47,
             "price_bgn": 130.00,
             "price_note": null,
@@ -203,6 +219,7 @@
           {
             "name": { "en": "Cleansing Hair Treatment", "bg": "Почистваща терапия за коса" },
             "duration": { "en": "20 min", "bg": "20 мин." },
+            "minutes": 20,
             "price_eur": 17.90,
             "price_bgn": 35.01,
             "price_note": null,
@@ -211,6 +228,7 @@
           {
             "name": { "en": "Bond Repair Treatment", "bg": "Терапия за коса с Bond Repair" },
             "duration": { "en": "1h", "bg": "1 ч." },
+            "minutes": 60,
             "price_eur": 56.24,
             "price_bgn": 110.00,
             "price_note": null,
@@ -219,6 +237,7 @@
           {
             "name": { "en": "Anti-Frizz Treatment", "bg": "Терапия за коса анти-фриз" },
             "duration": { "en": "40 min", "bg": "40 мин." },
+            "minutes": 40,
             "price_eur": 43.46,
             "price_bgn": 85.00,
             "price_note": null,
@@ -227,6 +246,7 @@
           {
             "name": { "en": "Sweet Colour Treatment", "bg": "Терапия за коса с Sweet Colour" },
             "duration": { "en": "30 min", "bg": "30 мин." },
+            "minutes": 30,
             "price_eur": 35.79,
             "price_bgn": 70.00,
             "price_note": null,
@@ -235,6 +255,7 @@
           {
             "name": { "en": "Caviar Moisture Treatment", "bg": "Терапия за коса с Caviar Moisture" },
             "duration": { "en": "40 min", "bg": "40 мин." },
+            "minutes": 40,
             "price_eur": 30.68,
             "price_bgn": 60.00,
             "price_note": null,

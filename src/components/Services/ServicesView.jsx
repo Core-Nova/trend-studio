@@ -1,6 +1,7 @@
 import { useState, memo } from 'react'
 import { Link } from 'react-router-dom'
 import { SectionHeader } from '../atoms/SectionHeader'
+import { BookingLink } from '../atoms/BookingLink'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import { trackEvent } from '../../lib/analytics'
 
@@ -119,7 +120,7 @@ const CategoryCard = memo(({ icon, name, count, description, items, preview, has
 ))
 
 export const ServicesView = ({
-  sectionTag, title, categories, note, ctaText, ctaUrl,
+  sectionTag, title, categories, note, ctaText, showBookCta,
   showSeeAll, seeAllBtn, consultCta
 }) => {
   const { ref, revealed } = useScrollReveal()
@@ -141,11 +142,11 @@ export const ServicesView = ({
         })}
       </div>
       {note && <p className="svc-note">{note}</p>}
-      {ctaUrl && (
+      {showBookCta && (
         <div className="svc-cta">
-          <a href={ctaUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
+          <BookingLink className="btn btn-secondary" location="services_page">
             {ctaText}
-          </a>
+          </BookingLink>
         </div>
       )}
       {showSeeAll && (

@@ -1,0 +1,130 @@
+/* Reset and global foundations: element defaults, focus, container, loading. */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 70px;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--charcoal);
+  background-color: var(--cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+section {
+  padding: 100px 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition:
+    color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  touch-action: manipulation;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--gold-primary);
+  outline-offset: 2px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold-primary);
+  color: var(--black);
+  padding: 12px 24px;
+  z-index: 10000;
+  font-weight: 600;
+  letter-spacing: 1px;
+  border-radius: 0 0 8px 8px;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+.page-loading {
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream);
+}
+
+.page-loading__logo {
+  width: 120px;
+  opacity: 0.6;
+  animation: logoPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Mobile rendering performance: skip offscreen section layout.
+   NOT applied to .gallery-section — it hosts fixed-position overlays
+   (stories viewer, lightbox) that paint containment would clip. */
+@media (max-width: 768px) {
+  .reviews,
+  .services-section,
+  .about,
+  .contact {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 600px;
+  }
+
+  section {
+    padding: 70px 0;
+  }
+}

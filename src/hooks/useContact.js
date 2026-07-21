@@ -1,5 +1,6 @@
 import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
+import { SITE } from '../lib/constants'
 
 export const useContact = () => {
   const { t } = useLanguage()
@@ -10,19 +11,20 @@ export const useContact = () => {
     addressLabel: t(translations.contact.address),
     addressLines: t(translations.contact.addressText).split('\n'),
     phoneLabel: t(translations.contact.phone),
-    phone: '0888 599 590',
-    phoneHref: 'tel:+359888599590',
-    viberUrl: 'viber://chat?number=%2B359888599590',
+    phone: SITE.phoneDisplay,
+    phoneHref: SITE.phoneHref,
+    viberUrl: SITE.viberUrl,
     viberText: t(translations.contact.viber),
     emailLabel: t(translations.contact.email),
     email: 'trendstudiotedi@gmail.com',
     emailHref: 'mailto:trendstudiotedi@gmail.com',
     hoursLabel: t(translations.contact.hours),
     hoursLines: t(translations.contact.hoursText).split('\n'),
-    bookBtn: translations.contact.bookBtn,
-    bookUrl: 'https://studio24.bg/hair-boutique-studio-trend-s4258',
+    bookOnlineBtn: translations.contact.bookOnlineBtn,
+    studio24Text: t(translations.contact.bookBtn),
+    studio24Url: SITE.studio24Url,
     mapLink: t(translations.contact.mapLink),
-    mapEmbedUrl: 'https://www.google.com/maps?q=TREND+Hair+Boutique+Studio,+Tsar+Kaloyan+8,+Sofia,+Bulgaria&output=embed',
-    mapSearchUrl: 'https://www.google.com/maps/search/TREND+Hair+Boutique+Studio+Tsar+Kaloyan+8+Sofia'
+    mapEmbedUrl: SITE.mapsEmbedUrl,
+    mapSearchUrl: SITE.mapsSearchUrl
   }
 }

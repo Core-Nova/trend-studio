@@ -1,0 +1,37 @@
+/* Design tokens — single source for every color, font, and shadow.
+   The *-rgb triplets exist so alpha colors stay tokenized:
+   use rgba(var(--gold-primary-rgb), 0.3) instead of raw channel values. */
+
+#root {
+  min-height: 100vh;
+}
+
+:root {
+  --gold-primary: #b08d3a;
+  --gold-primary-rgb: 176, 141, 58;
+  --gold-light: #c4a24e;
+  --gold-dark: #8a6d2b;
+  --burgundy: #722f37;
+  --burgundy-rgb: 114, 47, 55;
+  --burgundy-dark: #4a1c23;
+  --white: #ffffff;
+  --cream: #f5ecd7;
+  --cream-dark: #ede3cc;
+  --black: #2a2118;
+  --ink-rgb: 42, 33, 24; /* --black as channels */
+  --charcoal: #3b2f22;
+  --gray: #6b5e50;
+  --gray-light: #9a8e80;
+
+  /* Accent channels that predate the palette — kept verbatim to avoid
+       visual drift; prefer the main gold/ink tokens for new work. */
+  --gold-glow-rgb: 201, 162, 39;
+  --overlay-ink-rgb: 26, 26, 26;
+
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-script: 'Great Vibes', cursive;
+  --font-body: 'Montserrat', 'Helvetica Neue', sans-serif;
+
+  --shadow: 0 4px 20px rgba(var(--ink-rgb), 0.1);
+  --shadow-gold: 0 4px 30px rgba(var(--gold-primary-rgb), 0.3);
+}

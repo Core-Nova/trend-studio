@@ -9,7 +9,7 @@ import { GalleryView } from './GalleryView'
 export const Gallery = ({ showSeeAll = false }) => {
   const data = useGallery()
   const isMobile = useIsMobile()
-  const { images, imageUrls, storyGroups, isLive } = useGalleryImages(12)
+  const { images, imageUrls, storyGroups } = useGalleryImages()
 
   const stories = useStories({ images: imageUrls, duration: 5000 })
   const lightbox = useLightbox(images.length)
@@ -20,7 +20,6 @@ export const Gallery = ({ showSeeAll = false }) => {
       {...data}
       showSeeAll={showSeeAll}
       isMobile={isMobile}
-      isLive={isLive}
       stories={stories}
       lightbox={lightbox}
       carousel={carousel}

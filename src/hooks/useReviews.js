@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
 import { googleReviews } from '../data/reviews'
-import { apiEnabled, fetchGoogleReviews } from '../lib/api'
 
 export const useReviews = () => {
   const { t, lang } = useLanguage()
@@ -11,15 +10,9 @@ export const useReviews = () => {
   useEffect(() => {
     let cancelled = false
 
-    // Priority 1: live backend API
-    if (apiEnabled) {
-      fetchGoogleReviews().then(data => {
-        if (!cancelled && data) setLive(data)
-      })
-      return () => { cancelled = true }
-    }
-
-    // Priority 2: static reviews.json (written by CI)
+    // Fresh Google reviews scraped into public/reviews.json by the
+    // "Update Google Reviews" GitHub Action; the bundled src/data/reviews.js
+    // snapshot is the fallback when the scraped file isn't present.
     fetch(`${import.meta.env.BASE_URL}reviews.json`)
       .then(r => {
         if (!r.ok) throw new Error(r.status)
@@ -44,7 +37,6 @@ export const useReviews = () => {
     rating: data.rating,
     totalCount: data.totalCount,
     reviews: data.reviews,
-    isLive: Boolean(live),
     lang
   }
 }

@@ -8,10 +8,12 @@ const trackViber = () => trackEvent('contact', { method: 'viber', location: 'con
 const trackEmail = () => trackEvent('contact', { method: 'email', location: 'contact_section' })
 const trackMap = () => trackEvent('select_content', { content_type: 'map', location: 'contact_section' })
 
+const trackStudio24 = () => trackEvent('generate_lead', { method: 'booking_link', location: 'contact_section' })
+
 export const ContactView = ({
   sectionTag, title, addressLabel, addressLines, phoneLabel, phone, phoneHref,
   viberUrl, viberText, emailLabel, email, emailHref, hoursLabel, hoursLines,
-  bookBtn, bookUrl, mapLink, mapEmbedUrl, mapSearchUrl
+  bookOnlineBtn, studio24Text, studio24Url, mapLink, mapEmbedUrl, mapSearchUrl
 }) => {
   const { ref, revealed } = useScrollReveal()
   return (
@@ -60,11 +62,20 @@ export const ContactView = ({
             </div>
           </div>
           <div className="contact-actions">
-            <BookingButton translations={bookBtn} url={bookUrl} className="booking-btn" location="contact_section" />
+            <BookingButton translations={bookOnlineBtn} className="booking-btn" location="contact_section" />
             <a href={phoneHref} className="btn btn-secondary contact-call-btn" onClick={trackPhone}>
               &#9742; {phone}
             </a>
           </div>
+          <a
+            href={studio24Url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="contact-studio24-link"
+            onClick={trackStudio24}
+          >
+            {studio24Text} &rarr;
+          </a>
         </div>
         <div className="contact-map">
           <iframe

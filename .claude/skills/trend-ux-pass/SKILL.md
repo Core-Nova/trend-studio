@@ -20,9 +20,9 @@ Focused mobile-first + accessibility review. Full lens in memory `lens-ux.md`. P
    - Stateful toggles (EN/BG language) need `aria-pressed`.
    - Disclosures (menu) need `aria-expanded` (already present on `NavigationView.jsx` menu).
    - Modals (`StoriesViewer`) need `role="dialog"` + `aria-modal="true"` (already present).
-3. **Focus.** Tab through; every interactive element must reach and show the gold `:focus-visible` ring (`src/index.css` ~lines 57-61). Flag `outline: none` without replacement.
+3. **Focus.** Tab through; every interactive element must reach and show the gold `:focus-visible` ring (`src/styles/base.css`). Flag `outline: none` without replacement.
 4. **Skip link.** First Tab on home should expose the skip-to-content link (`NavigationView.jsx:10`).
-5. **Reduced motion.** Any new animation must be in the `@media (prefers-reduced-motion: reduce)` block in `src/index.css` (existing block at ~2841-2852).
+5. **Reduced motion.** Any new animation must be covered by the `@media (prefers-reduced-motion: reduce)` overrides in `src/styles/motion.css` (which must stay the last import in `src/index.css`).
 6. **Contrast.** Use `preview_eval` to read computed colors, then check against WCAG AA (4.5:1 normal text, 3:1 large). Special attention: pale gold on cream small text, gold on dark.
 7. **Responsive.** Resize through 1600 / 1200 / 992 / 768 / 480 — flag overflow, broken layout, illegible text. Avoid `preview_screenshot` on hero per memory `preview-screenshot-raf-timeout`; use `preview_eval` + `getBoundingClientRect()` for geometry.
 8. **Loading.** Lazy routes should fall back to a skeleton sized like content, not just a spinner. Note current state: spinner only.

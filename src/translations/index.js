@@ -4,7 +4,6 @@ export const translations = {
     gallery: { en: 'Gallery', bg: 'Галерия' },
     about: { en: 'About', bg: 'За нас' },
     services: { en: 'Services', bg: 'Услуги' },
-    prices: { en: 'Prices', bg: 'Цени' },
     reviews: { en: 'Reviews', bg: 'Отзиви' },
     contact: { en: 'Contact', bg: 'Контакти' }
   },
@@ -98,16 +97,6 @@ export const translations = {
     }
   },
 
-  prices: {
-    sectionTag: { en: 'Investment in Beauty', bg: 'Инвестиция в красота' },
-    title: { en: 'Price List', bg: 'Ценоразпис' },
-    note: {
-      en: '* Prices may vary based on hair length and complexity.',
-      bg: '* Цените могат да варират в зависимост от дължината на косата и сложността.'
-    },
-    ctaText: { en: 'See Full Price List on Studio24', bg: 'Вижте пълния ценоразпис в Studio24' }
-  },
-
   reviews: {
     sectionTag: { en: 'Client Testimonials', bg: 'Отзиви от клиенти' },
     title: { en: 'What Our Clients Say', bg: 'Какво казват нашите клиенти' },
@@ -134,9 +123,91 @@ export const translations = {
       bg: 'Пон, Сряда, Пет: 09:00 - 19:30\nВт, Чет: Почивен ден\nСъб, Нед: 09:00 - 19:00'
     },
     bookBtn: { en: 'Book via Studio24', bg: 'Резервирай в Studio24' },
+    bookOnlineBtn: { en: 'Book Online', bg: 'Запазете час онлайн' },
     viber: { en: 'Chat on Viber', bg: 'Пишете ни във Viber' },
     callBtn: { en: 'Call Us', bg: 'Обадете се' },
     mapLink: { en: 'Open in Google Maps', bg: 'Отвори в Google Maps' }
+  },
+
+  booking: {
+    sectionTag: { en: 'Online Booking', bg: 'Онлайн резервация' },
+    title: { en: 'Book an Appointment', bg: 'Запазете час' },
+    stepServices: { en: 'Services', bg: 'Услуги' },
+    stepTime: { en: 'Time', bg: 'Час' },
+    stepDetails: { en: 'Details', bg: 'Данни' },
+    servicesHint: {
+      en: 'Choose one or more services — we\'ll find a slot long enough for everything.',
+      bg: 'Изберете една или повече услуги — ще намерим достатъчно дълъг час за всичко.'
+    },
+    chooseOption: { en: 'Choose an option', bg: 'Изберете вариант' },
+    total: { en: 'Total', bg: 'Общо' },
+    hourShort: { en: 'h', bg: 'ч' },
+    minShort: { en: 'min', bg: 'мин' },
+    continueBtn: { en: 'Choose a Time', bg: 'Изберете час' },
+    timeHint: { en: 'Pick a day and a starting time', bg: 'Изберете ден и начален час' },
+    suggested: { en: 'Suggested time', bg: 'Предложен час' },
+    today: { en: 'Today', bg: 'Днес' },
+    tomorrow: { en: 'Tomorrow', bg: 'Утре' },
+    loadingSlots: { en: 'Checking available times…', bg: 'Проверяваме свободните часове…' },
+    redirecting: { en: 'Taking you to Studio24…', bg: 'Пренасочваме към Studio24…' },
+    noSlots: {
+      en: 'No free slots in the coming days. Call us and we\'ll find a time for you.',
+      bg: 'Няма свободни часове в следващите дни. Обадете се и ще намерим час за вас.'
+    },
+    slotsError: {
+      en: 'We couldn\'t load the available times. Please try again.',
+      bg: 'Не успяхме да заредим свободните часове. Моля, опитайте отново.'
+    },
+    retryBtn: { en: 'Try Again', bg: 'Опитай отново' },
+    detailsBtn: { en: 'Continue', bg: 'Продължи' },
+    detailsHint: {
+      en: 'The calendar invite will be sent to your email.',
+      bg: 'Поканата за календара ще бъде изпратена на вашия имейл.'
+    },
+    nameLabel: { en: 'Your Name', bg: 'Вашето име' },
+    emailLabel: { en: 'Email', bg: 'Имейл' },
+    phoneLabel: { en: 'Phone', bg: 'Телефон' },
+    namePlaceholder: { en: 'Maria Ivanova', bg: 'Мария Иванова' },
+    emailPlaceholder: { en: 'you@example.com', bg: 'ime@primer.bg' },
+    phonePlaceholder: { en: '0888 123 456', bg: '0888 123 456' },
+    errName: { en: 'Please enter your name', bg: 'Моля, въведете името си' },
+    errEmail: { en: 'Please enter a valid email address', bg: 'Моля, въведете валиден имейл адрес' },
+    errPhone: { en: 'Please enter a valid phone number', bg: 'Моля, въведете валиден телефонен номер' },
+    summaryTitle: { en: 'Your appointment', bg: 'Вашият час' },
+    backBtn: { en: 'Back', bg: 'Назад' },
+    confirmBtn: { en: 'Confirm Booking', bg: 'Потвърди часа' },
+    submitting: { en: 'Booking…', bg: 'Запазване…' },
+    successTitle: { en: 'Your appointment is booked!', bg: 'Часът е запазен!' },
+    successInvite: { en: 'A calendar invite is on its way to', bg: 'Покана за календара пътува към' },
+    successSpam: {
+      en: 'If you don\'t see it in a few minutes, check your spam folder.',
+      bg: 'Ако не я видите до няколко минути, проверете папка „Спам“.'
+    },
+    successHome: { en: 'Back to Home', bg: 'Към начало' },
+    errorTitle: { en: 'The booking didn\'t go through', bg: 'Резервацията не бе успешна' },
+    errSlotTaken: {
+      en: 'That time was just taken — please pick another slot.',
+      bg: 'Този час току-що беше зает — моля, изберете друг.'
+    },
+    errRateLimited: {
+      en: 'Too many attempts from this email. Please try later or call us.',
+      bg: 'Твърде много опити от този имейл. Опитайте по-късно или ни се обадете.'
+    },
+    errGeneric: {
+      en: 'Something went wrong. Please try again, or book by phone.',
+      bg: 'Нещо се обърка. Опитайте отново или запазете час по телефона.'
+    },
+    pickAnotherBtn: { en: 'Pick Another Time', bg: 'Изберете друг час' },
+    callBtn: { en: 'Call 0888 599 590', bg: 'Обадете се: 0888 599 590' },
+    orStudio24: { en: 'or book via Studio24', bg: 'или резервирайте през Studio24' },
+    unavailableTitle: {
+      en: 'Online booking is not available right now',
+      bg: 'Онлайн резервациите не са достъпни в момента'
+    },
+    unavailableBody: {
+      en: 'Call us or book via Studio24 — we\'ll be happy to find you a time.',
+      bg: 'Обадете се или резервирайте през Studio24 — с радост ще ви намерим час.'
+    }
   },
 
   footer: {
@@ -184,6 +255,14 @@ export const translations = {
     contactDescription: {
       en: 'Book your appointment at TREND Hair Boutique Studio — 8 Tsar Kaloyan St., central Sofia. Call, Viber, or book online. Open Mon–Sun.',
       bg: 'Запазете час в TREND Бутиково фризьорско студио — ул. Цар Калоян 8, центъра на София. Обадете се, пишете във Viber или резервирайте онлайн. Отворено Пон–Нед.'
+    },
+    bookingTitle: {
+      en: 'Book an Appointment Online | TREND Hair Boutique Studio Sofia',
+      bg: 'Запазете час онлайн | TREND Бутиково фризьорско студио София'
+    },
+    bookingDescription: {
+      en: 'Pick your services, see live availability, and book your visit at TREND Hair Boutique Studio — 8 Tsar Kaloyan St., Sofia. Instant calendar invite to your email.',
+      bg: 'Изберете услуги, вижте свободните часове в реално време и запазете посещение в TREND Бутиково фризьорско студио — ул. Цар Калоян 8, София. Незабавна покана в календара на имейла ви.'
     },
     notFoundTitle: {
       en: 'Page Not Found | TREND Hair Boutique Studio Sofia',
@@ -281,8 +360,8 @@ export const translations = {
           bg: 'Как да запазя час?'
         },
         a: {
-          en: 'Online via Studio24, call +359 888 599 590, or Viber.',
-          bg: 'Онлайн в Studio24, на +359 888 599 590 или във Viber.'
+          en: 'Book online right here on the site, call +359 888 599 590, or use Viber / Studio24.',
+          bg: 'Запазете час онлайн тук на сайта, на +359 888 599 590 или през Viber / Studio24.'
         }
       }
     ]

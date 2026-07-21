@@ -1,5 +1,8 @@
 name: Update Google Reviews
 
+# Manual only — run from the Actions tab. Scrapes the latest Google reviews
+# into public/reviews.json (not committed), then builds and deploys so the
+# live site picks them up.
 on:
   workflow_dispatch:
 
@@ -35,7 +38,7 @@ jobs:
         run: npx playwright install chromium --with-deps
 
       - name: Fetch reviews from Google Maps
-        run: node backend/scripts/fetch-reviews.mjs
+        run: npm run fetch-reviews
 
       - name: Build
         run: npm run build
