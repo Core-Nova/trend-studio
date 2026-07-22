@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { trackEvent } from '../../lib/analytics'
 
 const trackPhone = () => trackEvent('contact', { method: 'phone', location: 'stories_cta' })
@@ -24,7 +25,9 @@ export const StoriesViewer = ({
     else if (e.key === 'ArrowRight') onNext()
   }
 
-  return (
+  // Portal to <body>: ancestors with a transform (e.g. .scroll-reveal--visible)
+  // would otherwise become the containing block for position: fixed
+  return createPortal(
     <div
       ref={viewerRef}
       className="stories-viewer"
@@ -96,6 +99,7 @@ export const StoriesViewer = ({
           {instagramHandle}
         </a>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

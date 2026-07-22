@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { createPortal } from 'react-dom'
 import { SectionHeader } from '../atoms/SectionHeader'
 import { ResponsiveImage } from '../atoms/ResponsiveImage'
 import { StoriesHighlights } from '../Stories/StoriesHighlights'
@@ -9,7 +10,9 @@ import { trackEvent } from '../../lib/analytics'
 const Lightbox = ({ images, index, onClose, onPrev, onNext, lightboxRef }) => {
   if (index === null) return null
 
-  return (
+  // Portal to <body>: ancestors with a transform (e.g. .scroll-reveal--visible)
+  // would otherwise become the containing block for position: fixed
+  return createPortal(
     <div
       ref={lightboxRef}
       className="lightbox"
@@ -36,7 +39,8 @@ const Lightbox = ({ images, index, onClose, onPrev, onNext, lightboxRef }) => {
         onClick={(e) => e.stopPropagation()}
       />
       <button className="lightbox__next" onClick={(e) => { e.stopPropagation(); onNext() }} aria-label="Next image">&rsaquo;</button>
-    </div>
+    </div>,
+    document.body
   )
 }
 
