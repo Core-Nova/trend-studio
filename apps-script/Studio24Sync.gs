@@ -13,8 +13,8 @@
  *
  * Synced events get NO guests and send NO invites — Studio24 already
  * confirmed with the client. They exist so getAvailability() sees the slot
- * as busy. Durations come from the Services tab (longest matching Bulgarian
- * name), falling back to CONFIG.defaultServiceMin per service.
+ * as busy. Durations come from the Services tab (word-based match — see
+ * matchService_), falling back to CONFIG.defaultServiceMin per service.
  */
 
 function syncStudio24Emails() {
@@ -46,6 +46,13 @@ function syncStudio24Emails() {
  * Subject: "Нова резервация от Pavlin Petkov на 08.07.2026 в 10:30"
  * Body:    "Клиентът е <name> с тел. <phone> и имейл <email>" + service lines
  *          like "10:30Дамско подстригване на бретон при Теди Първанова - 5.11 €"
+ *
+ * Multi-service bookings arrive with the services run together — the price of
+ * one butts straight against the next service's time, e.g.
+ *   "... при Теди Първанова - 20.45 €18:10Терапия за коса с Рианон при ..."
+ * so each service is delimited by "<HH:MM> ... при <stylist>[ - <price> €]" and
+ * runs up to the NEXT "HH:MM" (or the end), never to the end of the line — an
+ * end-of-line anchor swallowed every service after the first.
  */
 function parseNewReservation_(subject, plainBody) {
   const m = subject.match(CONFIG.studio24.newSubjectRe)
@@ -54,26 +61,37 @@ function parseNewReservation_(subject, plainBody) {
   const phone = (plainBody.match(/с тел\.\s*([\d\s()+-]+)/) || [])[1] || ''
   const email = (plainBody.match(/имейл\s+([^\s,]+@[^\s,]+)/) || [])[1] || ''
   const services = []
-  const lineRe = /(\d{1,2}:\d{2})\s*(.+?)\s+при\s+.*?(?:\s*-\s*([\d.,]+)\s*€)?\s*$/gm
+  const lineRe = /(\d{1,2}:\d{2})\s*(.+?)\s+при\s+(.+?)(?=\s*\d{1,2}:\d{2}|\s*$)/gm
   let lm
   while ((lm = lineRe.exec(plainBody)) !== null) {
+    const price = lm[3].match(/-\s*([\d.,]+)\s*€/)
     services.push({
       time: lm[1],
       name: lm[2].trim(),
-      priceEur: lm[3] ? parseFloat(lm[3].replace(',', '.')) : null,
+      priceEur: price ? parseFloat(price[1].replace(',', '.')) : null,
     })
   }
   return { name: m[1].trim(), start: start, phone: phone.trim(), email: email, services: services }
 }
 
-/** Body lines: "08.07.2026, 15:30 Дамско подстригване ... при Теди Първанова" */
+/**
+ * Body lines: "08.07.2026, 15:30 Дамско подстригване ... при Теди Първанова".
+ *
+ * A cancellation email may append a "Неотменените предстоящи часове …"
+ * (still-upcoming, NOT cancelled) section listing appointments the client is
+ * KEEPING. Those date lines must not be read as cancellations — otherwise the
+ * sync would delete bookings that are still live — so the body is cut at that
+ * heading before the date lines are parsed.
+ */
 function parseCancellation_(plainBody) {
-  const phone = (plainBody.match(/с тел\.\s*([\d\s()+-]+)/) || [])[1] || ''
-  const email = (plainBody.match(/имейл\s+([^\s,]+@[^\s,]+)/) || [])[1] || ''
+  const cut = plainBody.search(/Неотменен/)
+  const body = cut === -1 ? plainBody : plainBody.slice(0, cut)
+  const phone = (body.match(/с тел\.\s*([\d\s()+-]+)/) || [])[1] || ''
+  const email = (body.match(/имейл\s+([^\s,]+@[^\s,]+)/) || [])[1] || ''
   const items = []
   const lineRe = /(\d{2})\.(\d{2})\.(\d{4}),\s*(\d{1,2}):(\d{2})\s+(.+?)\s+при\s+/g
   let m
-  while ((m = lineRe.exec(plainBody)) !== null) {
+  while ((m = lineRe.exec(body)) !== null) {
     items.push({
       start: new Date(+m[3], +m[2] - 1, +m[1], +m[4], +m[5]),
       service: m[6].trim(),
@@ -84,18 +102,24 @@ function parseCancellation_(plainBody) {
 
 // ---------- handlers ----------
 
+// Prefixed onto the event title when a booking's duration fell back to the
+// default because a service name wasn't found in the Services tab — a visual
+// cue in Google Calendar to check/adjust the length by hand.
+const UNMATCHED_PREFIX_ = '⚠️ '
+
 function handleNewReservation_(subject, plainBody) {
   const p = parseNewReservation_(subject, plainBody)
   if (!p || !p.services.length) {
     logSync_('studio24-new', subject, 'parse_failed')
     return
   }
-  const duration = Math.min(
-    CONFIG.maxBookingMin,
-    p.services.reduce(function (sum, s) {
-      return sum + serviceMinutes_(s.name)
-    }, 0) || CONFIG.defaultServiceMin
-  )
+  const matches = p.services.map(function (s) {
+    return matchService_(s.name)
+  })
+  const total = matches.reduce(function (sum, m) {
+    return sum + m.minutes
+  }, 0)
+  const duration = Math.min(CONFIG.maxBookingMin, total || CONFIG.defaultServiceMin)
   const end = new Date(p.start.getTime() + duration * 60000)
 
   // Dedupe: skip if an overlapping studio24 event for the same phone exists.
@@ -114,15 +138,27 @@ function handleNewReservation_(subject, plainBody) {
       return s.name
     })
     .join(', ')
+  const usedDefault = matches.some(function (m) {
+    return m.name === null
+  })
+  const title = (usedDefault ? UNMATCHED_PREFIX_ : '') + 'Studio24: ' + p.name + ' — ' + serviceNames
   const event = getCalendar_().createEvent(
-    'Studio24: ' + p.name + ' — ' + serviceNames,
+    title,
     p.start,
     end,
     { description: buildStudio24Description_(p), location: CONFIG.address }
   )
   event.setTag('source', 'studio24')
   event.setTag('phone', digits_(p.phone))
-  logSync_('studio24-new', p.name + ' @ ' + p.start, 'created')
+  // Breakdown like "created 150min [150]"; a "60?" entry flags a service that
+  // matched nothing and used the default — a cue to add its wording to the
+  // Services tab.
+  const breakdown = matches
+    .map(function (m) {
+      return m.name ? String(m.minutes) : m.minutes + '?'
+    })
+    .join('+')
+  logSync_('studio24-new', p.name + ' @ ' + p.start, 'created ' + duration + 'min [' + breakdown + ']')
 }
 
 function handleCancellation_(plainBody) {

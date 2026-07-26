@@ -70,9 +70,13 @@
 
 .page-gallery-grid__item img {
   width: 100%;
+  /* Match the salon photos' native phone-portrait ratio so every tile is the
+     same height regardless of tiny per-image ratio differences (matches the
+     home gallery carousel). */
+  aspect-ratio: 9 / 16;
   height: auto;
   display: block;
-  object-fit: contain;
+  object-fit: cover;
   transition:
     transform 0.3s ease,
     opacity 0.15s ease;

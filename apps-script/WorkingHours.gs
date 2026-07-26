@@ -60,23 +60,39 @@ function hoursForDate_(date) {
 }
 
 /**
- * Duration in minutes for a Studio24 service name: longest Services-tab name
- * contained in the email's service name (normalized), else the default.
+ * Matches a Studio24 email service name to a Services-tab entry by WORDS:
+ * an entry matches when every word of its name is present in the email's
+ * service line. Punctuation (+ / , . ( ) -) is treated as a separator, so
+ * descriptors Studio24 inserts — "клас", "за коса", "размер M", "на дълга
+ * коса" — don't break the match the way a rigid substring test did. The most
+ * specific entry (the one covering the most words) wins. Returns the matched
+ * entry, or a synthetic { name: null } carrying the default duration so the
+ * caller can tell "matched a 60-min service" from "matched nothing".
  */
-function serviceMinutes_(emailServiceName) {
+function matchService_(emailServiceName) {
   const map = loadServicesMap_()
-  const target = normalize_(emailServiceName)
+  const targetTokens = tokenize_(emailServiceName)
   let best = null
   map.forEach(function (entry) {
-    if (target.indexOf(entry.name) === -1 && entry.name.indexOf(target) === -1) return
-    if (!best || entry.name.length > best.name.length) best = entry
+    const allPresent = entry.tokens.every(function (tok) {
+      return targetTokens.indexOf(tok) !== -1
+    })
+    if (!allPresent) return
+    if (!best || entry.tokens.length > best.tokens.length) best = entry
   })
-  return best ? best.minutes : CONFIG.defaultServiceMin
+  return best || { name: null, minutes: CONFIG.defaultServiceMin }
+}
+
+/** Duration in minutes for a Studio24 service name (see matchService_). */
+function serviceMinutes_(emailServiceName) {
+  return matchService_(emailServiceName).minutes
 }
 
 function loadServicesMap_() {
   const cache = CacheService.getScriptCache()
-  const hit = cache.get('servicesMap')
+  // 'servicesMap2' — bumped from 'servicesMap' so the token-carrying shape
+  // isn't read from a pre-upgrade cache entry.
+  const hit = cache.get('servicesMap2')
   if (hit) return JSON.parse(hit)
   const ss = SpreadsheetApp.openById(getProp_('CONFIG_SPREADSHEET_ID'))
   const rows = ss.getSheetByName('Services').getDataRange().getValues().slice(1)
@@ -85,14 +101,25 @@ function loadServicesMap_() {
       return row[0] && Number(row[1]) > 0
     })
     .map(function (row) {
-      return { name: normalize_(row[0]), minutes: Number(row[1]) }
+      return { name: normalize_(row[0]), tokens: tokenize_(row[0]), minutes: Number(row[1]) }
     })
-  cache.put('servicesMap', JSON.stringify(map), CONFIG.cacheSec.hours)
+  cache.put('servicesMap2', JSON.stringify(map), CONFIG.cacheSec.hours)
   return map
 }
 
 function normalize_(value) {
   return String(value || '').toLowerCase().replace(/\s+/g, ' ').trim()
+}
+
+/** Lowercase word tokens, with +/,.()- treated as separators. */
+function tokenize_(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[+\/,.()-]/g, ' ')
+    .split(/\s+/)
+    .filter(function (tok) {
+      return tok.length > 0
+    })
 }
 
 /** Accepts 'HH:mm' strings or Date cells (if Sheets coerced the value). */

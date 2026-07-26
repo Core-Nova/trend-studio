@@ -56,7 +56,12 @@ function createConfigSpreadsheetIfMissing_() {
   setProp_('CONFIG_SPREADSHEET_ID', ss.getId())
 }
 
-/** Keep in sync with src/data/services.json `minutes` (max of each range). */
+/**
+ * Base durations (max of each services.json range) plus per-variant rows for
+ * services whose size/option changes the length a lot. matchService_ prefers
+ * the most specific row, so "… боя за коса, на корени" resolves to 100, not the
+ * 150 base. Keep in sync with src/data/services.json.
+ */
 const SERVICE_MINUTES_SEED_ = [
   ['Дамско подстригване', 60],
   ['Подстригване + сешоар Standard', 110],
@@ -79,6 +84,19 @@ const SERVICE_MINUTES_SEED_ = [
   ['Терапия за коса анти-фриз', 40],
   ['Терапия за коса с Sweet Colour', 30],
   ['Терапия за коса с Caviar Moisture', 40],
+  // Coloring variants (base over-books by up to 50 min for shorter jobs).
+  ['Боядисване с Premium боя на корени', 100],
+  ['Боядисване с Premium боя размер S', 90],
+  ['Боядисване с Premium боя размер M', 105],
+  ['Боядисване с Premium боя размер L', 150],
+  ['Боядисване с Premium боя размер XL', 135],
+  ['Боядисване с Premium боя размер XXL', 135],
+  ['Боядисване с Premium боя екстеншъни', 135],
+  ['Боядисване Premium бондинг грижа на корени', 105],
+  ['Боядисване Premium бондинг грижа размер S', 105],
+  ['Боядисване Premium бондинг грижа размер M', 105],
+  ['Боядисване Premium бондинг грижа размер L', 120],
+  ['Боядисване Premium бондинг грижа размер XL', 120],
 ]
 
 function installTrigger_() {
@@ -87,6 +105,16 @@ function installTrigger_() {
   })
   if (exists) return
   ScriptApp.newTrigger('syncStudio24Emails').timeBased().everyMinutes(5).create()
+}
+
+/**
+ * Run from the editor after editing the config spreadsheet (hours, overrides,
+ * services) to apply the change immediately instead of waiting out the ~10-min
+ * cache.
+ */
+function refreshConfigCache() {
+  CacheService.getScriptCache().removeAll(['hoursConfig', 'servicesMap', 'servicesMap2'])
+  Logger.log('Config cache cleared — the next sync / availability call re-reads the spreadsheet.')
 }
 
 // ============================ editor tests ============================
@@ -117,6 +145,37 @@ const FIXTURE_CANCEL_BODY_ = [
   'Клиентът няма други предстоящи часове във вашия салон.',
 ].join('\n')
 
+// Real cancellation that also lists a KEPT appointment under "Неотменените
+// предстоящи часове" — only the cancelled service must be parsed for deletion.
+const FIXTURE_CANCEL_KEEP_BODY_ = [
+  'Здравейте,',
+  '',
+  'Scarlett Wahl с тел. 0884822121 и имейл scarlettwahl07@gmail.com отмени следните услуги в Hair Boutique Studio TREND:',
+  '',
+  '14.06.2026, 14:00 Дамско подстригване + сешоар с premium клас грижа, на средно дълга коса, размер M при Теди Първанова',
+  'Отменените услуги са премахнати от Вашия календар и няма нужда да ги търсите и изтривате.',
+  '',
+  'Неотменените предстоящи часове на клиента са:',
+  '',
+  '14.06.2026, 14:00 официална прическа, сложен кок при Теди Първанова',
+].join('\n')
+
+// Real two-service booking: the services are concatenated (price of the first
+// runs straight into the second's time — "… - 20.45 €18:10Терапия …").
+const FIXTURE_MULTI_SUBJECT_ = 'Нова резервация от Мария Петрова на 03.06.2026 в 17:30'
+const FIXTURE_MULTI_BODY_ = [
+  'Здравейте Теди Първанова,',
+  '',
+  'Hair Boutique Studio TREND получи нова онлайн резервация от Studio24.bg на 03.06.2026 в 17:30.',
+  '',
+  'Клиентът е Мария Петрова с тел. 0898 891 045 и имейл kirila@press.bg',
+  '',
+  'Избрани са следните услуги:',
+  '',
+  '17:30Сешоар с клас premium luxury грижа, на средно дълга коса, размер M при Теди Първанова - 20.45 €18:10Терапия за коса с Рианон при Теди Първанова - 51.13 €',
+  'Ако няма да можете да обслужите клиента, е необходимо да му позвъните възможно най-скоро и да промените или отмените запазения час.',
+].join('\n')
+
 /** Run from the editor: asserts both parsers against the real sample emails. */
 function runParserTests() {
   const results = []
@@ -142,7 +201,33 @@ function runParserTests() {
   check('cancel.items[0].service', c.items[0].service, 'Дамско подстригване + сешоар Standard клас грижа, на дълга коса, размер L')
   check('cancel.uniqueStarts', uniqueStarts_(c.items).length, 1)
 
+  // A kept appointment under "Неотменените предстоящи часове" must NOT be parsed
+  // as a cancellation — only the one truly cancelled service.
+  const ck = parseCancellation_(FIXTURE_CANCEL_KEEP_BODY_)
+  check('cancelKeep.items.length', ck.items.length, 1)
+  check('cancelKeep.items[0].service', ck.items[0].service, 'Дамско подстригване + сешоар с premium клас грижа, на средно дълга коса, размер M')
+
   check('serviceMinutes bangs', serviceMinutes_('Дамско подстригване на бретон'), 15)
+  // Real Studio24 wording inserts descriptors ("клас", "за коса", "размер M")
+  // that the old substring match missed — token matching must still resolve them.
+  // The two coloring checks need the per-variant rows in the Services tab
+  // (roots → 100, size M → 105); run refreshConfigCache() after adding them.
+  check('serviceMinutes coloring M', serviceMinutes_('Боядисване с premium клас боя за коса, размер M'), 105)
+  check('serviceMinutes coloring roots', serviceMinutes_('Боядисване с premium клас боя за коса, на корени'), 100)
+  check('serviceMinutes combo', serviceMinutes_('Дамско подстригване + сешоар Standard клас грижа, на дълга коса, размер L'), 110)
+  check('serviceMinutes unmatched', serviceMinutes_('Нещо съвсем непознато'), 60)
+
+  // Two concatenated services must both be parsed, priced, and timed (regression
+  // for the end-of-line anchor that used to swallow everything after service 1).
+  const multi = parseNewReservation_(FIXTURE_MULTI_SUBJECT_, FIXTURE_MULTI_BODY_)
+  check('multi.services.length', multi.services.length, 2)
+  check('multi.services[0].name', multi.services[0].name, 'Сешоар с клас premium luxury грижа, на средно дълга коса, размер M')
+  check('multi.services[0].price', multi.services[0].priceEur, 20.45)
+  check('multi.services[1].name', multi.services[1].name, 'Терапия за коса с Рианон')
+  check('multi.services[1].time', multi.services[1].time, '18:10')
+  check('multi.services[1].price', multi.services[1].priceEur, 51.13)
+  const multiTotal = multi.services.reduce(function (sum, s) { return sum + serviceMinutes_(s.name) }, 0)
+  check('multi.totalMinutes', multiTotal, 120)
 
   Logger.log(results.join('\n'))
   if (results.some(function (r) { return r.indexOf('FAIL') === 0 })) {
