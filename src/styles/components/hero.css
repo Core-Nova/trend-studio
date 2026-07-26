@@ -75,6 +75,19 @@ section.hero .hero-slider canvas {
   height: 100%;
   position: relative;
   z-index: 2;
+  /* The WebGL canvas is colour-unmanaged (Three.js r73) and renders a touch
+     darker than the browser-composited <img> preview beneath it. Lift it back
+     up so there's no brightness step, and crossfade it in over the preview
+     (toggled by the `is-ready` class) instead of an abrupt pop once the slider
+     finishes loading. */
+  filter: brightness(1.05);
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+#three-container-left.is-ready,
+#three-container-right.is-ready {
+  opacity: 1;
 }
 
 .hero-slider__preview {
@@ -244,6 +257,8 @@ section.hero .hero-slider canvas {
   .hero-mobile-bg .image-crossfade {
     width: 100%;
     height: 100%;
+    /* Lift the mobile background photos ~8% (see also .hero-mobile-slider). */
+    filter: brightness(1.08);
   }
 
   .hero-mobile-bg__overlay {
@@ -262,6 +277,8 @@ section.hero .hero-slider canvas {
     position: absolute;
     inset: 0;
     z-index: 1;
+    /* Match the crossfade lift so the WebGL background reads ~8% brighter too. */
+    filter: brightness(1.08);
   }
 
   .hero-mobile-slider canvas {

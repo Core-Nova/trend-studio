@@ -35,6 +35,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <!-- Warm up the WebGL-library CDNs so the hero slider scripts start
+         downloading the moment requestIdleCallback fires (cuts the "static hero"
+         delay on load). -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="preconnect" href="https://s3-us-west-2.amazonaws.com" crossorigin />
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+    <link rel="dns-prefetch" href="https://s3-us-west-2.amazonaws.com" />
     <script>
     (function() {
       var scripts = [
@@ -51,7 +58,9 @@
         });
       }
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(load);
+        // Cap the idle wait so a busy main thread can't leave the hero static
+        // for seconds — start loading within 1.5s regardless.
+        requestIdleCallback(load, { timeout: 1500 });
       } else {
         window.addEventListener('load', load);
       }

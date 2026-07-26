@@ -59,7 +59,7 @@ export const HeroView = ({ tagline, bookBtn, isMobile, leftRef, rightRef, mobile
           fetchpriority="high"
           loading="eager"
         />
-        <div ref={leftRef} id="three-container-left"></div>
+        <div ref={leftRef} id="three-container-left" className={sliderReady ? 'is-ready' : ''}></div>
       </div>
     )}
     <div className="hero-content">
@@ -94,7 +94,7 @@ export const HeroView = ({ tagline, bookBtn, isMobile, leftRef, rightRef, mobile
           fetchpriority="high"
           loading="eager"
         />
-        <div ref={rightRef} id="three-container-right"></div>
+        <div ref={rightRef} id="three-container-right" className={sliderReady ? 'is-ready' : ''}></div>
       </div>
     )}
     <div className="scroll-indicator">

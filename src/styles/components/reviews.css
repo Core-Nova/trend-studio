@@ -17,7 +17,9 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(var(--ink-rgb), 0.88);
+  /* Slightly lighter scrim (was 0.88) so the background photo reads a bit
+     brighter while the cream text stays legible. */
+  background: rgba(var(--ink-rgb), 0.84);
   z-index: 0;
 }
 
