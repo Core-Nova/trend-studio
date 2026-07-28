@@ -276,3 +276,13 @@ a.review-card__author:hover {
 .reviews-carousel__dot--active {
   background: var(--gold-primary);
 }
+
+/* background-attachment: fixed is broken on iOS Safari — it sizes the photo to
+   the viewport, so `cover` renders it hugely zoomed and it janks on scroll.
+   Fall back to a normal scrolling background on touch devices and narrow
+   viewports, where the parallax adds little anyway. */
+@media (hover: none), (max-width: 992px) {
+  .reviews--bg {
+    background-attachment: scroll;
+  }
+}
