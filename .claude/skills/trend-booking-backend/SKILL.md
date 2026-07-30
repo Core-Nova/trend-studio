@@ -1,6 +1,6 @@
 ---
 name: trend-booking-backend
-description: Architecture and contracts of the TREND booking system — the Google Apps Script backend (availability, booking, Studio24 email sync, live reviews), its config spreadsheet, and the frontend touchpoints (/book wizard, bookingApi.js, VITE_BOOKING_URL). Use when working on booking, availability, calendar events, Studio24 sync, live Google reviews, or deploying/updating the Apps Script.
+description: Architecture and contracts of the TREND booking system — the Google Apps Script backend (availability, booking, Studio24 email sync, live reviews), its config spreadsheet, and the frontend touchpoints (/book wizard, bookingApi.js, VITE_BACKEND_URL). Use when working on booking, availability, calendar events, Studio24 sync, live Google reviews, or deploying/updating the Apps Script.
 ---
 
 # TREND Booking Backend
@@ -30,7 +30,7 @@ redirect that `fetch` follows. `src/__tests__/bookingApi.test.js` locks this in.
 | Apps Script source (copy-pasted into script.google.com) | `apps-script/*.gs` + `appsscript.json` |
 | Single-paste bundler (`node apps-script/bundle.mjs \| clip`) | `apps-script/bundle.mjs` |
 | Deployment / testing / maintenance guide | `apps-script/README.md` |
-| Frontend API client | `src/lib/bookingApi.js` (env: `VITE_BOOKING_URL` = the /exec URL) |
+| Frontend API client | `src/lib/bookingApi.js` (env: `VITE_BACKEND_URL` = the /exec URL) |
 | Wizard state machine | `src/hooks/useBookingFlow.js` |
 | Wizard UI (services → time → details → done) | `src/components/Booking/*` + `src/pages/BookingPage.jsx` (route `/book`) |
 | Selection helpers / validators | `src/lib/bookingUtils.js` |
@@ -93,11 +93,11 @@ Parsers are pure functions in `Studio24Sync.gs`; `runParserTests()` in
 
 Edit code in the Apps Script editor (or re-paste from `apps-script/`), then
 **Deploy → Manage deployments → ✏ → New version**. The /exec URL is stable;
-a brand-NEW deployment would mint a different URL and break `VITE_BOOKING_URL`.
+a brand-NEW deployment would mint a different URL and break `VITE_BACKEND_URL`.
 
 ## Gotchas
 
-- `VITE_BOOKING_URL` unset → `bookingEnabled === false` → /book shows the
+- `VITE_BACKEND_URL` unset → `bookingEnabled === false` → /book shows the
   call/Studio24 fallback card; reviews fall back to bundled data. It lives in
   `.env.local` (not committed) and is baked in at build time (`npm run deploy`).
 - Service durations exist in TWO places: `services.json` (`minutes`) drives

@@ -53,7 +53,7 @@ Studio24 emails, and serves live Google reviews.
    Execute as: **Me** · Who has access: **Anyone** → Deploy → copy the
    `https://script.google.com/macros/s/…/exec` URL.
 6. In this repo: create `.env.local` with
-   `VITE_BOOKING_URL=<the /exec URL>` → `npm run deploy`.
+   `VITE_BACKEND_URL=<the /exec URL>` → `npm run deploy`.
 
 ## Updating the script later
 
@@ -61,7 +61,7 @@ Edit the code in the Apps Script editor (or re-paste — `node
 apps-script/bundle.mjs | clip` again), then
 **Deploy → Manage deployments → ✏ → Version: New version → Deploy**.
 The `/exec` URL stays the same. (A brand-new deployment would mint a new URL
-and break the site until `VITE_BOOKING_URL` is updated.)
+and break the site until `VITE_BACKEND_URL` is updated.)
 
 Power option: [`clasp`](https://github.com/google/clasp) (`npm i -g
 @google/clasp`, `clasp login`, `clasp clone <scriptId>` into a scratch dir)

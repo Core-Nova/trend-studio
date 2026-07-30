@@ -1,6 +1,6 @@
 // Bundled snapshot of Google reviews — the fallback rendered when the Apps
 // Script live-reviews endpoint (apps-script/Reviews.gs) is unavailable or
-// VITE_BOOKING_URL is unset.
+// VITE_BACKEND_URL is unset.
 export const googleReviews = {
   "rating": 5,
   "totalCount": 50,

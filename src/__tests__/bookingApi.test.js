@@ -1,10 +1,10 @@
 const EXEC_URL = 'https://script.google.com/macros/s/TEST/exec'
 
-/** Loads a fresh copy of the module with VITE_BOOKING_URL set (or not). */
+/** Loads a fresh copy of the module with VITE_BACKEND_URL set (or not). */
 async function loadApi(url = EXEC_URL) {
   vi.resetModules()
-  if (url === null) vi.stubEnv('VITE_BOOKING_URL', '')
-  else vi.stubEnv('VITE_BOOKING_URL', url)
+  if (url === null) vi.stubEnv('VITE_BACKEND_URL', '')
+  else vi.stubEnv('VITE_BACKEND_URL', url)
   return await import('../lib/bookingApi')
 }
 
@@ -67,7 +67,7 @@ describe('createBooking', () => {
   })
 })
 
-describe('when VITE_BOOKING_URL is unset', () => {
+describe('when VITE_BACKEND_URL is unset', () => {
   it('reports bookingEnabled=false and never fetches', async () => {
     const api = await loadApi(null)
     const fetchMock = vi.fn()

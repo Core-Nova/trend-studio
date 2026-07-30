@@ -13,7 +13,7 @@
  * follows automatically.
  */
 
-const BOOKING_URL = import.meta.env.VITE_BOOKING_URL || ''
+const BOOKING_URL = import.meta.env.VITE_BACKEND_URL || ''
 
 export const bookingEnabled = Boolean(BOOKING_URL)
 
