@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
 import { googleReviews } from '../data/reviews'
+import { SITE } from '../lib/constants'
 
 export const useReviews = () => {
   const { t, lang } = useLanguage()
@@ -33,7 +34,9 @@ export const useReviews = () => {
     title: t(translations.reviews.title),
     googleBtn: t(translations.reviews.googleBtn),
     note: t(translations.reviews.note),
-    googleUrl: data.profileUrl ?? googleReviews.profileUrl,
+    // The salon's canonical Maps listing (same as Contact/Footer) — not the
+    // scraped profileUrl, whose guessed coordinates point to the wrong place.
+    googleUrl: SITE.mapsUrl,
     rating: data.rating,
     totalCount: data.totalCount,
     reviews: data.reviews,

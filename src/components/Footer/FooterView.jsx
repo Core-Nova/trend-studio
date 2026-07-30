@@ -37,7 +37,7 @@ export const FooterView = ({ tagline, copyright, year }) => (
             </svg>
           </a>
           <a
-            href={SITE.mapsSearchUrl}
+            href={SITE.mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="footer-social__link"

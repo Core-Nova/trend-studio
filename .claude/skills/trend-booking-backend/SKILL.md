@@ -93,13 +93,16 @@ Parsers are pure functions in `Studio24Sync.gs`; `runParserTests()` in
 
 Edit code in the Apps Script editor (or re-paste from `apps-script/`), then
 **Deploy → Manage deployments → ✏ → New version**. The /exec URL is stable;
-a brand-NEW deployment would mint a different URL and break `VITE_BACKEND_URL`.
+a brand-NEW deployment would mint a different URL, which would need updating in
+`SITE.backendUrl` (`src/lib/constants.js`, the hardcoded default).
 
 ## Gotchas
 
-- `VITE_BACKEND_URL` unset → `bookingEnabled === false` → /book shows the
-  call/Studio24 fallback card; reviews fall back to bundled data. It lives in
-  `.env.local` (not committed) and is baked in at build time (`npm run deploy`).
+- The /exec URL is `SITE.backendUrl` (`src/lib/constants.js`): a hardcoded
+  public default, overridable via `VITE_BACKEND_URL`. It is always set, so
+  `bookingEnabled` is true; the `<Unavailable />` fallback only shows if the
+  default is ever blanked. Live reviews still fall back to bundled data on fetch
+  failure.
 - Service durations exist in TWO places: `services.json` (`minutes`) drives
   the wizard; the Services sheet tab drives Studio24 sync. Update both.
 - All-day calendar events are IGNORED by availability — vacations go in the

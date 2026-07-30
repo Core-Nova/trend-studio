@@ -19,9 +19,12 @@
  * gtag everywhere (previous behaviour).
  */
 
+import { SITE } from './constants'
+
 const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-MEJCZTPTG5'
-// The collector is the booking Web App by default; override only to split them.
-const PROXY_URL = import.meta.env.VITE_ANALYTICS_URL || import.meta.env.VITE_BACKEND_URL || ''
+// The collector is the shared backend Web App by default; set VITE_ANALYTICS_URL
+// only to split analytics onto a separate endpoint.
+const PROXY_URL = import.meta.env.VITE_ANALYTICS_URL || SITE.backendUrl
 
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000
 

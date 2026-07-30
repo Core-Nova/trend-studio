@@ -5,6 +5,7 @@ import { ResponsiveImage } from '../atoms/ResponsiveImage'
 import { RatingBadge } from '../Reviews/RatingBadge'
 import { imageData, heroPreviews } from '../../data/imageImports'
 import { googleReviews } from '../../data/reviews'
+import { SITE } from '../../lib/constants'
 import logoSrc from '../../assets/brand/trend-logo.png?w=1378&format=webp&quality=92'
 import logoSrcAvif from '../../assets/brand/trend-logo.png?w=1378&format=avif&quality=80'
 
@@ -78,7 +79,7 @@ export const HeroView = ({ tagline, bookBtn, isMobile, leftRef, rightRef, mobile
       <RatingBadge
         rating={googleReviews.rating}
         totalCount={googleReviews.totalCount}
-        profileUrl={googleReviews.profileUrl}
+        profileUrl={SITE.mapsUrl}
         compact
       />
     </div>

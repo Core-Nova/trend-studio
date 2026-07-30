@@ -68,13 +68,14 @@ describe('createBooking', () => {
 })
 
 describe('when VITE_BACKEND_URL is unset', () => {
-  it('reports bookingEnabled=false and never fetches', async () => {
+  it('falls back to the hardcoded default backend (booking stays enabled)', async () => {
     const api = await loadApi(null)
-    const fetchMock = vi.fn()
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, days: [] }) })
     vi.stubGlobal('fetch', fetchMock)
 
-    expect(api.bookingEnabled).toBe(false)
-    expect(await api.fetchAvailability(60)).toEqual({ ok: false, error: 'network' })
-    expect(fetchMock).not.toHaveBeenCalled()
+    expect(api.bookingEnabled).toBe(true)
+    await api.fetchAvailability(60)
+    const [url] = fetchMock.mock.calls[0]
+    expect(url).toMatch(/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec\?action=availability/)
   })
 })

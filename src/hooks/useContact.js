@@ -25,6 +25,6 @@ export const useContact = () => {
     studio24Url: SITE.studio24Url,
     mapLink: t(translations.contact.mapLink),
     mapEmbedUrl: SITE.mapsEmbedUrl,
-    mapSearchUrl: SITE.mapsSearchUrl
+    mapSearchUrl: SITE.mapsUrl
   }
 }

@@ -33,10 +33,11 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Baked into the client bundle at build time. Without these the live
-          # site falls back: the /book wizard shows the call/Studio24 card, and
-          # mobile analytics can't reach the collector (VITE_ANALYTICS_URL
-          # defaults to VITE_BACKEND_URL). Set them as repo Actions secrets.
+          # Optional overrides — both have safe hardcoded defaults in the code
+          # (SITE.backendUrl in src/lib/constants.js, G-MEJCZTPTG5 in
+          # src/lib/analytics.js), so the site builds correctly with or without
+          # these secrets. Set them only to point CI at a different backend/GA
+          # property (e.g. staging). An unset secret resolves to empty → default.
           VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
           VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
 
