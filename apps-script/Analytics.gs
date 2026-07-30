@@ -23,8 +23,19 @@ var GA_ENDPOINT = 'https://www.google-analytics.com/mp/collect'
 var GA_DEBUG_ENDPOINT = 'https://www.google-analytics.com/debug/mp/collect'
 var DEFAULT_MEASUREMENT_ID = 'G-MEJCZTPTG5'
 
-/** Relays { client_id, events: [{ name, params }], user_id?, timestamp_micros?, debug? } to GA4. */
+/** Relays { client_id, events: [{ name, params }], user_agent?, user_id?, timestamp_micros?, debug? } to GA4. */
 function collectEvents(body) {
+  // Self-test: verify whether UrlFetchApp actually forwards a custom User-Agent
+  // (GA4 derives Device category from the request UA). Returns the UA an echo
+  // service received, so we can compare it to what we tried to send.
+  if (body && body.probe_ua) {
+    var probe = UrlFetchApp.fetch('https://httpbin.org/user-agent', {
+      headers: { 'User-Agent': String(body.user_agent || '') },
+      muteHttpExceptions: true,
+    })
+    return { ok: true, sent_ua: String(body.user_agent || ''), echoed: probe.getContentText() }
+  }
+
   if (!body || !body.client_id || !Array.isArray(body.events) || !body.events.length) {
     return { ok: false, error: 'invalid' }
   }
@@ -46,12 +57,17 @@ function collectEvents(body) {
     '&api_secret=' +
     encodeURIComponent(apiSecret)
 
-  var res = UrlFetchApp.fetch(url, {
+  var options = {
     method: 'post',
     contentType: 'application/json',
     payload: JSON.stringify(payload),
     muteHttpExceptions: true,
-  })
+  }
+  // Pass the visitor's User-Agent so GA4 can derive the real Device category /
+  // OS / browser (otherwise it sees Apps Script's server UA => wrong device).
+  if (body.user_agent) options.headers = { 'User-Agent': String(body.user_agent) }
+
+  var res = UrlFetchApp.fetch(url, options)
 
   // GA4 MP returns 204 with no body on success; only the debug endpoint returns
   // validation messages, which we echo back when the client asks (debug: true).

@@ -136,12 +136,16 @@ function sendToProxy(name, params) {
   const body = JSON.stringify({
     action: 'collect',
     client_id: getClientId(),
+    // Forwarded so the collector can set it as the /mp/collect request header —
+    // that's what GA4 reads to derive Device category / OS / browser.
+    user_agent: navigator.userAgent,
     events: [
       {
         name,
         params: {
           page_location: window.location.href,
           page_title: document.title,
+          screen_resolution: `${window.screen.width}x${window.screen.height}`,
           ...params,
           session_id: getSessionId(),
           // Minimum non-zero engagement so GA4 counts an engaged session.
