@@ -15,6 +15,7 @@ function doGet(e) {
   try {
     if (action === 'availability') return json_(getAvailability(e.parameter))
     if (action === 'reviews') return json_(getReviews(e.parameter))
+    if (action === 'analytics') return json_(analyticsHealth())
     return json_({ ok: false, error: 'unknown_action' })
   } catch (err) {
     console.error(err)
@@ -26,6 +27,7 @@ function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents)
     if (body.action === 'book') return json_(bookAppointment(body))
+    if (body.action === 'collect') return json_(collectEvents(body))
     return json_({ ok: false, error: 'unknown_action' })
   } catch (err) {
     console.error(err)
