@@ -1,6 +1,6 @@
 import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { initAnalytics, trackPageView } from './lib/analytics'
+import { trackPageView } from './lib/analytics'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { Navigation } from './components/Navigation/Navigation'
@@ -50,7 +50,8 @@ const AppRoutes = () => {
 
 const AppShell = () => {
   useEffect(() => {
-    initAnalytics()
+    // Analytics is initialized eagerly in main.jsx (before render) so the first
+    // trackPageView isn't dropped; here we only signal that the app has painted.
     document.dispatchEvent(new Event('app-rendered'))
   }, [])
 
