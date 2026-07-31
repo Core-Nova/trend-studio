@@ -1,22 +1,21 @@
 /**
- * Google Analytics 4 integration with two delivery paths:
+ * Google Analytics 4 integration — gtag.js first, first-party collector fallback.
  *
- *  - Desktop  → the standard gtag.js tag (production property `G-MEJCZTPTG5`,
- *               overridable via VITE_GA_MEASUREMENT_ID).
- *  - Mobile   → a first-party collector that relays events to GA4 server-side.
- *               Mobile traffic mostly arrives through the Instagram/Facebook
- *               in-app browsers, where gtag.js is routinely blocked and every
- *               event is silently dropped. `script.google.com` is not blocked,
- *               so posting events there recovers them. The collector shares the
- *               booking Apps Script Web App — same /exec URL, dispatched via
- *               `action: 'collect'`. See apps-script/Analytics.gs.
+ * We prefer gtag on EVERY device: when it loads, GA reports device category,
+ * geography, and sessions accurately. But in the Instagram/Facebook in-app
+ * browsers (and behind some blockers) gtag.js fails to load and every event is
+ * silently dropped. So we buffer events until we know whether gtag.js loaded;
+ * if it didn't, we fall back to posting to our own Apps Script Web App
+ * (`script.google.com`, which those environments don't block), which relays to
+ * GA4 via the Measurement Protocol. See apps-script/Analytics.gs.
  *
- * The collector URL defaults to the booking URL (same Web App); set
- * VITE_ANALYTICS_URL only to point the mobile path somewhere else.
+ * The collector URL defaults to the shared backend Web App (SITE.backendUrl);
+ * set VITE_ANALYTICS_URL only to point it at a separate endpoint.
  *
- * The two paths are mutually exclusive per device, so a booking on desktop is
- * never counted twice. When the mobile collector URL is unset we fall back to
- * gtag everywhere (previous behaviour).
+ * Caveat: collector (fallback) events get device/geo from Apps Script's server,
+ * not the visitor — so they carry a custom `device_category` param for
+ * segmentation (register it as a custom dimension in GA4). Native gtag traffic
+ * needs no such tag.
  */
 
 import { SITE } from './constants'
@@ -29,62 +28,90 @@ const PROXY_URL = import.meta.env.VITE_ANALYTICS_URL || SITE.backendUrl
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000
 
 let initialized = false
-let mode = 'off' // 'off' | 'gtag' | 'proxy'
+let mode = 'off' // 'off' | 'pending' | 'gtag' | 'proxy'
+const queue = [] // events buffered until gtag's load status is known
 
-/** In-app browsers and phones — where gtag.js is most often blocked. */
-function isMobileClient() {
-  if (typeof navigator !== 'undefined') {
-    if (/Android|iPhone|iPad|iPod|Instagram|FBAN|FBAV|FB_IAB|Line|Mobile/i.test(navigator.userAgent)) {
-      return true
-    }
-  }
-  if (typeof window !== 'undefined' && window.innerWidth <= 768) return true
-  return false
+/**
+ * Best-effort device class for the custom `device_category` event param. GA4's
+ * native Device category is derived from the request User-Agent, which for the
+ * collector is Apps Script's server (UrlFetchApp overrides the UA), so it would
+ * misreport these as desktop. This tags the real device instead.
+ */
+function deviceCategory() {
+  const ua = navigator.userAgent
+  if (/iPad|Tablet|Android(?!.*Mobile)/i.test(ua)) return 'tablet'
+  if (/Mobile|iPhone|iPod|Android/i.test(ua)) return 'mobile'
+  return 'desktop'
 }
 
 export function initAnalytics() {
   if (initialized) return
   initialized = true
 
-  // Mobile: bypass the blockable gtag script and post to our own collector.
-  if (PROXY_URL && isMobileClient()) {
-    mode = 'proxy'
-    getClientId() // warm the persisted client id
+  // No gtag id configured → collector only (or nothing).
+  if (!MEASUREMENT_ID) {
+    resolveMode(PROXY_URL ? 'proxy' : 'off')
     return
   }
 
-  // Desktop (or no collector configured): standard gtag.js.
-  if (!MEASUREMENT_ID) return
-  mode = 'gtag'
+  // Prefer gtag on every device — when it loads, GA reports device, geo, and
+  // sessions accurately. Buffer events until we know it loaded; if gtag.js is
+  // blocked (in-app browsers, ad blockers) fall back to the collector so the
+  // events aren't lost.
+  mode = 'pending'
+  window.dataLayer = window.dataLayer || []
+  window.gtag = function () { window.dataLayer.push(arguments) }
+  window.gtag('js', new Date())
+  window.gtag('config', MEASUREMENT_ID, { send_page_view: false }) // SPA: manual page_view
 
   const script = document.createElement('script')
   script.async = true
   script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`
+  let settled = false
+  const resolve = (loaded) => {
+    if (settled) return
+    settled = true
+    clearTimeout(timer)
+    resolveMode(loaded ? 'gtag' : PROXY_URL ? 'proxy' : 'off')
+  }
+  script.onload = () => resolve(true)
+  script.onerror = () => resolve(false) // blocked / network error
+  // Backstop for requests that hang rather than erroring.
+  const timer = setTimeout(() => resolve(false), 3000)
   document.head.appendChild(script)
-
-  window.dataLayer = window.dataLayer || []
-  function gtag() { window.dataLayer.push(arguments) }
-  window.gtag = gtag
-  gtag('js', new Date())
-  // We send page_view manually on route change (SPA)
-  gtag('config', MEASUREMENT_ID, { send_page_view: false })
 }
 
-/** Reports an SPA page view. Safe to call when analytics is disabled. */
+/** Routes an event to gtag or the collector, buffering until gtag resolves. */
+function emit(name, params) {
+  if (mode === 'gtag') {
+    if (window.gtag) window.gtag('event', name, params)
+  } else if (mode === 'proxy') {
+    sendToProxy(name, params)
+  } else if (mode === 'pending') {
+    queue.push({ name, params })
+  }
+  // 'off' → dropped
+}
+
+/** Commits the delivery mode and flushes anything buffered while pending. */
+function resolveMode(next) {
+  mode = next
+  const buffered = queue.splice(0)
+  for (const e of buffered) emit(e.name, e.params)
+}
+
+/** Reports an SPA page view. Safe to call before init / when disabled. */
 export function trackPageView(path) {
-  const params = {
+  emit('page_view', {
     page_path: path,
     page_location: window.location.href,
     page_title: document.title,
-  }
-  if (mode === 'proxy') return sendToProxy('page_view', params)
-  if (mode === 'gtag' && window.gtag) window.gtag('event', 'page_view', params)
+  })
 }
 
 /** Reports a custom event (e.g. booking button click). */
 export function trackEvent(name, params = {}) {
-  if (mode === 'proxy') return sendToProxy(name, params)
-  if (mode === 'gtag' && window.gtag) window.gtag('event', name, params)
+  emit(name, params)
 }
 
 // --- mobile collector path ---------------------------------------------------
@@ -136,9 +163,6 @@ function sendToProxy(name, params) {
   const body = JSON.stringify({
     action: 'collect',
     client_id: getClientId(),
-    // Forwarded so the collector can set it as the /mp/collect request header —
-    // that's what GA4 reads to derive Device category / OS / browser.
-    user_agent: navigator.userAgent,
     events: [
       {
         name,
@@ -146,6 +170,9 @@ function sendToProxy(name, params) {
           page_location: window.location.href,
           page_title: document.title,
           screen_resolution: `${window.screen.width}x${window.screen.height}`,
+          // Register `device_category` as a custom dimension in GA4 to segment
+          // mobile traffic (the native Device category can't be set server-side).
+          device_category: deviceCategory(),
           ...params,
           session_id: getSessionId(),
           // Minimum non-zero engagement so GA4 counts an engaged session.
