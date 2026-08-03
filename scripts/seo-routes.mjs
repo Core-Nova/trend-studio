@@ -58,13 +58,15 @@ export const applySeo = (html, { title, description, url }) => {
   if (!/<title>[\s\S]*?<\/title>/.test(html)) throw new Error('seo-routes: <title> not found')
   let h = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${t}</title>`)
 
-  h = swap(h, /(<meta name="description" content=")[^"]*(">)/, d, 'meta description')
-  h = swap(h, /(<meta property="og:description" content=")[^"]*(">)/, d, 'og:description')
-  h = swap(h, /(<meta name="twitter:description" content=")[^"]*(">)/, d, 'twitter:description')
-  h = swap(h, /(<meta property="og:title" content=")[^"]*(">)/, ta, 'og:title')
-  h = swap(h, /(<meta name="twitter:title" content=")[^"]*(">)/, ta, 'twitter:title')
-  h = swap(h, /(<link rel="canonical" href=")[^"]*(">)/, url, 'canonical')
-  h = swap(h, /(<meta property="og:url" content=")[^"]*(">)/, url, 'og:url')
+  // Suffix captures only the closing quote so this matches regardless of how the
+  // tag is closed ('>' from a browser-serialized shell, ' />' from Vite's HTML).
+  h = swap(h, /(<meta name="description" content=")[^"]*(")/, d, 'meta description')
+  h = swap(h, /(<meta property="og:description" content=")[^"]*(")/, d, 'og:description')
+  h = swap(h, /(<meta name="twitter:description" content=")[^"]*(")/, d, 'twitter:description')
+  h = swap(h, /(<meta property="og:title" content=")[^"]*(")/, ta, 'og:title')
+  h = swap(h, /(<meta name="twitter:title" content=")[^"]*(")/, ta, 'twitter:title')
+  h = swap(h, /(<link rel="canonical" href=")[^"]*(")/, url, 'canonical')
+  h = swap(h, /(<meta property="og:url" content=")[^"]*(")/, url, 'og:url')
   return h
 }
 
