@@ -36,7 +36,10 @@ export const usePageSEO = ({ title, description }) => {
       })
     }
 
-    const pageUrl = `${BASE_URL}${location.pathname}`
+    // Trailing slash: GitHub Pages serves each route's directory index at
+    // "/gallery/" and 301s "/gallery" to it, so the canonical must carry the
+    // slash — otherwise it points at a URL that redirects back to this page.
+    const pageUrl = `${BASE_URL}${location.pathname.replace(/\/?$/, '/')}`
     const ogUrl = document.querySelector('meta[property="og:url"]')
     if (ogUrl) ogUrl.setAttribute('content', pageUrl)
 

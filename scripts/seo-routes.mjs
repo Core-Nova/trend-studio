@@ -73,7 +73,9 @@ export const applySeo = (html, { title, description, url }) => {
 const main = () => {
   const shell = readFileSync(join(DIST, 'index.html'), 'utf8')
   for (const [route, meta] of Object.entries(ROUTES)) {
-    const html = applySeo(shell, { ...meta, url: `${BASE_URL}${route}` })
+    // Trailing slash: Pages serves this file at "/gallery/" and 301s the
+    // slashless form to it, so the canonical must match the served URL.
+    const html = applySeo(shell, { ...meta, url: `${BASE_URL}${route}/` })
     const file = join(DIST, route.replace(/^\//, ''), 'index.html')
     mkdirSync(dirname(file), { recursive: true })
     writeFileSync(file, html)
