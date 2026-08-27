@@ -22,8 +22,10 @@ const FILES = [
   'GetAvailability.gs',
   'BookAppointment.gs',
   'Studio24Sync.gs',
+  'DeclinedBookings.gs',
+  'Analytics.gs',
   'Reviews.gs',
-  'Setup.gs',
+  'Setup.gs'
 ]
 
 let out = '// TREND Booking — single-file bundle generated from apps-script/*.gs\n'

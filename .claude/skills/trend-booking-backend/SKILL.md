@@ -15,6 +15,7 @@ Browser (/book wizard, GitHub Pages static site)
        GET  ?action=reviews&lang=bg                   → live Google reviews (6h cache)
        POST {action:'book', …}   (text/plain body — NO custom headers)
   Time trigger (5 min) → syncStudio24Emails()  — polls Gmail from info@studio24.bg
+  Time trigger (5 min) → syncDeclinedBookings() — deletes bookings the client declined
   Google Sheet "TREND Booking Config" — Hours / Overrides / Services / SyncLog tabs
 ```
 
@@ -80,8 +81,39 @@ Recognized subjects (from `info@studio24.bg`):
 - `Отменена резервация от <име>` → deletes the matching `source=studio24`
   event at each `dd.mm.yyyy, hh:mm` line's start time (phone must match)
 
+When a service line matches no Services-tab row, `matchService_` returns
+`{ name: null, minutes: CONFIG.defaultServiceMin }` and the booking's length is
+a guess. That case is flagged three ways: `⚠️ ` prefixed on the event title, a
+`60?` entry in the SyncLog breakdown, and the Gmail label
+`studio24-default-time` added to the thread **in addition to**
+`studio24-synced` (`handleNewReservation_` returns the flag; the search excludes
+`studio24-synced`, so that label must land on every processed thread or the
+sync stops being idempotent). Fix by adding the service's wording to the
+Services tab.
+
 Parsers are pure functions in `Studio24Sync.gs`; `runParserTests()` in
 `Setup.gs` asserts them against real sample emails.
+
+## Declined invites
+
+Declining a Google Calendar invite does **not** delete the event — it only sets
+that guest's response to "No", and the slot stays busy in availability. Nothing
+in the Studio24 email sync catches this (it reads only `info@studio24.bg` mail).
+`DeclinedBookings.gs` → `syncDeclinedBookings()` runs on its own 5-min trigger
+and closes the gap from both ends:
+
+1. **Gmail pass** — reads the owner's `Declined: <title> @ Thu 27 Aug 2026
+   2:30pm - 4:20pm (GMT+3)` notifications (label `declines-synced` marks
+   processed threads). The title is truncated with `...` so it is prefix-matched;
+   the start is exact and uses the subject's own GMT offset (Sofia is +3 summer,
+   +2 winter). `parseDeclineSubject_` is pure — `runParserTests()` covers it.
+   Non-English subjects don't parse — the sweep is the backstop.
+2. **Calendar sweep** — deletes upcoming `source=website` events where **every**
+   guest answered "No" (`getGuestList()` excludes the owner).
+
+Both log `booking-declined` to SyncLog, tagged `(email)` or `(sweep)`. Studio24
+events have no guests, so they are never affected. Worst-case lag before the
+slot frees up: one trigger cycle.
 
 ## Script Properties (Apps Script → Project Settings)
 
@@ -108,3 +140,6 @@ a brand-NEW deployment would mint a different URL, which would need updating in
 - All-day calendar events are IGNORED by availability — vacations go in the
   Overrides tab, not the calendar.
 - Consumer-Gmail quota: ~100 external calendar invites/day.
+- Adding a time-driven handler means adding it to `TRIGGERS_` in `Setup.gs` AND
+  re-running `setup()` in the editor — deploying a new version does not install
+  triggers.

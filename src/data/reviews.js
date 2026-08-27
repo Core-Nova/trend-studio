@@ -3,7 +3,7 @@
 // VITE_BACKEND_URL is unset.
 export const googleReviews = {
   "rating": 5,
-  "totalCount": 50,
+  "totalCount": 54,
   "profileUrl": "https://www.google.com/maps/place/Hair+Boutique+Studio+TREND/@42.6945,23.3255,17z/",
   "reviews": [
     {

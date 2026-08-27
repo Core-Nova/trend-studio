@@ -16,6 +16,8 @@ Studio24 emails, and serves live Google reviews.
 | `GetAvailability.gs` | `GET ?action=availability&duration=90&days=14` → free slots |
 | `BookAppointment.gs` | `POST {action:'book',…}` → creates the calendar event, invites the client |
 | `Studio24Sync.gs` | 5-min trigger: mirrors Studio24 booking/cancellation emails into the calendar |
+| `DeclinedBookings.gs` | 5-min trigger: reads Google's "Declined: …" notifications + sweeps declined guests, deletes those bookings |
+| `Analytics.gs` | `POST {action:'collect'}` GA4 proxy + `GET ?action=analytics` health check |
 | `Reviews.gs` | `GET ?action=reviews&lang=bg` → live Google rating + reviews (cached 6h) |
 | `Setup.gs` | One-time `setup()` bootstrap + editor-runnable tests |
 
@@ -39,8 +41,9 @@ Studio24 emails, and serves live Google reviews.
 3. In the editor pick the function **`setup`** in the toolbar dropdown →
    **Run** → approve the permission screen (Calendar, Gmail, Sheets).
    This creates the **TREND Booking Config** spreadsheet (pre-filled working
-   hours + service durations), the `studio24-synced` Gmail label, and the
-   5-minute sync trigger. The execution log prints the spreadsheet link.
+   hours + service durations), the `studio24-synced`, `studio24-default-time`
+   and `declines-synced` Gmail labels, and the
+   two 5-minute triggers (`syncStudio24Emails`, `syncDeclinedBookings`). The execution log prints the spreadsheet link.
 4. *(Optional — live reviews)* In [console.cloud.google.com](https://console.cloud.google.com)
    create a project → enable **Places API (New)** → create an **API key**
    (needs a billing account; usage at our volume stays inside the free tier).

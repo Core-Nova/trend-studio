@@ -9,6 +9,8 @@
 function setup() {
   createConfigSpreadsheetIfMissing_()
   getOrCreateLabel_(CONFIG.studio24.label)
+  getOrCreateLabel_(CONFIG.studio24.defaultTimeLabel)
+  getOrCreateLabel_(CONFIG.declineLabel)
   installTrigger_()
   Logger.log(
     'Setup complete.\nConfig sheet: https://docs.google.com/spreadsheets/d/' +
@@ -99,12 +101,18 @@ const SERVICE_MINUTES_SEED_ = [
   ['Боядисване Premium бондинг грижа размер XL', 120],
 ]
 
+// Time-driven handlers, each on its own 5-minute trigger: Studio24 mail sync
+// and the declined-invite sweep (see DeclinedBookings.gs).
+const TRIGGERS_ = ['syncStudio24Emails', 'syncDeclinedBookings']
+
 function installTrigger_() {
-  const exists = ScriptApp.getProjectTriggers().some(function (t) {
-    return t.getHandlerFunction() === 'syncStudio24Emails'
+  const existing = ScriptApp.getProjectTriggers().map(function (t) {
+    return t.getHandlerFunction()
   })
-  if (exists) return
-  ScriptApp.newTrigger('syncStudio24Emails').timeBased().everyMinutes(5).create()
+  TRIGGERS_.forEach(function (fn) {
+    if (existing.indexOf(fn) !== -1) return
+    ScriptApp.newTrigger(fn).timeBased().everyMinutes(5).create()
+  })
 }
 
 /**
@@ -176,7 +184,13 @@ const FIXTURE_MULTI_BODY_ = [
   'Ако няма да можете да обслужите клиента, е необходимо да му позвъните възможно най-скоро и да промените или отмените запазения час.',
 ].join('\n')
 
-/** Run from the editor: asserts both parsers against the real sample emails. */
+// Real Google Calendar decline notification to the owner - long title
+// truncated with "...", the time expressed in the (GMT+3) offset from the
+// subject rather than the script timezone.
+const FIXTURE_DECLINE_SUBJECT_ =
+  'Declined: Pavlin Petkov — Подстригване + сешоар Standard — много дъ... @ Thu 27 Aug 2026 2:30pm - 4:20pm (GMT+3) (trendstudiotedi@gmail.com)'
+
+/** Run from the editor: asserts the parsers against the real sample emails. */
 function runParserTests() {
   const results = []
   const check = function (label, actual, expected) {
@@ -228,6 +242,16 @@ function runParserTests() {
   check('multi.services[1].price', multi.services[1].priceEur, 51.13)
   const multiTotal = multi.services.reduce(function (sum, s) { return sum + serviceMinutes_(s.name) }, 0)
   check('multi.totalMinutes', multiTotal, 120)
+
+  // Decline notification: the start comes from the subject's own GMT offset,
+  // and the truncated title must still prefix-match the calendar event.
+  const d = parseDeclineSubject_(FIXTURE_DECLINE_SUBJECT_)
+  check('decline.start', d.start.getTime(), Date.UTC(2026, 7, 27, 11, 30))
+  check('decline.titleMatches', titleMatches_('Pavlin Petkov — Подстригване + сешоар Standard — много дълга коса', d.title), true)
+  check('decline.titleRejectsOther', titleMatches_('Мария Петрова — Сешоар', d.title), false)
+  check('decline.usFormat', parseDeclineSubject_('Declined: X @ Thu Aug 27, 2026 2:30pm - 4:20pm (GMT+3)').start.getTime(), Date.UTC(2026, 7, 27, 11, 30))
+  check('decline.winterOffset', parseDeclineSubject_('Declined: X @ Fri 9 Jan 2026 9:00am - 10:00am (GMT+2)').start.getTime(), Date.UTC(2026, 0, 9, 7, 0))
+  check('decline.nonDecline', parseDeclineSubject_('Accepted: X @ Thu 27 Aug 2026 2:30pm (GMT+3)'), null)
 
   Logger.log(results.join('\n'))
   if (results.some(function (r) { return r.indexOf('FAIL') === 0 })) {

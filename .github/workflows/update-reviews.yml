@@ -1,8 +1,14 @@
 name: Update Google Reviews
 
-# Scrapes the latest Google reviews into public/reviews.json (not committed),
-# then builds and deploys so the live site picks them up. Runs automatically
-# every Monday, and can also be triggered manually from the Actions tab.
+# Scrapes the latest Google reviews, then builds and deploys so the live site
+# picks them up. Runs automatically every Monday, and can also be triggered
+# manually from the Actions tab.
+#
+# The scrape rewrites public/reviews.json, src/data/reviews.js and the
+# aggregateRating in index.html — none of them committed, all three consumed by
+# the build that follows. It has to stay BEFORE the Build step: the hero badge
+# and the JSON-LD are baked in at build time, and only the JSON is fetched at
+# runtime.
 on:
   workflow_dispatch:
   schedule:

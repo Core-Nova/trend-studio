@@ -5,7 +5,11 @@
  * (installed by setup(), every 5 minutes) polls Gmail for mail from
  * info@studio24.bg. Processed threads get the 'studio24-synced' label and are
  * never handled twice; failures are labeled too (no retry loops) and show up
- * in the SyncLog tab of the config spreadsheet.
+ * in the SyncLog tab of the config spreadsheet. A thread whose booking fell
+ * back to the default length gets 'studio24-default-time' ON TOP of
+ * 'studio24-synced' rather than instead of it — the search below excludes
+ * 'studio24-synced' to stay idempotent, so that one has to land on every
+ * processed thread.
  *
  * Two email shapes are recognized by subject:
  *  - "Нова резервация от <name> на <dd.mm.yyyy> в <hh:mm>"  → create event
@@ -19,15 +23,17 @@
 
 function syncStudio24Emails() {
   const label = getOrCreateLabel_(CONFIG.studio24.label)
+  let defaultTimeLabel = null // fetched lazily — most runs never need it
   const threads = GmailApp.search(
     'from:' + CONFIG.studio24.from + ' -label:' + CONFIG.studio24.label + ' newer_than:7d'
   )
   threads.forEach(function (thread) {
+    let usedDefaultTime = false
     thread.getMessages().forEach(function (msg) {
       try {
         const subject = msg.getSubject()
         if (CONFIG.studio24.newSubjectRe.test(subject)) {
-          handleNewReservation_(msg.getSubject(), msg.getPlainBody())
+          if (handleNewReservation_(msg.getSubject(), msg.getPlainBody())) usedDefaultTime = true
         } else if (CONFIG.studio24.cancelSubjectRe.test(subject)) {
           handleCancellation_(msg.getPlainBody())
         }
@@ -37,6 +43,10 @@ function syncStudio24Emails() {
       }
     })
     thread.addLabel(label)
+    if (usedDefaultTime) {
+      defaultTimeLabel = defaultTimeLabel || getOrCreateLabel_(CONFIG.studio24.defaultTimeLabel)
+      thread.addLabel(defaultTimeLabel)
+    }
   })
 }
 
@@ -107,11 +117,20 @@ function parseCancellation_(plainBody) {
 // cue in Google Calendar to check/adjust the length by hand.
 const UNMATCHED_PREFIX_ = '⚠️ '
 
+/**
+ * Creates the calendar event for one "Нова резервация" mail.
+ *
+ * @return {boolean} true when an event was created whose length fell back to
+ *   CONFIG.defaultServiceMin because a service name wasn't in the Services tab
+ *   — the caller labels the thread 'studio24-default-time' so the owner can
+ *   verify that time by hand. A parse failure or a skipped duplicate creates
+ *   nothing and so returns false: there is no event whose length to check.
+ */
 function handleNewReservation_(subject, plainBody) {
   const p = parseNewReservation_(subject, plainBody)
   if (!p || !p.services.length) {
     logSync_('studio24-new', subject, 'parse_failed')
-    return
+    return false
   }
   const matches = p.services.map(function (s) {
     return matchService_(s.name)
@@ -130,7 +149,7 @@ function handleNewReservation_(subject, plainBody) {
     })
   if (dupe) {
     logSync_('studio24-new', p.name, 'duplicate_skipped')
-    return
+    return false
   }
 
   const serviceNames = p.services
@@ -159,6 +178,7 @@ function handleNewReservation_(subject, plainBody) {
     })
     .join('+')
   logSync_('studio24-new', p.name + ' @ ' + p.start, 'created ' + duration + 'min [' + breakdown + ']')
+  return usedDefault
 }
 
 function handleCancellation_(plainBody) {

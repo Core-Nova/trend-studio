@@ -25,9 +25,18 @@ const CONFIG = {
   studio24: {
     from: 'info@studio24.bg',
     label: 'studio24-synced',
+    // Added ALONGSIDE `label` when a booking's length fell back to
+    // defaultServiceMin because a service name wasn't in the Services tab —
+    // the Gmail-side twin of the UNMATCHED_PREFIX_ event-title marker, so the
+    // threads whose times need checking by hand are one click away.
+    defaultTimeLabel: 'studio24-default-time',
     newSubjectRe: /^Нова резервация от (.+?) на (\d{2})\.(\d{2})\.(\d{4}) в (\d{1,2}):(\d{2})/,
     cancelSubjectRe: /^Отменена резервация от /,
   },
+
+  // Gmail label for processed Google Calendar "Declined: …" notifications
+  // (see DeclinedBookings.gs).
+  declineLabel: 'declines-synced',
 }
 
 function getProp_(key) {
