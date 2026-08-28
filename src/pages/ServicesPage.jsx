@@ -23,7 +23,7 @@ export const ServicesPage = () => {
 
   return (
     <div className="page-content">
-      <ServicesView {...servicesData} />
+      <ServicesView {...servicesData} as="h1" />
     </div>
   )
 }

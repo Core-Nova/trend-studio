@@ -23,7 +23,7 @@ export const AboutPage = () => {
 
   return (
     <div className="page-content">
-      <About showProducts />
+      <About showProducts as="h1" title={t(translations.nav.about)} />
       <FAQ />
       <Reviews />
     </div>

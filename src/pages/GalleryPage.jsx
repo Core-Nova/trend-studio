@@ -36,7 +36,7 @@ export const GalleryPage = () => {
     <div className="page-content">
       <div className="gallery-section gallery-section--page">
         <div className="gallery-header">
-          <SectionHeader tag={t(translations.gallery.sectionTag)} title={t(translations.gallery.title)} />
+          <SectionHeader tag={t(translations.gallery.sectionTag)} title={t(translations.gallery.title)} as="h1" />
         </div>
         {isMobile && (
           <StoriesHighlights groups={storyGroups} onOpen={stories.open} />

@@ -48,7 +48,7 @@ export const BookingPage = () => {
     <div className="page-content">
       <section className="booking-section">
         <div className="container container--narrow">
-          <SectionHeader tag={t(translations.booking.sectionTag)} title={t(translations.booking.title)} />
+          <SectionHeader tag={t(translations.booking.sectionTag)} title={t(translations.booking.title)} as="h1" />
           <BookingWizard />
         </div>
       </section>

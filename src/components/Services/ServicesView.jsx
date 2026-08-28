@@ -121,13 +121,13 @@ const CategoryCard = memo(({ icon, name, count, description, items, preview, has
 
 export const ServicesView = ({
   sectionTag, title, categories, note, ctaText, showBookCta,
-  showSeeAll, seeAllBtn, consultCta
+  showSeeAll, seeAllBtn, consultCta, as
 }) => {
   const { ref, revealed } = useScrollReveal()
   return (
   <section id="services" className={`services-section scroll-reveal ${revealed ? 'scroll-reveal--visible' : ''}`} ref={ref}>
     <div className="container">
-      <SectionHeader tag={sectionTag} title={title} />
+      <SectionHeader tag={sectionTag} title={title} as={as} />
       <div className="svc-grid">
         {categories.map((category, i) => {
           if (consultCta && i === 1) {

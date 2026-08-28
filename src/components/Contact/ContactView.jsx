@@ -13,13 +13,13 @@ const trackStudio24 = () => trackEvent('generate_lead', { method: 'booking_link'
 export const ContactView = ({
   sectionTag, title, addressLabel, addressLines, phoneLabel, phone, phoneHref,
   viberUrl, viberText, emailLabel, email, emailHref, hoursLabel, hoursLines,
-  bookOnlineBtn, studio24Text, studio24Url, mapLink, mapEmbedUrl, mapSearchUrl
+  bookOnlineBtn, studio24Text, studio24Url, mapLink, mapEmbedUrl, mapSearchUrl, as
 }) => {
   const { ref, revealed } = useScrollReveal()
   return (
   <section id="contact" className={`contact scroll-reveal ${revealed ? 'scroll-reveal--visible' : ''}`} ref={ref}>
     <div className="container">
-      <SectionHeader tag={sectionTag} title={title} />
+      <SectionHeader tag={sectionTag} title={title} as={as} />
       <div className="contact-content">
         <div className="contact-info">
           <div className="contact-item">

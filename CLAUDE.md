@@ -6,7 +6,7 @@ TREND Hair Boutique Studio is a luxury hair salon in central Sofia, Bulgaria.
 - **Address:** 8 Tsar Kaloyan St., Mezzanine, Sofia 1000
 - **Phone:** +359 888 599 590
 - **Instagram:** [@trendbytedi](https://instagram.com/trendbytedi)
-- **Booking:** in-site flow at `/book` (primary); [studio24.bg/hair-boutique-studio-trend-s4258](https://studio24.bg/hair-boutique-studio-trend-s4258) kept as secondary fallback
+- **Booking:** [studio24.bg/hair-boutique-studio-trend-s4258](https://studio24.bg/hair-boutique-studio-trend-s4258) is what visitors actually get — every Book CTA points there. The in-site `/book` wizard is built but still gated behind `?experimental=booking` (`useExperimentalBooking`), and an ungated visit redirects out to Studio24, so `/book` is excluded from the sitemap and prerender until the flag comes off
 - **Email:** trendstudiotedi@gmail.com
 - **Domain:** trendbytedi.com
 - **Services:** Haircuts, blow dries, coloring (KYDRA by Phyto), hair treatments (ALTERNA, REDKEN), eyelash extensions, special occasion styling
@@ -166,6 +166,29 @@ npm run format       # Prettier
 - Static site on GitHub Pages via `gh-pages` package
 - `vite.config.js` supports `VITE_BASE_PATH` env var for non-root deployments
 - Structured data (JSON-LD `HairSalon` schema) in `index.html`
+
+### Prerendering (`scripts/seo-routes.mjs`)
+Pages serves a pure SPA, so without this every route returned the 404 fallback
+with an empty body — Google saw nothing until its deferred JS-rendering pass.
+The script runs after `vite build` and, from a single `ROUTES` table, emits:
+
+- a static `dist/<route>/index.html` per route — the shell with per-route
+  `<head>` (title/description/canonical/og) **and** a semantic body outline
+- `dist/sitemap.xml`, with `<lastmod>` from `git log` on each route's `sources`
+
+Rules:
+- **`ROUTES` is the only place to register a route.** There is no
+  `public/sitemap.xml` any more; adding a route there covers both outputs
+- Body builders read `src/translations/index.js` and `src/data/services.json`.
+  Never hand-write copy in the script — if the static and React versions
+  disagree, widen the data the builder reads
+- Injected markup goes inside `#root`; `createRoot()` clears the container on
+  mount, so React always wins for real visitors. Do not switch to
+  `hydrateRoot` without making the markup match the React tree exactly
+- `/` keeps the shell's own hand-written bilingual `<head>` and gets a body
+  only; `dist/404.html` is deliberately left as the bare shell
+- The generator throws if a `<head>` tag or `#root` is missing, so a Vite HTML
+  output change fails the build instead of shipping a broken page
 
 ## Pending Work
 

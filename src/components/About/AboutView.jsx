@@ -4,12 +4,12 @@ import { useScrollReveal } from '../../hooks/useScrollReveal'
 import logoWebp from '../../assets/brand/trend-logo.png?w=900&format=webp'
 import logoAvif from '../../assets/brand/trend-logo.png?w=900&format=avif'
 
-export const AboutView = ({ sectionTag, paragraph1, paragraph2, feature1, feature2, feature3, productsTitle, products, showSeeAll, showProducts, seeAllBtn }) => {
+export const AboutView = ({ sectionTag, paragraph1, paragraph2, feature1, feature2, feature3, productsTitle, products, showSeeAll, showProducts, seeAllBtn, as, title = 'TREND' }) => {
   const { ref, revealed } = useScrollReveal()
   return (
   <section id="about" className={`about scroll-reveal ${revealed ? 'scroll-reveal--visible' : ''}`} ref={ref}>
     <div className="container">
-      <SectionHeader tag={sectionTag} title="TREND" logo={{ webp: logoWebp, avif: logoAvif, alt: 'TREND Hair Boutique Studio' }} />
+      <SectionHeader tag={sectionTag} title={title} logo={{ webp: logoWebp, avif: logoAvif, alt: 'TREND Hair Boutique Studio' }} as={as} />
       <div className="about-content">
         <div className="about-text">
           <p>{paragraph1}</p>

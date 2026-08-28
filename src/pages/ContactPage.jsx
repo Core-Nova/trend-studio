@@ -23,7 +23,7 @@ export const ContactPage = () => {
 
   return (
     <div className="page-content">
-      <ContactView {...contactData} />
+      <ContactView {...contactData} as="h1" />
     </div>
   )
 }
