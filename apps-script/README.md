@@ -15,7 +15,7 @@ Studio24 emails, and serves live Google reviews.
 | `WorkingHours.gs` | Reads working hours + service durations from the config spreadsheet (cached 10 min) |
 | `GetAvailability.gs` | `GET ?action=availability&duration=90&days=14` → free slots |
 | `BookAppointment.gs` | `POST {action:'book',…}` → creates the calendar event, invites the client |
-| `Studio24Sync.gs` | 5-min trigger: mirrors Studio24 booking/cancellation emails into the calendar |
+| `Studio24Sync.gs` | 5-min trigger: mirrors Studio24 booking/cancellation emails into the calendar (per-message ledger, retries, trims partial cancellations) |
 | `DeclinedBookings.gs` | 5-min trigger: reads Google's "Declined: …" notifications + sweeps declined guests, deletes those bookings |
 | `Analytics.gs` | `POST {action:'collect'}` GA4 proxy + `GET ?action=analytics` health check |
 | `Reviews.gs` | `GET ?action=reviews&lang=bg` → live Google rating + reviews (cached 6h) |
@@ -41,9 +41,11 @@ Studio24 emails, and serves live Google reviews.
 3. In the editor pick the function **`setup`** in the toolbar dropdown →
    **Run** → approve the permission screen (Calendar, Gmail, Sheets).
    This creates the **TREND Booking Config** spreadsheet (pre-filled working
-   hours + service durations), the `studio24-synced`, `studio24-default-time`
-   and `declines-synced` Gmail labels, and the
+   hours + service durations), the `studio24-synced`, `studio24-default-time`,
+   `studio24-failed` and `declines-synced` Gmail labels, and the
    two 5-minute triggers (`syncStudio24Emails`, `syncDeclinedBookings`). The execution log prints the spreadsheet link.
+   *(Optional)* Script Property `ALERT_EMAIL` — where sync-problem alerts go
+   (default: the script's own account).
 4. *(Optional — live reviews)* In [console.cloud.google.com](https://console.cloud.google.com)
    create a project → enable **Places API (New)** → create an **API key**
    (needs a billing account; usage at our volume stays inside the free tier).
@@ -64,7 +66,8 @@ Edit the code in the Apps Script editor (or re-paste — `node
 apps-script/bundle.mjs | clip` again), then
 **Deploy → Manage deployments → ✏ → Version: New version → Deploy**.
 The `/exec` URL stays the same. (A brand-new deployment would mint a new URL
-and break the site until `VITE_BACKEND_URL` is updated.)
+and break the site until `VITE_BACKEND_URL` is updated.) After an update that
+adds a Gmail label, run `setup()` once more — it only creates what's missing.
 
 Power option: [`clasp`](https://github.com/google/clasp) (`npm i -g
 @google/clasp`, `clasp login`, `clasp clone <scriptId>` into a scratch dir)
@@ -78,12 +81,39 @@ Edit the **TREND Booking Config** spreadsheet — never the code:
 - **Hours** — weekly schedule (`Open`/`Close` as `HH:mm` text, `Closed` TRUE/FALSE)
 - **Overrides** — specific dates (`2026-12-24`): shorter hours or `Closed` TRUE for holidays/vacation
 - **Services** — Bulgarian service name → minutes; used to size Studio24-synced
-  events (matching is "longest name contained in the email's service line")
+  events (a row matches when all its words appear in the email's service
+  line; the row with the most words wins)
 - **SyncLog** — read-only audit trail of every booking/sync action
 
 Changes apply within ~10 minutes (cache TTL).
 
+## How the Studio24 sync behaves
+
+- **Each email is handled once.** Gmail groups mail with the same subject into
+  one thread — every "Отменена резервация от <name>" by the same client, and a
+  re-booking of the same slot — so the sync tracks individual messages (Script
+  Property `S24_SYNC_STATE`), not threads. Labels are only for you to look at.
+- **Length = until Studio24's last service ends.** Studio24 gives each service
+  its own start time; the event runs to the last one's start + its minutes in
+  the Services tab.
+- **Partial cancellations trim instead of delete.** If the client keeps a
+  service inside the cancelled booking (the "Неотменените предстоящи часове"
+  list), the event is shortened to what they kept.
+- **Errors are retried** on the next 3 runs. If it still fails, the thread gets
+  `studio24-failed` and you get an email — fix that booking by hand.
+- **Unreadable service lines still block the slot** for the default 60 min,
+  with ⚠️ in the title, and you get an email.
+- **Unknown Studio24 emails** (anything that isn't a new booking or a
+  cancellation) are logged as `studio24-ignored` in SyncLog — that's how a new
+  email type, like a reschedule, would show up.
+
 ## Testing
+
+**In Node (no Google account needed):** `npx vitest run
+src/__tests__/appsScript.test.js` runs the exact bundle against in-memory
+fakes of Calendar, Gmail, Sheets, etc. — availability (incl. DST changes),
+booking rules, and the Studio24 sync end to end. It also runs
+`runParserTests()`. Run it before every re-paste.
 
 From the Apps Script editor (pick function → Run → View → Logs):
 
@@ -135,6 +165,10 @@ GET ?action=reviews&lang=<bg|en>
 - Gmail read/label: effectively unlimited at our polling rate.
 - Google may put calendar invites from unknown senders in spam — the site's
   success screen tells clients to check there.
-- The web app URL is public. Protections: honeypot field, 3 attempts/hour per
-  email rate limit, slot re-validation under a script lock, and everything is
-  logged to SyncLog.
+- The web app URL is public. Protections: honeypot field, max 3 bookings/hour
+  per email and per phone, max 30 website bookings/day for the whole site
+  (`CONFIG` in `Config.gs`), length caps on every text field, slot
+  re-validation under a script lock, and everything is logged to SyncLog.
+- A repeat of the same booking (same phone, same start) returns the booking
+  already made instead of "slot taken" — so a client whose browser timed out
+  can simply press Confirm again.

@@ -12,14 +12,22 @@
 
 const DAY_INDEX_ = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }
 
+// Per-execution memo on top of CacheService: getAvailability() asks for every
+// day of the horizon, and each CacheService read is a round trip. Globals
+// live for one execution only, so this never outlives an edit to the sheet
+// by more than the CacheService TTL.
+let hoursMemo_ = null
+let servicesMemo_ = null
+
 function loadHoursConfig_() {
+  if (hoursMemo_) return hoursMemo_
   const cache = CacheService.getScriptCache()
   const hit = cache.get('hoursConfig')
-  if (hit) return JSON.parse(hit)
+  if (hit) return (hoursMemo_ = JSON.parse(hit))
   const ss = SpreadsheetApp.openById(getProp_('CONFIG_SPREADSHEET_ID'))
   const cfg = { weekly: readHoursTab_(ss), overrides: readOverridesTab_(ss) }
   cache.put('hoursConfig', JSON.stringify(cfg), CONFIG.cacheSec.hours)
-  return cfg
+  return (hoursMemo_ = cfg)
 }
 
 /** → array indexed by JS getDay() (0=Sun..6=Sat) of {open, close, closed}. */
@@ -89,11 +97,12 @@ function serviceMinutes_(emailServiceName) {
 }
 
 function loadServicesMap_() {
+  if (servicesMemo_) return servicesMemo_
   const cache = CacheService.getScriptCache()
   // 'servicesMap2' — bumped from 'servicesMap' so the token-carrying shape
   // isn't read from a pre-upgrade cache entry.
   const hit = cache.get('servicesMap2')
-  if (hit) return JSON.parse(hit)
+  if (hit) return (servicesMemo_ = JSON.parse(hit))
   const ss = SpreadsheetApp.openById(getProp_('CONFIG_SPREADSHEET_ID'))
   const rows = ss.getSheetByName('Services').getDataRange().getValues().slice(1)
   const map = rows
@@ -104,7 +113,7 @@ function loadServicesMap_() {
       return { name: normalize_(row[0]), tokens: tokenize_(row[0]), minutes: Number(row[1]) }
     })
   cache.put('servicesMap2', JSON.stringify(map), CONFIG.cacheSec.hours)
-  return map
+  return (servicesMemo_ = map)
 }
 
 function normalize_(value) {

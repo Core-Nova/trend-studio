@@ -10,6 +10,7 @@ function setup() {
   createConfigSpreadsheetIfMissing_()
   getOrCreateLabel_(CONFIG.studio24.label)
   getOrCreateLabel_(CONFIG.studio24.defaultTimeLabel)
+  getOrCreateLabel_(CONFIG.studio24.failedLabel)
   getOrCreateLabel_(CONFIG.declineLabel)
   installTrigger_()
   Logger.log(
@@ -122,6 +123,8 @@ function installTrigger_() {
  */
 function refreshConfigCache() {
   CacheService.getScriptCache().removeAll(['hoursConfig', 'servicesMap', 'servicesMap2'])
+  hoursMemo_ = null
+  servicesMemo_ = null
   Logger.log('Config cache cleared — the next sync / availability call re-reads the spreadsheet.')
 }
 
@@ -214,12 +217,17 @@ function runParserTests() {
   check('cancel.items[0].start', c.items[0].start.getTime(), new Date(2026, 6, 8, 15, 30).getTime())
   check('cancel.items[0].service', c.items[0].service, 'Дамско подстригване + сешоар Standard клас грижа, на дълга коса, размер L')
   check('cancel.uniqueStarts', uniqueStarts_(c.items).length, 1)
+  check('cancel.kept.length', c.kept.length, 0)
 
   // A kept appointment under "Неотменените предстоящи часове" must NOT be parsed
   // as a cancellation — only the one truly cancelled service.
   const ck = parseCancellation_(FIXTURE_CANCEL_KEEP_BODY_)
   check('cancelKeep.items.length', ck.items.length, 1)
   check('cancelKeep.items[0].service', ck.items[0].service, 'Дамско подстригване + сешоар с premium клас грижа, на средно дълга коса, размер M')
+  // …but it IS returned as `kept`, so a partly cancelled booking is trimmed, not freed.
+  check('cancelKeep.kept.length', ck.kept.length, 1)
+  check('cancelKeep.kept[0].service', ck.kept[0].service, 'официална прическа, сложен кок')
+  check('cancelKeep.kept[0].start', ck.kept[0].start.getTime(), new Date(2026, 5, 14, 14, 0).getTime())
 
   check('serviceMinutes bangs', serviceMinutes_('Дамско подстригване на бретон'), 15)
   // Real Studio24 wording inserts descriptors ("клас", "за коса", "размер M")
@@ -240,8 +248,13 @@ function runParserTests() {
   check('multi.services[1].name', multi.services[1].name, 'Терапия за коса с Рианон')
   check('multi.services[1].time', multi.services[1].time, '18:10')
   check('multi.services[1].price', multi.services[1].priceEur, 51.13)
-  const multiTotal = multi.services.reduce(function (sum, s) { return sum + serviceMinutes_(s.name) }, 0)
-  check('multi.totalMinutes', multiTotal, 120)
+  // The event runs until the LAST service ends at Studio24's own time for it:
+  // 18:10 + 60 (Рианон) = 19:10 → 100 min, not the 60 + 60 = 120 sum.
+  const multiPlan = planStudio24Event_(multi)
+  check('multi.planMinutes', multiPlan.minutes, 100)
+  check('multi.planBreakdown', multiPlan.breakdown, '60+60')
+  check('multi.planUsedDefault', multiPlan.usedDefault, false)
+  check('noServices.planMinutes', planStudio24Event_({ start: multi.start, services: [] }).minutes, CONFIG.defaultServiceMin)
 
   // Decline notification: the start comes from the subject's own GMT offset,
   // and the truncated title must still prefix-match the calendar event.

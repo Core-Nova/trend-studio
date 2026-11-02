@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { translations } from '../../translations'
+import { formatSlotDate, formatMinutes } from '../../lib/bookingUtils'
 
-export const SuccessStep = ({ email }) => {
-  const { t } = useLanguage()
+/** Confirmation — restates what was booked, so the screen is a usable receipt. */
+export const SuccessStep = ({ email, slot, totals, selectionList }) => {
+  const { lang, t } = useLanguage()
   const b = translations.booking
   return (
     <div className="booking-card booking-card--center booking-success" role="status">
@@ -14,6 +16,22 @@ export const SuccessStep = ({ email }) => {
         </svg>
       </span>
       <h3 className="booking-card__title">{t(b.successTitle)}</h3>
+      {slot && (
+        <div className="booking-success__recap">
+          <p className="bk-recap__when">
+            <strong>
+              {formatSlotDate(slot.start, lang)}, {slot.label}
+            </strong>
+            {' · '}
+            {formatMinutes(totals.minutes, t(b.hourShort), t(b.minShort))}
+          </p>
+          <p className="booking-card__body">
+            {selectionList
+              .map(({ item, option }) => (option ? `${t(item.name)} — ${t(option.name)}` : t(item.name)))
+              .join(', ')}
+          </p>
+        </div>
+      )}
       <p className="booking-card__body">
         {t(b.successInvite)} <strong>{email}</strong>.
         <br />

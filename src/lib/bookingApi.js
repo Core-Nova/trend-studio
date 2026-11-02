@@ -46,16 +46,27 @@ export function fetchAvailability(durationMin, days = 14) {
   return request(`${BOOKING_URL}?${params}`)
 }
 
+// A booking waits on the script lock, creates the event and sends the invite;
+// on a cold Apps Script start that can pass 15 s. Giving up early showed an
+// error for a booking that had actually gone through. Retrying after a
+// timeout is safe — the backend answers a repeat of the same client + start
+// with the booking it already made.
+export const BOOKING_TIMEOUT_MS = 45000
+
 /**
  * Creates the booking: { ok, eventId } or { ok: false, error } where error is
  * one of invalid|invalid_time|outside_hours|slot_taken|rate_limited|
  * busy_try_again|server_error|network.
  */
 export function createBooking(payload) {
-  return request(BOOKING_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'book', ...payload }),
-  })
+  return request(
+    BOOKING_URL,
+    {
+      method: 'POST',
+      body: JSON.stringify({ action: 'book', ...payload }),
+    },
+    BOOKING_TIMEOUT_MS
+  )
 }
 
 /**

@@ -109,6 +109,7 @@ src/
 ### Booking Backend (Google Apps Script)
 - Free serverless backend under trendstudiotedi@gmail.com — availability from Google Calendar + working-hours spreadsheet, event creation with client invites, Studio24 email sync (5-min Gmail poll), declined-invite cleanup (`DeclinedBookings.gs`, own 5-min trigger), and a reviews endpoint the site does not currently call
 - Source in `apps-script/` (one `.gs` per function, copy-pasted into script.google.com); deployment guide in `apps-script/README.md`
+- `src/__tests__/appsScript.test.js` runs the pasted bundle in Node against fakes of the Google services (virtual clock, Sofia TZ) — the only way to test the backend without deploying; extend it with every backend change
 - Frontend: `/book` wizard (`src/components/Booking/`, `useBookingFlow`, `src/lib/bookingApi.js`); the /exec URL is `SITE.backendUrl` (`src/lib/constants.js`) — a hardcoded public default, overridable via env `VITE_BACKEND_URL`
 - CORS constraint: POSTs are text/plain string bodies with NO custom headers (Apps Script can't answer preflight)
 - Service durations live in TWO places: `services.json` `minutes` (wizard) and the config spreadsheet's Services tab (Studio24 sync) — keep in sync

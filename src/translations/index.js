@@ -193,6 +193,14 @@ export const translations = {
       en: 'Too many attempts from this email. Please try later or call us.',
       bg: 'Твърде много опити от този имейл. Опитайте по-късно или ни се обадете.'
     },
+    errBusy: {
+      en: 'Several people are booking right now. Please tap “Confirm Booking” again in a moment.',
+      bg: 'В момента се правят няколко резервации. Моля, натиснете „Потвърди часа“ отново след малко.'
+    },
+    errNetwork: {
+      en: 'We couldn\'t reach the booking system. Check your connection and tap “Confirm Booking” again — you won\'t be booked twice.',
+      bg: 'Не успяхме да се свържем със системата за резервации. Проверете връзката си и натиснете „Потвърди часа“ отново — няма да бъдете записани два пъти.'
+    },
     errGeneric: {
       en: 'Something went wrong. Please try again, or book by phone.',
       bg: 'Нещо се обърка. Опитайте отново или запазете час по телефона.'

@@ -179,4 +179,22 @@ describe('useBookingFlow', () => {
     expect(createBooking).toHaveBeenCalledTimes(1)
     await act(async () => resolveBooking({ ok: true }))
   })
+
+  it('"pick another time" reloads the slots exactly once', async () => {
+    createBooking.mockResolvedValue({ ok: false, error: 'slot_taken' })
+    const { result } = setup()
+    act(() => result.current.toggleItem(bangsTrim))
+    act(() => result.current.goToStep('time'))
+    await waitFor(() => expect(result.current.availability.status).toBe('ready'))
+    act(() => result.current.goToStep('details'))
+    fillValidForm(result)
+    await act(() => result.current.submit())
+
+    act(() => result.current.pickAnotherTime())
+
+    expect(result.current.step).toBe('time')
+    expect(result.current.submitState).toBe('idle')
+    await waitFor(() => expect(result.current.availability.status).toBe('ready'))
+    expect(fetchAvailability).toHaveBeenCalledTimes(2)
+  })
 })

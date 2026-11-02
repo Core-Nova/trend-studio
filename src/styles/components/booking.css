@@ -548,6 +548,16 @@
   color: var(--gold-primary);
 }
 
+.booking-success__recap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.booking-success__recap .bk-recap__when {
+  margin-top: 0;
+}
+
 @media (min-width: 768px) {
   .booking-summary {
     flex-direction: row;

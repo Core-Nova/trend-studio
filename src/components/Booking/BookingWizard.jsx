@@ -82,7 +82,16 @@ export const BookingWizard = () => {
   const flow = useBookingFlow()
 
   if (!bookingEnabled) return <Unavailable />
-  if (flow.step === 'done') return <SuccessStep email={flow.form.email} />
+  if (flow.step === 'done') {
+    return (
+      <SuccessStep
+        email={flow.form.email}
+        slot={flow.slot}
+        totals={flow.totals}
+        selectionList={flow.selectionList}
+      />
+    )
+  }
 
   return (
     <div className="booking">

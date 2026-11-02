@@ -30,6 +30,7 @@ redirect that `fetch` follows. `src/__tests__/bookingApi.test.js` locks this in.
 |---|---|
 | Apps Script source (copy-pasted into script.google.com) | `apps-script/*.gs` + `appsscript.json` |
 | Single-paste bundler (`node apps-script/bundle.mjs \| clip`) | `apps-script/bundle.mjs` |
+| Node test harness — runs the bundle against fakes of Calendar/Gmail/Sheets/Properties/Cache/Lock with a virtual clock | `src/__tests__/appsScriptHarness.js` + `appsScript.test.js` |
 | Deployment / testing / maintenance guide | `apps-script/README.md` |
 | Frontend API client | `src/lib/bookingApi.js` (env: `VITE_BACKEND_URL` = the /exec URL) |
 | Wizard state machine | `src/hooks/useBookingFlow.js` |
@@ -55,9 +56,26 @@ GET ?action=reviews&lang=<bg|en>
 ```
 
 The client (`bookingApi.js`) never throws — network problems become
-`{ ok:false, error:'network' }`. Booking events get the client as calendar
+`{ ok:false, error:'network' }`; the booking POST waits 45 s
+(`BOOKING_TIMEOUT_MS`), reads 15 s. Booking events get the client as calendar
 guest (`sendInvites: true`), description with Maps link + phone 0888 599 590,
 tags `source=website` + `phone=<digits>`.
+
+Booking rules (`BookAppointment.gs`):
+- **Idempotent** — an existing `source=website` event with the same phone at
+  the exact start is returned as `{ ok:true, eventId }`, so a retry after a
+  browser timeout never answers "slot taken" with the client's own booking
+- Length = max(`durationMin`, sum of `services[].minutes`)
+- Hours check is `startMinute + duration <= close` — never `minutesOfDay_(end)`,
+  which wraps past midnight
+- `rate_limited` = 3 *successful* bookings/hour per email AND per phone, or 30
+  website bookings/day site-wide (`WEB_BOOKINGS_DAY` script property — cache
+  TTL caps at 6 h). Failed attempts are free
+- Text is single-lined and capped (`cleanText_`, `BOOKING_LIMITS_`)
+
+Date math: build days and slot times with `dayAt_` / `atMinute_` (wall-clock
+components). `addDays_` adds 24 h and drifts an hour on DST days — use it only
+for range bounds.
 
 ## Config spreadsheet ("TREND Booking Config", created by `setup()`)
 
@@ -72,27 +90,45 @@ The owner edits the sheet, never the code; cached ~10 min (CacheService).
 
 ## Studio24 email sync
 
-Time trigger every 5 min; processed threads get Gmail label `studio24-synced`.
+Time trigger every 5 min. **Idempotency is per message, not per thread**:
+Gmail threads identical subjects (every `Отменена резервация от <име>` by one
+client; a re-booking of the same slot), so a thread mixes handled and new
+messages. The ledger in Script Property `S24_SYNC_STATE` holds `since` (last
+scan start; the search is `from:info@studio24.bg after:<since − 60 min>`, and
+older messages are skipped), `done` (message ids in that window) and
+`attempts` (retry counts). With no ledger yet (first run after upgrading) the
+old `-label:studio24-synced newer_than:7d` search is used once. Labels are
+cosmetic now: `studio24-synced` (handled), `studio24-default-time` (length
+guessed), `studio24-failed` (gave up after `maxAttempts` = 3 runs; the owner is
+emailed via `notifyOwner_`). Calendar writes run under the script lock shared
+with `bookAppointment`; if it's busy the run skips and the next one catches up.
+
 Recognized subjects (from `info@studio24.bg`):
 
 - `Нова резервация от <име> на <dd.mm.yyyy> в <hh:mm>` → creates a calendar
-  event (NO guests/invites — Studio24 already confirmed), duration = sum of
-  Services-tab matches per service line (`10:30Дамско подстригване ... при X - 5.11 €`)
-- `Отменена резервация от <име>` → deletes the matching `source=studio24`
-  event at each `dd.mm.yyyy, hh:mm` line's start time (phone must match)
+  event (NO guests/invites — Studio24 already confirmed). `planStudio24Event_`
+  ends it when the LAST service ends: each line's own Studio24 time
+  (`18:10Терапия…`) + its Services-tab minutes (an untimed line follows the
+  previous one). Dedupe = same phone + exact same start. No parseable service
+  lines → still created, default length, ⚠️, owner emailed
+- `Отменена резервация от <име>` → for each cancelled `dd.mm.yyyy, hh:mm` line,
+  `findCancelledEvents_` picks the client's `source=studio24` event: exact
+  start → the one running at that time → their only one that day (owner moved
+  it). Lines under `Неотменените предстоящи часове` are `kept`: if any fall
+  inside the event it is **trimmed** to them (`trimToKept_`), else deleted
+- Anything else → SyncLog `studio24-ignored` (how a new mail type shows up)
 
 When a service line matches no Services-tab row, `matchService_` returns
 `{ name: null, minutes: CONFIG.defaultServiceMin }` and the booking's length is
 a guess. That case is flagged three ways: `⚠️ ` prefixed on the event title, a
 `60?` entry in the SyncLog breakdown, and the Gmail label
-`studio24-default-time` added to the thread **in addition to**
-`studio24-synced` (`handleNewReservation_` returns the flag; the search excludes
-`studio24-synced`, so that label must land on every processed thread or the
-sync stops being idempotent). Fix by adding the service's wording to the
-Services tab.
+`studio24-default-time`. Fix by adding the service's wording to the Services
+tab.
 
 Parsers are pure functions in `Studio24Sync.gs`; `runParserTests()` in
-`Setup.gs` asserts them against real sample emails.
+`Setup.gs` asserts them against real sample emails, and
+`src/__tests__/appsScript.test.js` runs it (plus the end-to-end sync,
+availability and booking cases) in Node — run it before every re-paste.
 
 ## Declined invites
 
@@ -120,6 +156,10 @@ slot frees up: one trigger cycle.
 - `CONFIG_SPREADSHEET_ID` — set by `setup()`
 - `CALENDAR_ID` — optional; default is the account's main calendar
 - `PLACES_API_KEY`, `PLACE_ID` — optional; enables live reviews
+- `ALERT_EMAIL` — optional; where `notifyOwner_` sends sync-problem alerts
+  (default: the script's own account; max 10/day)
+- `S24_SYNC_STATE`, `WEB_BOOKINGS_DAY` — written by the script; deleting
+  `S24_SYNC_STATE` makes the next run fall back to the label-based search
 
 ## Updating the deployed script
 

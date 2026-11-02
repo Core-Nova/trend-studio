@@ -1,6 +1,6 @@
 import { useLanguage } from '../../contexts/LanguageContext'
 import { translations } from '../../translations'
-import { dateFromYMD, formatMinutes } from '../../lib/bookingUtils'
+import { formatSlotDate, formatMinutes } from '../../lib/bookingUtils'
 import { BookingFallbackLinks } from './BookingWizard'
 
 const Field = ({ id, label, type, placeholder, value, onChange, error, errorText, autoComplete, inputMode }) => (
@@ -29,6 +29,8 @@ const ERROR_KEYS = {
   outside_hours: 'errSlotTaken',
   invalid_time: 'errSlotTaken',
   rate_limited: 'errRateLimited',
+  busy_try_again: 'errBusy',
+  network: 'errNetwork',
 }
 
 export const DetailsStep = ({ flow }) => {
@@ -39,14 +41,7 @@ export const DetailsStep = ({ flow }) => {
     submitState, submitError, submit, pickAnotherTime, goToStep,
   } = flow
 
-  const startDate = slot ? new Date(slot.start) : null
-  const dateLabel = startDate
-    ? new Intl.DateTimeFormat(lang === 'bg' ? 'bg-BG' : 'en-GB', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-      }).format(dateFromYMD(slot.start.slice(0, 10)))
-    : ''
+  const dateLabel = slot ? formatSlotDate(slot.start, lang) : ''
   const slotTakenError = ERROR_KEYS[submitError] === 'errSlotTaken'
 
   return (

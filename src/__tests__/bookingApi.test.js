@@ -60,6 +60,31 @@ describe('createBooking', () => {
     expect(await api.createBooking({})).toEqual({ ok: false, error: 'network' })
   })
 
+  it('waits long enough for a slow booking instead of failing one that went through', async () => {
+    vi.useFakeTimers()
+    try {
+      const api = await loadApi()
+      const fetchMock = vi.fn(
+        (url, { signal }) =>
+          new Promise((resolve, reject) => {
+            signal.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))
+          })
+      )
+      vi.stubGlobal('fetch', fetchMock)
+
+      let settled = null
+      api.createBooking({}).then((res) => (settled = res))
+
+      await vi.advanceTimersByTimeAsync(20000) // past the 15 s used for reads
+      expect(settled).toBeNull()
+
+      await vi.advanceTimersByTimeAsync(api.BOOKING_TIMEOUT_MS)
+      expect(settled).toEqual({ ok: false, error: 'network' })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('maps non-2xx responses to a network error', async () => {
     const api = await loadApi()
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, json: async () => ({}) }))

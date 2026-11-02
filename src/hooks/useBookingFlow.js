@@ -156,9 +156,9 @@ export const useBookingFlow = () => {
   const pickAnotherTime = useCallback(() => {
     setSubmitState('idle')
     setSubmitError(null)
+    fetchedDurationRef.current = null // forces goToStep to refetch — exactly once
     goToStep('time')
-    loadAvailability(totals.minutes)
-  }, [goToStep, loadAvailability, totals.minutes])
+  }, [goToStep])
 
   return {
     step,

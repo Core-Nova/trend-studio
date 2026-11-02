@@ -81,6 +81,19 @@ export function dateFromYMD(ymd) {
   return new Date(y, m - 1, d)
 }
 
+/**
+ * 'Thursday, 10 July' / 'четвъртък, 10 юли' for a slot's start. Reads the
+ * date part of the ISO string, so it is the salon's (Sofia) date whatever
+ * the visitor's timezone.
+ */
+export function formatSlotDate(slotStart, lang) {
+  return new Intl.DateTimeFormat(lang === 'bg' ? 'bg-BG' : 'en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(dateFromYMD(String(slotStart).slice(0, 10)))
+}
+
 export function isValidName(value) {
   return String(value || '').trim().length >= 2
 }

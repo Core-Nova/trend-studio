@@ -11,37 +11,38 @@
  * event, and starts at least CONFIG.minLeadMin from now. All timed events
  * count as busy — website bookings, Studio24-synced ones, and anything the
  * owner adds by hand. All-day events are ignored (vacations belong in the
- * Overrides tab).
+ * Overrides tab). `days` is capped at CONFIG.horizonDays — bookAppointment()
+ * rejects anything later, so offering it would only produce errors.
+ *
+ * Days and slot times are built from wall-clock components (dayAt_ /
+ * atMinute_), never by adding 24h: on the two DST days a year that drifted
+ * the whole grid an hour and filed slots under the wrong date.
  */
 
 function getAvailability(params) {
   const duration = clampInt_(params && params.duration, 15, CONFIG.maxBookingMin, 60)
-  const daysWanted = clampInt_(params && params.days, 1, 31, CONFIG.horizonDays)
+  const daysWanted = clampInt_(params && params.days, 1, CONFIG.horizonDays, CONFIG.horizonDays)
   const tz = Session.getScriptTimeZone()
-  const earliest = new Date(Date.now() + CONFIG.minLeadMin * 60000)
-  const rangeStart = startOfDay_(new Date())
+  const earliest = Date.now() + CONFIG.minLeadMin * 60000
+  const today = startOfDay_(new Date())
 
-  const events = getCalendar_().getEvents(rangeStart, addDays_(rangeStart, daysWanted))
-  const busy = events
-    .filter(function (ev) {
-      return !ev.isAllDayEvent()
-    })
-    .map(function (ev) {
-      return { s: ev.getStartTime().getTime(), e: ev.getEndTime().getTime() }
-    })
+  const busy = timedEvents_(today, dayAt_(today, daysWanted)).map(function (ev) {
+    return { s: ev.getStartTime().getTime(), e: ev.getEndTime().getTime() }
+  })
 
   const days = []
   for (let i = 0; i < daysWanted; i++) {
-    const day = addDays_(rangeStart, i)
+    const day = dayAt_(today, i)
     const hours = hoursForDate_(day)
     if (!hours) continue
     const slots = []
     for (let m = hours.openMin; m + duration <= hours.closeMin; m += CONFIG.slotStepMin) {
-      const start = new Date(day.getTime() + m * 60000)
-      if (start < earliest) continue
-      const endMs = start.getTime() + duration * 60000
+      const start = atMinute_(day, m)
+      const startMs = start.getTime()
+      if (startMs < earliest) continue
+      const endMs = startMs + duration * 60000
       const taken = busy.some(function (b) {
-        return b.s < endMs && start.getTime() < b.e
+        return b.s < endMs && startMs < b.e
       })
       if (taken) continue
       slots.push({
