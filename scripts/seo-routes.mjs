@@ -44,7 +44,30 @@ const escLines = (s) => escText(s).replace(/\r?\n/g, '<br />')
 
 const tr = (node) => (node && typeof node === 'object' ? node[LANG] : node)
 
+const INSTAGRAM_URL = 'https://instagram.com/trendbytedi'
+
+/**
+ * The URL each route is served at: Pages serves dist/gallery/index.html at
+ * "/gallery/" and 301s "/gallery" to it. Canonicals, the sitemap and every
+ * static link use this form (the app does the same via src/lib/routes.js).
+ */
+const routePath = (route) => (route === '/' ? '/' : `${route}/`)
+const routeUrl = (route) => `${BASE_URL}${routePath(route)}`
+
 // ---------- body builders ----------
+
+/**
+ * The site menu as plain links. Without it the static HTML carried no internal
+ * links at all, so before rendering JS a crawler could reach the other pages
+ * only through the sitemap. Labels are the React nav's (translations.nav).
+ */
+const siteNav = () => {
+  const items = Object.keys(ROUTES).map((route) => {
+    const key = route === '/' ? 'home' : route.slice(1)
+    return `<li><a href="${routePath(route)}">${escText(tr(translations.nav[key]))}</a></li>`
+  })
+  return `<nav>\n<ul>\n${items.join('\n')}\n</ul>\n</nav>`
+}
 
 /** Name/address/phone, repeated on every page — local search wants it consistent. */
 const nap = () => `
@@ -121,11 +144,16 @@ const contactBody = () => {
   ].join('\n')
 }
 
-const galleryBody = () =>
-  [
+/** Mirrors InstagramFeed: the posts themselves are fetched at runtime. */
+const galleryBody = () => {
+  const ig = translations.instagram
+  return [
     `<h1>${escText(tr(translations.gallery.title))}</h1>`,
-    `<p>${escText(tr(translations.gallery.followText))}</p>`,
+    `<p>${escText(tr(ig.intro))}</p>`,
+    `<p><a href="${INSTAGRAM_URL}">${escText(tr(ig.followBtn))} — @trendbytedi</a></p>`,
+    `<p><a href="${INSTAGRAM_URL}">${escText(tr(ig.seeAll))}</a></p>`,
   ].join('\n')
+}
 
 /**
  * The home <h1> in React is the logo image plus an sr-only line; the static
@@ -166,9 +194,11 @@ const bookingBody = () => {
 // One table drives prerendering AND the sitemap. `sources` are the files whose
 // last commit date becomes <lastmod>. The homepage keeps the shell's own <head>
 // (already correct) and only gets a body — `self: true` writes it back to
-// dist/index.html instead of a subdirectory. dist/404.html is deliberately left
-// as the bare shell: it is the SPA deep-link fallback, and home copy under an
-// arbitrary URL is exactly the duplicate Google should not see.
+// dist/index.html instead of a subdirectory. dist/404.html keeps the bare
+// shell's empty body: it is the SPA deep-link fallback, and home copy under an
+// arbitrary URL is exactly the duplicate Google should not see. Its head is
+// made noindex (applyNotFound) because Pages also serves it as a 200 at
+// /404.html.
 const ROUTES = {
   '/': {
     title: seo.title[LANG],
@@ -183,7 +213,12 @@ const ROUTES = {
     title: seo.galleryTitle[LANG],
     description: seo.galleryDescription[LANG],
     body: galleryBody,
-    sources: ['src/pages/GalleryPage.jsx', 'src/data/imageImports.js'],
+    sources: [
+      'src/pages/GalleryPage.jsx',
+      'src/components/InstagramFeed/InstagramFeed.jsx',
+      'src/hooks/useInstagramFeed.js',
+      'src/data/imageImports.js',
+    ],
     changefreq: 'weekly',
     priority: '0.8',
   },
@@ -246,6 +281,27 @@ export const applySeo = (html, { title, description, url }) => {
   h = swap(h, /(<meta name="twitter:title" content=")[^"]*(")/, ta, 'twitter:title')
   h = swap(h, /(<link rel="canonical" href=")[^"]*(")/, url, 'canonical')
   h = swap(h, /(<meta property="og:url" content=")[^"]*(")/, url, 'og:url')
+  // The shell's hreflang block is the homepage's: en/bg/x-default → "/". Copied
+  // onto a subpage it declares the HOMEPAGE to be that page's English and
+  // Bulgarian version. Both languages share one URL per page (the toggle is
+  // client-side), so a subpage has no alternate to declare: drop the block.
+  h = h.replace(HREFLANG_RE, '')
+  return h
+}
+
+const HREFLANG_RE = /[ \t]*<link rel="alternate" hreflang="[^"]*" href="[^"]*"\s*\/?>\r?\n?/g
+const ROBOTS_RE = /(<meta name="robots" content=")[^"]*(")/
+const CANONICAL_RE = /[ \t]*<link rel="canonical" href="[^"]*"\s*\/?>\r?\n?/
+
+/**
+ * dist/404.html: Pages answers unknown URLs with it (status 404, fine) but also
+ * serves it as a 200 at /404.html, where its homepage <head> — canonical "/",
+ * index — makes it a duplicate of the homepage. noindex it and drop the
+ * canonical and hreflang. Its body stays empty. Pure — no IO.
+ */
+export const applyNotFound = (html) => {
+  let h = swap(html, ROBOTS_RE, 'noindex, follow', 'meta robots')
+  h = h.replace(CANONICAL_RE, '').replace(HREFLANG_RE, '')
   return h
 }
 
@@ -259,7 +315,8 @@ export const applyBody = (html, markup) => {
   if (!re.test(html)) throw new Error('seo-routes: <div id="root"> not found')
   return html.replace(
     re,
-    (_m, open, _inner, close) => `${open}\n<main>\n${markup}\n${nap()}\n</main>\n${close}`
+    (_m, open, _inner, close) =>
+      `${open}\n<header>\n${siteNav()}\n</header>\n<main>\n${markup}\n${nap()}\n</main>\n${close}`
   )
 }
 
@@ -286,7 +343,7 @@ const repoDate = () => gitDate([]) || today()
 
 export const buildSitemap = (lastmodFor) => {
   const urls = Object.entries(ROUTES).map(([route, meta]) => {
-    const loc = route === '/' ? `${BASE_URL}/` : `${BASE_URL}${route}/`
+    const loc = routeUrl(route)
     return [
       '  <url>',
       `    <loc>${loc}</loc>`,
@@ -316,9 +373,7 @@ const main = () => {
     // The shell's <head> already IS the homepage's — hand-written, bilingual,
     // and better than anything assembled from a single-language seo.* string.
     // Home therefore gets a body only; every other route gets both.
-    const withHead = meta.self
-      ? shell
-      : applySeo(shell, { ...meta, url: `${BASE_URL}${route}/` })
+    const withHead = meta.self ? shell : applySeo(shell, { ...meta, url: routeUrl(route) })
     const html = applyBody(withHead, meta.body())
     const file = meta.self
       ? join(DIST, 'index.html')
@@ -328,6 +383,10 @@ const main = () => {
     prerendered++
     console.log(`  ${route.padEnd(10)} → dist/${file.slice(DIST.length + 1).split(sep).join('/')}`)
   }
+
+  const notFound = join(DIST, '404.html')
+  writeFileSync(notFound, applyNotFound(readFileSync(notFound, 'utf8')))
+  console.log(`  ${'404'.padEnd(10)} → dist/404.html (noindex)`)
 
   // A shallow CI checkout has no history to date individual files against, so
   // the tip commit stands in rather than emitting today's date for everything.

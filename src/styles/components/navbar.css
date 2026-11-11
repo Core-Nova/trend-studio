@@ -167,6 +167,18 @@
     opacity 0.3s ease;
 }
 
+/* `.nav-links a` paints every menu link white, buttons included. Restore the
+   buttons' own colours: dark text on gold (white was ~3:1), and the bright
+   gold outline, which reads fine on the dark menu (see .btn-secondary). */
+.nav-links .btn-primary {
+  color: var(--black);
+}
+
+.nav-links .btn-secondary {
+  color: var(--gold-primary);
+  border-color: var(--gold-primary);
+}
+
 .nav-call-btn {
   margin-top: 8px;
   display: flex;

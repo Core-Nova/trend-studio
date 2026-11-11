@@ -24,6 +24,7 @@
 import { chromium } from 'playwright'
 import { readFileSync, writeFileSync } from 'fs'
 import { fileURLToPath } from 'url'
+import { resolve } from 'path'
 
 const MAPS_URL = 'https://www.google.com/maps/place/Hair+Boutique+Studio+TREND/@42.6945,23.3255,17z/'
 const PROFILE_URL = MAPS_URL
@@ -62,6 +63,28 @@ async function debugScreenshot(page, name) {
   if (!isDebug) return
   await page.screenshot({ path: `debug-${name}.png`, fullPage: false })
   log(`  Debug screenshot: debug-${name}.png`)
+}
+
+/**
+ * Reads the place's rating and review count from the header's aria-labels.
+ * Google serves the page in Bulgarian from a Sofia IP even with an en-US
+ * locale, so both languages and both decimal marks are accepted. Anchored,
+ * and the rating needs its decimal, so a single review's "5 звезди" or the
+ * histogram's "5 звезди,58 отзива" can't be mistaken for the header.
+ */
+export function parseHeader(labels) {
+  let rating = null
+  let count = null
+  for (const label of labels) {
+    const r = !rating && label.match(/^\s*(\d[.,]\d)\s*(?:stars?|звезд)/i)
+    if (r) {
+      const value = parseFloat(r[1].replace(',', '.'))
+      if (value >= 1 && value <= 5) rating = value
+    }
+    const c = !count && label.match(/^\s*(\d[\d\s.,]*?)\s*(?:reviews?|отзив)/i)
+    if (c) count = parseInt(c[1].replace(/\D/g, ''), 10) || null
+  }
+  return { rating, count }
 }
 
 async function scrapeReviews() {
@@ -132,38 +155,20 @@ async function scrapeReviews() {
     })
     if (isDebug) log(`  Page text preview: ${pageText.substring(0, 500)}`)
 
-    // Extract rating and count from the page
-    let rating = 5.0
-    let totalCount = 0
-
-    const headerInfo = await page.evaluate(() => {
-      const body = document.body?.innerText || ''
-
-      // Look for rating pattern like "5.0" or "5,0" near "stars" or "reviews"
-      let rating = null
-      let count = null
-
-      // Find elements with aria-label containing star info
-      const starEls = document.querySelectorAll('[aria-label*="star"], [aria-label*="звезд"]')
-      for (const el of starEls) {
-        const label = el.getAttribute('aria-label') || ''
-        const m = label.match(/([\d,.]+)\s*star/i)
-        if (m) { rating = parseFloat(m[1].replace(',', '.')); break }
-      }
-
-      // Find review count
-      const reviewPattern = /(\d+)\s*(reviews?|отзив|рецензи)/gi
-      const countMatch = body.match(reviewPattern)
-      if (countMatch) {
-        const numMatch = countMatch[0].match(/(\d+)/)
-        if (numMatch) count = parseInt(numMatch[1], 10)
-      }
-
-      return { rating, count }
+    // Rating and count from the place header — the .F7nice block holds
+    // aria-label="4,9 звезди" and aria-label="60 отзива". Unread stays null so
+    // mergeReviews() keeps the snapshot's value; there is no default (a
+    // `rating = 5.0` default once published 5.0 while Google showed 4.9).
+    const headerLabels = await page.evaluate(() => {
+      const scope = document.querySelector('.F7nice') || document
+      return [...scope.querySelectorAll('[aria-label]')].map(el => el.getAttribute('aria-label') || '')
     })
+    const { rating, count: totalCount } = parseHeader(headerLabels)
 
-    if (headerInfo.rating) { rating = headerInfo.rating; log(`  Rating: ${rating}`) }
-    if (headerInfo.count) { totalCount = headerInfo.count; log(`  Total reviews: ${totalCount}`) }
+    if (rating) log(`  Rating: ${rating}`)
+    else console.warn('! Rating not found on the listing — keeping the snapshot value')
+    if (totalCount) log(`  Total reviews: ${totalCount}`)
+    else console.warn('! Review count not found on the listing — keeping the snapshot value')
 
     // Try to find and click the Reviews tab
     log('Looking for Reviews tab...')
@@ -364,8 +369,9 @@ async function scrapeReviews() {
       return b.text.length - a.text.length
     })
 
-    const top10 = reviews.slice(0, 10)
-    const formattedReviews = top10.map((r, i) => ({
+    // Everything that loaded — mergeReviews() keeps the snapshot's older
+    // reviews, and the carousel itself shows only the first 10.
+    const formattedReviews = reviews.map((r, i) => ({
       id: String(i + 1),
       name: r.name,
       rating: r.rating,
@@ -420,30 +426,91 @@ function updateSchemaRating(data) {
   log(`✓ Updated index.html JSON-LD — ratingValue: ${rating.toFixed(1)}, reviewCount: ${count}`)
 }
 
-try {
-  log('Scraping Google reviews from Maps listing...')
-  const data = await scrapeReviews()
+const nameKey = name => String(name || '').normalize('NFC').replace(/\s+/g, ' ').trim().toLowerCase()
 
-  if (data.reviews.length === 0) {
-    console.warn('No reviews extracted — keeping existing files unchanged.')
-    process.exit(0)
+/**
+ * Folds a scrape into the committed snapshot instead of replacing it. Maps
+ * only loads the first handful of reviews (5–10), so replacing would shrink
+ * the list every week; merging lets it grow.
+ *
+ * - Highest rating first; within a rating, reviews new to the snapshot lead
+ *   (newest first), since the carousel shows only the first 10.
+ * - Known reviews (matched by reviewer name — Google allows one per person)
+ *   keep their snapshot date, which was estimated when "N months ago" was
+ *   more precise, and the longer text, since a scrape can miss "More".
+ * - rating/totalCount fall back to the snapshot when the scrape missed them.
+ */
+export function mergeReviews(previous, scraped) {
+  const prev = previous?.reviews ?? []
+  const byName = new Map(prev.map(r => [nameKey(r.name), r]))
+  const fresh = []
+
+  for (const r of scraped.reviews) {
+    const known = byName.get(nameKey(r.name))
+    if (!known) {
+      fresh.push(r)
+      continue
+    }
+    known.rating = r.rating
+    if ((r.text?.en || '').length > (known.text?.en || '').length) known.text = r.text
   }
 
-  if (isOverride) log('Note: --override is now the default; the flag is ignored.')
+  fresh.sort((a, b) => String(b.date).localeCompare(String(a.date)))
+  // Highest rating first, as the scraper always did. The sort is stable, so
+  // within a rating new reviews still lead and the snapshot keeps its order.
+  const reviews = [...fresh, ...prev].sort((a, b) => b.rating - a.rating)
 
-  const summary = `rating: ${data.rating}, count: ${data.totalCount}, reviews: ${data.reviews.length}`
+  return {
+    rating: Number(scraped.rating) > 0 ? scraped.rating : previous?.rating,
+    totalCount: Number(scraped.totalCount) > 0 ? scraped.totalCount : previous?.totalCount,
+    profileUrl: scraped.profileUrl || previous?.profileUrl,
+    reviews: reviews.map((r, i) => ({ ...r, id: String(i + 1) })),
+    added: fresh.length,
+  }
+}
 
-  writeFileSync(fileURLToPath(REVIEWS_JSON_PATH), JSON.stringify(data, null, 2), 'utf8')
-  log(`✓ Updated public/reviews.json — ${summary}`)
+async function loadSnapshot() {
+  try {
+    const mod = await import(`${REVIEWS_JS_PATH.href}?t=${Date.now()}`)
+    return mod.googleReviews ?? null
+  } catch (err) {
+    console.warn(`! Could not read src/data/reviews.js (${err.message}) — starting from the scrape alone`)
+    return null
+  }
+}
 
-  const output = `// Auto-generated by scripts/fetch-reviews.mjs — do not edit manually
+// Imported by tests for mergeReviews() — only scrape when run as a script.
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])
+
+async function main() {
+  try {
+    log('Scraping Google reviews from Maps listing...')
+    const scraped = await scrapeReviews()
+
+    if (scraped.reviews.length === 0 && !(Number(scraped.totalCount) > 0)) {
+      console.warn('Nothing read from the listing — keeping existing files unchanged.')
+      process.exit(0)
+    }
+
+    if (isOverride) log('Note: --override is now the default; the flag is ignored.')
+
+    const { added, ...data } = mergeReviews(await loadSnapshot(), scraped)
+    const summary = `rating: ${data.rating}, count: ${data.totalCount}, reviews: ${data.reviews.length} (${added} new)`
+
+    writeFileSync(fileURLToPath(REVIEWS_JSON_PATH), JSON.stringify(data, null, 2), 'utf8')
+    log(`✓ Updated public/reviews.json — ${summary}`)
+
+    const output = `// Auto-generated by scripts/fetch-reviews.mjs — do not edit manually
 export const googleReviews = ${JSON.stringify(data, null, 2)}
 `
-  writeFileSync(fileURLToPath(REVIEWS_JS_PATH), output, 'utf8')
-  log(`✓ Updated src/data/reviews.js — ${summary}`)
+    writeFileSync(fileURLToPath(REVIEWS_JS_PATH), output, 'utf8')
+    log(`✓ Updated src/data/reviews.js — ${summary}`)
 
-  updateSchemaRating(data)
-} catch (err) {
-  console.error('Failed to scrape reviews:', err.message)
-  console.error('Keeping existing files unchanged.')
+    updateSchemaRating(data)
+  } catch (err) {
+    console.error('Failed to scrape reviews:', err.message)
+    console.error('Keeping existing files unchanged.')
+  }
 }
+
+if (isMain) await main()

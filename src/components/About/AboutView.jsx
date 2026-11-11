@@ -3,6 +3,7 @@ import { SectionHeader } from '../atoms/SectionHeader'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import logoWebp from '../../assets/brand/trend-logo.png?w=900&format=webp'
 import logoAvif from '../../assets/brand/trend-logo.png?w=900&format=avif'
+import { PATHS } from '../../lib/routes'
 
 export const AboutView = ({ sectionTag, paragraph1, paragraph2, feature1, feature2, feature3, productsTitle, products, showSeeAll, showProducts, seeAllBtn, as, title = 'TREND' }) => {
   const { ref, revealed } = useScrollReveal()
@@ -53,7 +54,7 @@ export const AboutView = ({ sectionTag, paragraph1, paragraph2, feature1, featur
       )}
       {showSeeAll && (
         <div className="section-see-all">
-          <Link to="/about" className="btn btn-secondary">{seeAllBtn}</Link>
+          <Link to={PATHS.about} className="btn btn-secondary">{seeAllBtn}</Link>
         </div>
       )}
     </div>

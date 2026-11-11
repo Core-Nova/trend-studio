@@ -5,6 +5,7 @@ import { usePageSEO } from '../hooks/usePageSEO'
 import { useBreadcrumbSchema } from '../hooks/useBreadcrumbSchema'
 import { useContact } from '../hooks/useContact'
 import { ContactView } from '../components/Contact/ContactView'
+import { PATHS } from '../lib/routes'
 
 export const ContactPage = () => {
   const { t } = useLanguage()
@@ -17,7 +18,7 @@ export const ContactPage = () => {
 
   const crumbs = useMemo(() => [
     { name: t(translations.nav.home), path: '/' },
-    { name: t(translations.nav.contact), path: '/contact' },
+    { name: t(translations.nav.contact), path: PATHS.contact },
   ], [t])
   useBreadcrumbSchema(crumbs)
 

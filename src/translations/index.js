@@ -21,6 +21,20 @@ export const translations = {
     seeAllBtn: { en: 'View Full Gallery', bg: 'Вижте цялата галерия' }
   },
 
+  instagram: {
+    intro: {
+      en: 'Our latest work, straight from our Instagram',
+      bg: 'Най-новото от нашата работа — направо от нашия Instagram'
+    },
+    followBtn: { en: 'Follow on Instagram', bg: 'Последвайте ни в Instagram' },
+    viewPost: { en: 'View on Instagram', bg: 'Вижте в Instagram' },
+    openPost: { en: 'Open on Instagram', bg: 'Отворете в Instagram' },
+    seeAll: { en: 'See all posts on Instagram', bg: 'Всички публикации в Instagram' },
+    reel: { en: 'reel', bg: 'видео' },
+    carousel: { en: 'carousel', bg: 'галерия' },
+    loading: { en: 'Loading posts…', bg: 'Зареждаме публикациите…' }
+  },
+
   about: {
     sectionTag: { en: 'Welcome to', bg: 'Добре дошли в' },
     paragraph1: {

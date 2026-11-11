@@ -4,15 +4,16 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
 import { SITE } from '../lib/constants'
 import { useIsMobile } from './useIsMobile'
+import { PATHS } from '../lib/routes'
 
 /* Nav always uses real routes — clicking Gallery/About/Services/Contact
    navigates to the dedicated page instead of scrolling within the home page. */
 const PAGE_NAV_ITEMS = [
-  { to: '/', label: 'home' },
-  { to: '/gallery', label: 'gallery' },
-  { to: '/about', label: 'about' },
-  { to: '/services', label: 'services' },
-  { to: '/contact', label: 'contact' },
+  { to: PATHS.home, label: 'home' },
+  { to: PATHS.gallery, label: 'gallery' },
+  { to: PATHS.about, label: 'about' },
+  { to: PATHS.services, label: 'services' },
+  { to: PATHS.contact, label: 'contact' },
 ]
 
 export const useNavigation = () => {

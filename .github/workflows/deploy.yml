@@ -30,6 +30,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Same scrape as update-reviews.yml. Without it a push deploy ships the
+      # committed review snapshot and silently undoes the last Monday refresh
+      # (Nov 2026: the live site fell back from the scraped count to 54 hours
+      # after the scheduled run). Best-effort: if Google Maps can't be read,
+      # the build uses the committed snapshot and the deploy still goes out.
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+        continue-on-error: true
+
+      - name: Fetch reviews from Google Maps
+        run: npm run fetch-reviews
+        continue-on-error: true
+
       - name: Build
         run: npm run build
         env:

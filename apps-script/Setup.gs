@@ -13,6 +13,8 @@ function setup() {
   getOrCreateLabel_(CONFIG.studio24.failedLabel)
   getOrCreateLabel_(CONFIG.declineLabel)
   installTrigger_()
+  // Fill the gallery now instead of at the first 6-hour tick.
+  if (getProp_('IG_TOKEN')) syncInstagram()
   Logger.log(
     'Setup complete.\nConfig sheet: https://docs.google.com/spreadsheets/d/' +
       getProp_('CONFIG_SPREADSHEET_ID')
@@ -102,17 +104,30 @@ const SERVICE_MINUTES_SEED_ = [
   ['Боядисване Premium бондинг грижа размер XL', 120],
 ]
 
-// Time-driven handlers, each on its own 5-minute trigger: Studio24 mail sync
-// and the declined-invite sweep (see DeclinedBookings.gs).
-const TRIGGERS_ = ['syncStudio24Emails', 'syncDeclinedBookings']
+// Time-driven handlers and how often each runs: Studio24 mail sync and the
+// declined-invite sweep (DeclinedBookings.gs) every 5 minutes, the Instagram
+// feed every 6 hours and its token refresh weekly (Instagram.gs). A handler
+// added here is only installed when setup() runs again.
+const TRIGGERS_ = [
+  { fn: 'syncStudio24Emails', minutes: 5 },
+  { fn: 'syncDeclinedBookings', minutes: 5 },
+  { fn: 'syncInstagram', hours: 6 },
+  { fn: 'refreshInstagramToken', days: 7 },
+]
 
 function installTrigger_() {
   const existing = ScriptApp.getProjectTriggers().map(function (t) {
     return t.getHandlerFunction()
   })
-  TRIGGERS_.forEach(function (fn) {
-    if (existing.indexOf(fn) !== -1) return
-    ScriptApp.newTrigger(fn).timeBased().everyMinutes(5).create()
+  TRIGGERS_.forEach(function (t) {
+    if (existing.indexOf(t.fn) !== -1) return
+    const clock = ScriptApp.newTrigger(t.fn).timeBased()
+    const scheduled = t.minutes
+      ? clock.everyMinutes(t.minutes)
+      : t.hours
+        ? clock.everyHours(t.hours)
+        : clock.everyDays(t.days)
+    scheduled.create()
   })
 }
 
@@ -122,7 +137,7 @@ function installTrigger_() {
  * cache.
  */
 function refreshConfigCache() {
-  CacheService.getScriptCache().removeAll(['hoursConfig', 'servicesMap', 'servicesMap2'])
+  CacheService.getScriptCache().removeAll(['hoursConfig', 'servicesMap', 'servicesMap2', 'igFeed'])
   hoursMemo_ = null
   servicesMemo_ = null
   Logger.log('Config cache cleared — the next sync / availability call re-reads the spreadsheet.')
@@ -265,6 +280,13 @@ function runParserTests() {
   check('decline.usFormat', parseDeclineSubject_('Declined: X @ Thu Aug 27, 2026 2:30pm - 4:20pm (GMT+3)').start.getTime(), Date.UTC(2026, 7, 27, 11, 30))
   check('decline.winterOffset', parseDeclineSubject_('Declined: X @ Fri 9 Jan 2026 9:00am - 10:00am (GMT+2)').start.getTime(), Date.UTC(2026, 0, 9, 7, 0))
   check('decline.nonDecline', parseDeclineSubject_('Accepted: X @ Thu 27 Aug 2026 2:30pm (GMT+3)'), null)
+
+  // Instagram captions: the trailing hashtag block goes, a closing @mention stays.
+  check('ig.caption.hashtags', cleanCaption_('Меден балеаж ✨\n\n#balayage #sofia #trendbytedi'), 'Меден балеаж ✨')
+  check('ig.caption.mention', cleanCaption_('Прическа за бал от @tedi'), 'Прическа за бал от @tedi')
+  check('ig.caption.inlineTag', cleanCaption_('Нов #цвят за есента'), 'Нов #цвят за есента')
+  check('ig.caption.cap', cleanCaption_('a'.repeat(400)).length, IG_.captionMax)
+  check('ig.videoUrl', isVideoUrl_('https://scontent.cdninstagram.com/v/x.mp4?efg=1'), true)
 
   Logger.log(results.join('\n'))
   if (results.some(function (r) { return r.indexOf('FAIL') === 0 })) {

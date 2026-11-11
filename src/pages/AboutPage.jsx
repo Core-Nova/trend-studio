@@ -6,6 +6,7 @@ import { useBreadcrumbSchema } from '../hooks/useBreadcrumbSchema'
 import { About } from '../components/About/About'
 import { FAQ } from '../components/FAQ/FAQ'
 import { Reviews } from '../components/Reviews/Reviews'
+import { PATHS } from '../lib/routes'
 
 export const AboutPage = () => {
   const { t } = useLanguage()
@@ -17,7 +18,7 @@ export const AboutPage = () => {
 
   const crumbs = useMemo(() => [
     { name: t(translations.nav.home), path: '/' },
-    { name: t(translations.nav.about), path: '/about' },
+    { name: t(translations.nav.about), path: PATHS.about },
   ], [t])
   useBreadcrumbSchema(crumbs)
 

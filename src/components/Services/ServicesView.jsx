@@ -4,6 +4,7 @@ import { SectionHeader } from '../atoms/SectionHeader'
 import { BookingLink } from '../atoms/BookingLink'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import { trackEvent } from '../../lib/analytics'
+import { PATHS } from '../../lib/routes'
 
 const ConsultationCTA = memo(({ title, body, ctaText, handle, href }) => (
   <a
@@ -151,7 +152,7 @@ export const ServicesView = ({
       )}
       {showSeeAll && (
         <div className="section-see-all">
-          <Link to="/services" className="btn btn-secondary">{seeAllBtn}</Link>
+          <Link to={PATHS.services} className="btn btn-secondary">{seeAllBtn}</Link>
         </div>
       )}
     </div>

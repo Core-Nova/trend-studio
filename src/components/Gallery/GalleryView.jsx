@@ -6,6 +6,7 @@ import { StoriesHighlights } from '../Stories/StoriesHighlights'
 import { StoriesViewer } from '../Stories/StoriesViewer'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import { trackEvent } from '../../lib/analytics'
+import { PATHS } from '../../lib/routes'
 
 const Lightbox = ({ images, index, onClose, onPrev, onNext, lightboxRef }) => {
   if (index === null) return null
@@ -140,7 +141,7 @@ export const GalleryView = ({
     </div>
     {showSeeAll && (
       <div className="section-see-all">
-        <Link to="/gallery" className="btn btn-secondary">{seeAllBtn}</Link>
+        <Link to={PATHS.gallery} className="btn btn-secondary">{seeAllBtn}</Link>
       </div>
     )}
     {!isMobile && (

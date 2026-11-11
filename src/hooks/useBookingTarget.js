@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { SITE } from '../lib/constants'
+import { PATHS } from '../lib/routes'
 
 const STORAGE_KEY = 'trend:experimental-booking'
 
@@ -33,5 +34,5 @@ export function useExperimentalBooking() {
  */
 export function useBookingTarget() {
   const external = !useExperimentalBooking()
-  return { external, to: '/book', href: SITE.studio24Url }
+  return { external, to: PATHS.book, href: SITE.studio24Url }
 }

@@ -12,6 +12,10 @@
   cursor: pointer;
   text-align: center;
   min-width: 280px;
+  /* Our own :active state (hover: none, below) replaces the browser's blue
+     tap flash; manipulation drops the double-tap-zoom wait on the tap. */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   transition:
     background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
     color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
@@ -19,23 +23,29 @@
     box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Same-colour border so primary and secondary buttons are the same height. */
 .btn-primary {
   background: var(--gold-primary);
   color: var(--black);
+  border: 1px solid var(--gold-primary);
 }
 
 @media (hover: hover) {
   .btn-primary:hover {
     background: var(--gold-light);
+    border-color: var(--gold-light);
     box-shadow: var(--shadow-gold);
     transform: translateY(-2px);
   }
 }
 
+/* --gold-ink on light backgrounds: --gold-primary text on cream is ~2.7:1,
+   under AA for button-sized text. Dark sections (home gallery, mobile menu)
+   switch back to --gold-primary in their own files. */
 .btn-secondary {
   background: transparent;
-  color: var(--gold-primary);
-  border: 1px solid var(--gold-primary);
+  color: var(--gold-ink);
+  border: 1px solid var(--gold-ink);
 }
 
 /* Stable-width buttons: render every translation in the same grid cell so the
@@ -72,7 +82,24 @@
 @media (hover: hover) {
   .btn-secondary:hover {
     background: var(--gold-primary);
+    border-color: var(--gold-primary);
     color: var(--black);
+  }
+}
+
+/* Touch screens get no hover — a press state shows the tap landed. */
+@media (hover: none) {
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  .btn-primary:active {
+    background: var(--gold-light);
+    border-color: var(--gold-light);
+  }
+
+  .btn-secondary:active {
+    background: rgba(var(--gold-primary-rgb), 0.15);
   }
 }
 
@@ -148,9 +175,12 @@
     margin-bottom: 40px;
   }
 
+  /* Fixed line-height: 15 + 20 + 15 + 1px border × 2 = 52px for every button,
+     text centred, whether filled or outline. */
   .btn {
-    min-height: 48px;
-    padding: 14px 32px;
+    min-height: 52px;
+    padding: 15px 24px;
+    line-height: 20px;
     min-width: 0;
     width: 100%;
     max-width: 400px;
@@ -202,9 +232,11 @@
 }
 
 @media (max-width: 480px) {
+  /* Tighter tracking keeps long Bulgarian labels on one line on small phones. */
   .btn {
-    padding: 14px 24px;
+    padding: 15px 20px;
     font-size: 0.8rem;
+    letter-spacing: 1.5px;
   }
 
   .section-header {

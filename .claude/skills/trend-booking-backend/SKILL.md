@@ -13,10 +13,13 @@ Browser (/book wizard, GitHub Pages static site)
                                                 Execute as: Me, Access: Anyone)
        GET  ?action=availability&duration=90&days=14  → free slots
        GET  ?action=reviews&lang=bg                   → live Google reviews (6h cache)
+       GET  ?action=instagram                         → gallery posts (sheet copy, 1h cache)
        POST {action:'book', …}   (text/plain body — NO custom headers)
   Time trigger (5 min) → syncStudio24Emails()  — polls Gmail from info@studio24.bg
   Time trigger (5 min) → syncDeclinedBookings() — deletes bookings the client declined
-  Google Sheet "TREND Booking Config" — Hours / Overrides / Services / SyncLog tabs
+  Time trigger (6 h)   → syncInstagram()        — graph.instagram.com → "Instagram" tab
+  Time trigger (7 d)   → refreshInstagramToken() — swaps IG_TOKEN for a fresh 60-day one
+  Google Sheet "TREND Booking Config" — Hours / Overrides / Services / SyncLog / Instagram tabs
 ```
 
 **The CORS rule that must never be broken:** Apps Script web apps cannot answer
@@ -38,6 +41,8 @@ redirect that `fetch` follows. `src/__tests__/bookingApi.test.js` locks this in.
 | Selection helpers / validators | `src/lib/bookingUtils.js` |
 | Service durations (numeric `minutes` on every item AND option) | `src/data/services.json` |
 | Live reviews consumer | `src/hooks/useReviews.js` (falls back to `src/data/reviews.js`) |
+| Instagram feed backend | `apps-script/Instagram.gs` |
+| Instagram feed consumer (the whole `/gallery` page) | `src/hooks/useInstagramFeed.js` (falls back to bundled photos) + `src/components/InstagramFeed/` |
 
 ## API contracts
 
@@ -53,7 +58,22 @@ POST { action:'book', name, email, phone, start:ISO, durationMin,
 
 GET ?action=reviews&lang=<bg|en>
 → { ok, rating, count, reviews:[{ author, photo, rating, text, date:ISO, time }] }
+
+GET ?action=instagram
+→ { ok, updatedAt, posts:[{ id, type:'photo'|'carousel'|'reel', image, caption,
+    permalink, timestamp }] }  (≤12, newest first, https URLs only)
+| { ok:false, error:'not_configured'|'empty' }
 ```
+
+Instagram feed rules (`Instagram.gs`): the "Instagram API with Instagram Login"
+(graph.instagram.com, unversioned) is only ever called by the script, with the
+token in Script Property `IG_TOKEN` — it never reaches the browser. A reel's
+image is its `thumbnail_url`; a carousel whose cover is a video gets its first
+child's cover via `/<id>/children`; posts with no image or a non-https link are
+dropped; captions lose their trailing hashtag block (a trailing @mention stays)
+and are capped at 300. A failed sync keeps the previous copy (A1 of the
+"Instagram" tab, JSON). Error 190 (token rejected) emails the owner at most once
+a day (`IG_ALERTED_DAY`).
 
 The client (`bookingApi.js`) never throws — network problems become
 `{ ok:false, error:'network' }`; the booking POST waits 45 s
@@ -156,6 +176,9 @@ slot frees up: one trigger cycle.
 - `CONFIG_SPREADSHEET_ID` — set by `setup()`
 - `CALENDAR_ID` — optional; default is the account's main calendar
 - `PLACES_API_KEY`, `PLACE_ID` — optional; enables live reviews
+- `IG_TOKEN` — long-lived Instagram User token for @trendbytedi (Business or
+  Creator account); enables the gallery feed. `IG_TOKEN_REFRESHED` and
+  `IG_ALERTED_DAY` are written by the script
 - `ALERT_EMAIL` — optional; where `notifyOwner_` sends sync-problem alerts
   (default: the script's own account; max 10/day)
 - `S24_SYNC_STATE`, `WEB_BOOKINGS_DAY` — written by the script; deleting
@@ -180,6 +203,8 @@ a brand-NEW deployment would mint a different URL, which would need updating in
 - All-day calendar events are IGNORED by availability — vacations go in the
   Overrides tab, not the calendar.
 - Consumer-Gmail quota: ~100 external calendar invites/day.
-- Adding a time-driven handler means adding it to `TRIGGERS_` in `Setup.gs` AND
-  re-running `setup()` in the editor — deploying a new version does not install
-  triggers.
+- Adding a time-driven handler means adding `{ fn, minutes | hours | days }` to
+  `TRIGGERS_` in `Setup.gs` AND re-running `setup()` in the editor — deploying a
+  new version does not install triggers. Changing an existing handler's
+  schedule needs its old trigger deleted by hand first (setup skips names that
+  already have one).

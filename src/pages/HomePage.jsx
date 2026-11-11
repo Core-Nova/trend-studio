@@ -9,12 +9,13 @@ import { About } from '../components/About/About'
 import { Services } from '../components/Services/Services'
 import { Reviews } from '../components/Reviews/Reviews'
 import { Contact } from '../components/Contact/Contact'
+import { PATHS } from '../lib/routes'
 
 const NAV_TILES = [
-  { to: '/gallery', titleKey: 'gallery', icon: '\u2606' },
-  { to: '/services', titleKey: 'services', icon: '\u2702' },
-  { to: '/about', titleKey: 'about', icon: '\u2726' },
-  { to: '/contact', titleKey: 'contact', icon: '\u260E' },
+  { to: PATHS.gallery, titleKey: 'gallery', icon: '\u2606' },
+  { to: PATHS.services, titleKey: 'services', icon: '\u2702' },
+  { to: PATHS.about, titleKey: 'about', icon: '\u2726' },
+  { to: PATHS.contact, titleKey: 'contact', icon: '\u260E' },
 ]
 
 export const HomePage = () => {

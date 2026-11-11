@@ -5,6 +5,7 @@ import { usePageSEO } from '../hooks/usePageSEO'
 import { useBreadcrumbSchema } from '../hooks/useBreadcrumbSchema'
 import { useServices } from '../hooks/useServices'
 import { ServicesView } from '../components/Services/ServicesView'
+import { PATHS } from '../lib/routes'
 
 export const ServicesPage = () => {
   const { t } = useLanguage()
@@ -17,7 +18,7 @@ export const ServicesPage = () => {
 
   const crumbs = useMemo(() => [
     { name: t(translations.nav.home), path: '/' },
-    { name: t(translations.nav.services), path: '/services' },
+    { name: t(translations.nav.services), path: PATHS.services },
   ], [t])
   useBreadcrumbSchema(crumbs)
 

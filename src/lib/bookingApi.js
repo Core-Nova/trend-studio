@@ -1,6 +1,7 @@
 /**
- * Client for the TREND Booking Google Apps Script Web App
- * (see apps-script/README.md for deployment and the full API contracts).
+ * Client for the TREND Booking Google Apps Script Web App — booking, plus the
+ * gallery's Instagram feed (see apps-script/README.md for deployment and the
+ * full API contracts).
  *
  * Unlike api.js this client never swallows failures into null — booking
  * outcomes must reach the UI. Every function resolves to the endpoint's
@@ -67,6 +68,16 @@ export function createBooking(payload) {
     },
     BOOKING_TIMEOUT_MS
   )
+}
+
+/**
+ * The gallery's Instagram posts — the Apps Script's copy of the feed, not
+ * Instagram itself: { ok, updatedAt, posts: [{ id, type, image, caption,
+ * permalink, timestamp }] } or { ok: false, error }. See apps-script/Instagram.gs.
+ */
+export function fetchInstagramFeed() {
+  const params = new URLSearchParams({ action: 'instagram' })
+  return request(`${BOOKING_URL}?${params}`, {}, 8000)
 }
 
 /**

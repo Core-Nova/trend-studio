@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { trackEvent } from '../../lib/analytics'
 import { SITE } from '../../lib/constants'
+import { samePath } from '../../lib/routes'
 import { BookingLink } from '../atoms/BookingLink'
 import logoSrc from '../../assets/brand/trend-logo.png?w=320&format=webp'
 import logoSrcAvif from '../../assets/brand/trend-logo.png?w=320&format=avif'
@@ -58,7 +59,7 @@ export const NavigationView = ({
             <Link
               to={item.to}
               onClick={closeMenu}
-              aria-current={currentPath === item.to ? 'page' : undefined}
+              aria-current={samePath(currentPath, item.to) ? 'page' : undefined}
             >
               {item.text}
             </Link>

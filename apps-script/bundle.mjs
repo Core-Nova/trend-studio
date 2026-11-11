@@ -27,6 +27,7 @@ export const FILES = [
   'DeclinedBookings.gs',
   'Analytics.gs',
   'Reviews.gs',
+  'Instagram.gs',
   'Setup.gs'
 ]
 

@@ -3,6 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
 import { SITE } from '../lib/constants'
 import { useIsMobile } from './useIsMobile'
+import { PATHS, samePath } from '../lib/routes'
 
 export const useStickyBooking = (currentRoute) => {
   const { t } = useLanguage()
@@ -10,7 +11,8 @@ export const useStickyBooking = (currentRoute) => {
   const [visible, setVisible] = useState(true)
   // Hidden wherever a booking CTA is already on the page: home (hero button),
   // /book (the flow itself), /contact (has its own actions).
-  const hasOwnCta = currentRoute === '/' || currentRoute === '/contact' || currentRoute === '/book'
+  // samePath: a visitor arriving from Google is on "/contact/", not "/contact".
+  const hasOwnCta = [PATHS.home, PATHS.contact, PATHS.book].some((p) => samePath(currentRoute, p))
 
   useEffect(() => {
     if (!isMobile || hasOwnCta) return

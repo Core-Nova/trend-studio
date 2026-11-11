@@ -1,7 +1,7 @@
 /**
  * Runs the Apps Script backend (the exact bundle pasted into script.google.com)
  * inside a Node `vm` context against in-memory fakes of the Google services it
- * touches: CalendarApp, GmailApp, SpreadsheetApp, PropertiesService,
+ * touches: CalendarApp, GmailApp, UrlFetchApp, ScriptApp, SpreadsheetApp, PropertiesService,
  * CacheService, LockService, Session, Utilities.
  *
  * The fakes model only the behaviour the backend relies on. Two choices are
@@ -105,11 +105,56 @@ export function loadBackend({
   }
   const sheetApi = (name) => ({
     getDataRange: () => ({ getValues: () => sheets[name].map((row) => row.slice()) }),
-    appendRow: (row) => sheets[name].push(row)
+    appendRow: (row) => sheets[name].push(row),
+    getRange: (r, c) => ({
+      getValue: () => (sheets[name][r - 1] && sheets[name][r - 1][c - 1]) ?? '',
+      setValue: (v) => {
+        while (sheets[name].length < r) sheets[name].push([])
+        sheets[name][r - 1][c - 1] = v
+      }
+    })
   })
   const spreadsheet = {
     getId: () => 'sheet-1',
-    getSheetByName: (name) => (sheets[name] ? sheetApi(name) : null)
+    getSheetByName: (name) => (sheets[name] ? sheetApi(name) : null),
+    insertSheet: (name) => {
+      sheets[name] = sheets[name] || []
+      return sheetApi(name)
+    }
+  }
+
+  // ---------- UrlFetchApp ----------
+  // Tests script the outside world with `harness.http = (url) => ({ code, body })`;
+  // every request is recorded in `fetched`.
+  const fetched = []
+  const web = {
+    handler: () => {
+      throw new Error('fake UrlFetchApp: no http handler set')
+    }
+  }
+  const UrlFetchApp = {
+    fetch: (url, opts = {}) => {
+      fetched.push({ url, opts })
+      const { code = 200, body = {} } = web.handler(url, opts)
+      const text = typeof body === 'string' ? body : JSON.stringify(body)
+      return { getResponseCode: () => code, getContentText: () => text }
+    }
+  }
+
+  // ---------- ScriptApp (time-driven triggers) ----------
+  const triggers = []
+  const ScriptApp = {
+    getProjectTriggers: () => triggers.map((t) => ({ getHandlerFunction: () => t.fn })),
+    newTrigger: (fn) => {
+      const t = { fn }
+      const clock = {
+        everyMinutes: (n) => ((t.every = { minutes: n }), clock),
+        everyHours: (n) => ((t.every = { hours: n }), clock),
+        everyDays: (n) => ((t.every = { days: n }), clock),
+        create: () => (triggers.push(t), t)
+      }
+      return { timeBased: () => clock }
+    }
   }
 
   // ---------- CalendarApp ----------
@@ -292,6 +337,8 @@ export function loadBackend({
       GuestStatus: { YES: 'YES', NO: 'NO', MAYBE: 'MAYBE', INVITED: 'INVITED', OWNER: 'OWNER' }
     },
     GmailApp,
+    UrlFetchApp,
+    ScriptApp,
     ContentService: {
       createTextOutput: (s) => ({
         setMimeType() {
@@ -327,6 +374,12 @@ export function loadBackend({
     lock,
     props,
     sheets,
+    /** Answers the script's UrlFetchApp calls: (url, opts) => ({ code, body }). */
+    set http(handler) {
+      web.handler = handler
+    },
+    fetched,
+    triggers,
     /** SyncLog rows without the header, as [type, subject, result]. */
     syncLog: () => sheets.SyncLog.slice(1).map((row) => row.slice(1)),
     logs,

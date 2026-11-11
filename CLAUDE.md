@@ -12,7 +12,7 @@ TREND Hair Boutique Studio is a luxury hair salon in central Sofia, Bulgaria.
 - **Services:** Haircuts, blow dries, coloring (KYDRA by Phyto), hair treatments (ALTERNA, REDKEN), eyelash extensions, special occasion styling
 - **Prices in EUR.** Opening hours vary by day (Mon/Wed/Fri 09–19:30, Tue/Thu 10–19, Sat/Sun 09–19).
 - **Languages:** English + Bulgarian (bilingual throughout the UI)
-- **Google rating:** 5.0. Never hardcode the review count — it is scraped weekly and lives in `public/reviews.json` (see Reviews Pipeline).
+- **Google rating:** never hardcode the rating or the review count — both are scraped weekly and live in `public/reviews.json` (see Reviews Pipeline). It was 4.9 / 60 in Nov 2026, while the site still showed 5.0 because the scraper defaulted to 5.0 whenever it missed the header.
 
 ## Tech Stack
 
@@ -39,7 +39,7 @@ src/
     base.css               — reset, element defaults, .container, loading, global keyframes
     utilities.css          — .btn* family, .section-header, .sr-only, .scroll-reveal, mobile tiles
     components/*.css       — one file per component (navbar, hero, services, booking, …), responsive rules co-located
-    pages.css              — .page-content, 404, gallery-page grid
+    pages.css              — .page-content, 404
     motion.css             — prefers-reduced-motion overrides (must stay the LAST import)
   lib/
     slider.js              — WebGL particle-transition engine (pure JS, no React)
@@ -47,12 +47,14 @@ src/
     bookingApi.js          — Apps Script client (availability, booking; fetchLiveReviews is dormant)
     bookingUtils.js        — Booking selection/validation helpers
     constants.js           — SITE object: phone/viber/Studio24/Instagram/Maps URLs
+    routes.js              — PATHS (page URLs, trailing slash) + samePath(); use for every internal link and route check
   hooks/
     useSlider.js           — Generic reusable hook wrapping slider.js lifecycle
     useHeroSliders.js      — Creates 2 desktop sliders (left/right) or 1 mobile slider
     useHero.js             — Hero section data + slider refs
     useStories.js          — Stories viewer state machine (open/close/next/prev/pause/resume + rAF progress bar)
     useGalleryImages.js    — Bundled gallery images + story groups
+    useInstagramFeed.js    — Gallery posts: live feed via Apps Script, else bundled photos as posts
     useIsMobile.js         — Responsive breakpoint hook
     useLightbox.js         — Desktop lightbox for gallery
     ...                    — Other section-specific hooks
@@ -62,13 +64,14 @@ src/
   components/
     Hero/                  — Hero section with WebGL sliders (desktop: split left/right, mobile: single full-bleed)
     Stories/               — Instagram-style stories viewer (mobile) with WebGL transitions
-    Gallery/               — Gallery grid section (home page)
+    Gallery/               — Gallery grid section (home page) — bundled photos, stories viewer / lightbox
+    InstagramFeed/         — The gallery page: the salon's Instagram feed in TREND's design
     ImageCrossfade/        — CSS crossfade fallback until WebGL loads
     atoms/                 — ResponsiveImage, SectionHeader, BookingButton
     ...                    — Other sections (About, Services, Contact, Reviews, Navigation, Footer, StickyBooking, Booking)
   pages/
     HomePage.jsx           — Eagerly loaded, composes all home sections
-    GalleryPage.jsx        — Dedicated gallery with stories (mobile) or lightbox (desktop)
+    GalleryPage.jsx        — The Instagram feed (InstagramFeed), nothing else
     ServicesPage, AboutPage, ContactPage, NotFoundPage — Lazy-loaded
   contexts/
     LanguageContext.jsx    — EN/BG language toggle
@@ -99,15 +102,21 @@ src/
 - `StoriesViewer` component integrates `useSlider` in manual mode — a `useEffect` watches `currentIndex` changes and calls `controls.current.next()` or `controls.current.prev()` to sync the WebGL slider
 - CTA at bottom: phone call button + Instagram pill button with SVG icon
 - Story groups defined in `STORY_GROUPS` array in `imageImports.js` — currently single "Gallery" group
-- `StoriesHighlights` renders highlight circles on the gallery page (mobile only)
+- `StoriesHighlights` renders highlight circles in the home Gallery section (mobile only)
 
-### Gallery Page
-- Mobile: tapping an image opens the stories viewer
-- Desktop: tapping opens a CSS lightbox (`useLightbox` hook)
-- Images come from `useGalleryImages` (bundled `allImages` + `STORY_GROUPS`)
+### Home Gallery Section
+- Bundled photos from `useGalleryImages` (`allImages` + `STORY_GROUPS`); "View Full Gallery" links to `/gallery`
+- Mobile: tapping an image opens the stories viewer; desktop: a CSS lightbox (`useLightbox`)
+
+### Gallery Page = Instagram Feed
+- `/gallery` renders only `InstagramFeed` (page h1 stays "Gallery"/"Галерия" for SEO and the nav): profile card + Follow button, a grid of up to 12 posts (4 / 3 / 2 columns at >992 / >768 / phone), 4:5 tiles, carousel and reel marks, caption overlay on hover and keyboard focus, every tile linking to the post on Instagram in a new tab
+- Data: `useInstagramFeed()` → `fetchInstagramFeed()` (`bookingApi.js`) → Apps Script `?action=instagram`. The browser never calls Instagram and never sees the token
+- Until the feed is connected — and whenever the backend is unreachable or returns nothing usable — the hook serves `FALLBACK_POSTS` (the bundled photos, linking to the profile), so the page is never empty. Live posts are cached in `sessionStorage` for 30 min
+- Only `https` image and link URLs are rendered (`normalizePosts`), on top of the backend's own filter
+- Design reference: the "TREND Instagram Feed" design canvas (claude.ai artifact)
 
 ### Booking Backend (Google Apps Script)
-- Free serverless backend under trendstudiotedi@gmail.com — availability from Google Calendar + working-hours spreadsheet, event creation with client invites, Studio24 email sync (5-min Gmail poll), declined-invite cleanup (`DeclinedBookings.gs`, own 5-min trigger), and a reviews endpoint the site does not currently call
+- Free serverless backend under trendstudiotedi@gmail.com — availability from Google Calendar + working-hours spreadsheet, event creation with client invites, Studio24 email sync (5-min Gmail poll), declined-invite cleanup (`DeclinedBookings.gs`, own 5-min trigger), the gallery's Instagram feed (`Instagram.gs`: 6-hour sync into the config sheet's "Instagram" tab, weekly token refresh, `?action=instagram`; needs Script Property `IG_TOKEN`), and a reviews endpoint the site does not currently call
 - Source in `apps-script/` (one `.gs` per function, copy-pasted into script.google.com); deployment guide in `apps-script/README.md`
 - `src/__tests__/appsScript.test.js` runs the pasted bundle in Node against fakes of the Google services (virtual clock, Sofia TZ) — the only way to test the backend without deploying; extend it with every backend change
 - Frontend: `/book` wizard (`src/components/Booking/`, `useBookingFlow`, `src/lib/bookingApi.js`); the /exec URL is `SITE.backendUrl` (`src/lib/constants.js`) — a hardcoded public default, overridable via env `VITE_BACKEND_URL`
@@ -128,8 +137,11 @@ scrape now writes all of them — never update any by hand:
 | `index.html` JSON-LD `aggregateRating` | same script (`updateSchemaRating`) | build — what Google reads for the star rich-result |
 | This file's business-context line | nothing | never — so it carries no number |
 
-- `npm run fetch-reviews` (Playwright, no API key) scrapes the Maps listing and rewrites the first three. None are committed by CI; the workflow `update-reviews.yml` runs it **before** `npm run build` because the hero badge and the JSON-LD are baked in at build time — only the JSON is fetched at runtime
-- Runs every Monday 04:00 UTC or on manual dispatch, then deploys
+- `npm run fetch-reviews` (Playwright, no API key) scrapes the Maps listing and rewrites the first three. None are committed by CI; **both** workflows run it **before** `npm run build`, because the hero badge and the JSON-LD are baked in at build time — only the JSON is fetched at runtime
+  - `update-reviews.yml`: every Monday 04:00 UTC or manual dispatch, then deploys
+  - `deploy.yml` (every push to main): best-effort (`continue-on-error`). Without it a push deploy ships the committed snapshot and undoes the Monday refresh — that happened in Nov 2026
+- GitHub disables a scheduled workflow after 60 days without commits (`update-reviews.yml` was `disabled_inactivity` from Nov 2 2026). Re-enable it in the Actions tab; a push deploy refreshes reviews either way
+- The scrape **merges** into the committed snapshot (`mergeReviews`, tested in `fetchReviews.test.js`): Maps only loads ~5–10 reviews, so it adds new reviewers to the front (the carousel shows the first 10) and never drops a known one; known reviewers keep their snapshot date
 - The scrape refuses to write a field it did not read (a missed header would otherwise publish a "0 reviews" rich-result to Google)
 - `--override` is a no-op kept for backwards compatibility; the default mode already writes everything
 - The committed `src/data/reviews.js` is what `npm run dev` and any local build show, so it goes stale between scrapes — that is expected, not a bug
@@ -190,6 +202,22 @@ Rules:
   only; `dist/404.html` is deliberately left as the bare shell
 - The generator throws if a `<head>` tag or `#root` is missing, so a Vite HTML
   output change fails the build instead of shipping a broken page
+- **Every page URL ends in a slash** (`/gallery/`) — that is what Pages serves;
+  `/gallery` 301s to it. Canonicals, `og:url`, the sitemap, breadcrumbs, the
+  static nav and every React `<Link>` use that form. In app code take paths from
+  `PATHS` in `src/lib/routes.js` and compare with `samePath()` (a visitor from
+  Google is on `/contact/`, never `/contact`) — a bare `'/contact'` string either
+  links to a redirect (Search Console: "Page with redirect") or misses the page
+- Every prerendered body starts with a plain `<nav>` of all routes, so the
+  static HTML carries internal links before JS runs
+- Subpages carry no hreflang: the shell's block (en/bg/x-default → `/`) is the
+  homepage's and is stripped by `applySeo`. Languages share one URL per page,
+  so there is no alternate to declare until URL-based language routing exists
+- `dist/404.html` is made `noindex` with no canonical (`applyNotFound`): Pages
+  serves it as a 200 at `/404.html`
+- `src/__tests__/seoRoutesIndexing.test.js` locks these in
+- Enforce HTTPS in the repo's Pages settings: if it is off, every page is also
+  served (200) over `http://`
 
 ## Pending Work
 

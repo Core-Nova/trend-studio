@@ -17,6 +17,8 @@
   --white: #ffffff;
   --cream: #f5ecd7;
   --cream-dark: #ede3cc;
+  --cream-light: #fbf6ea; /* raised card on a cream page */
+  --gold-ink: #7a5f22; /* gold for SMALL text on cream: 5:1, where --gold-primary is ~2.6:1 */
   --black: #2a2118;
   --ink-rgb: 42, 33, 24; /* --black as channels */
   --charcoal: #3b2f22;

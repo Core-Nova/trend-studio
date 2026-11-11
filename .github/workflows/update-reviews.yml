@@ -48,8 +48,13 @@ jobs:
       - name: Fetch reviews from Google Maps
         run: npm run fetch-reviews
 
+      # Same env as deploy.yml, so a Monday deploy builds the same site as a
+      # push deploy.
       - name: Build
         run: npm run build
+        env:
+          VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
+          VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

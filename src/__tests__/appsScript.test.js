@@ -550,3 +550,170 @@ describe('syncStudio24Emails', () => {
     expect(b.events).toHaveLength(1)
   })
 })
+
+describe('Instagram feed', () => {
+  const CDN = 'https://scontent.cdninstagram.com/v/'
+  const media = (id, overrides = {}) => ({
+    id,
+    media_type: 'IMAGE',
+    media_url: `${CDN}${id}.jpg?oe=1`,
+    permalink: `https://www.instagram.com/p/${id}/`,
+    caption: `Пост ${id}`,
+    timestamp: '2026-11-01T10:00:00+0000',
+    ...overrides
+  })
+  /** A fake graph.instagram.com: /me/media, /<id>/children and the token refresh. */
+  const instagramApi =
+    (posts, { children = {} } = {}) =>
+    (url) => {
+      if (url.includes('/me/media')) return { body: { data: posts } }
+      const kids = url.match(/graph\.instagram\.com\/(\w+)\/children/)
+      if (kids) return { body: { data: children[kids[1]] || [] } }
+      if (url.includes('/refresh_access_token'))
+        return { body: { access_token: 'NEW_TOKEN', expires_in: 5184000 } }
+      throw new Error('unexpected request ' + url)
+    }
+  const feed = (b) => b.call('getInstagramFeed')
+  const withToken = () => {
+    const b = loadBackend()
+    b.props.set('IG_TOKEN', 'SECRET_TOKEN')
+    return b
+  }
+
+  it('answers not_configured until a token is saved, without calling Instagram', () => {
+    const b = loadBackend()
+    b.call('syncInstagram')
+    expect(b.fetched).toHaveLength(0)
+    expect(feed(b)).toEqual({ ok: false, error: 'not_configured' })
+    const routed = JSON.parse(b.call('doGet', { parameter: { action: 'instagram' } }).getContent())
+    expect(routed).toEqual({ ok: false, error: 'not_configured' })
+  })
+
+  it('syncs the latest posts and serves them without ever exposing the token', () => {
+    const b = withToken()
+    b.http = instagramApi([
+      media('A', { caption: 'Меден балеаж ✨\n\n#balayage #sofia #trendbytedi' }),
+      media('B', {
+        media_type: 'VIDEO',
+        media_url: `${CDN}B.mp4`,
+        thumbnail_url: `${CDN}B-cover.jpg`
+      }),
+      media('C', { media_type: 'CAROUSEL_ALBUM' }),
+      media('D', { media_type: 'VIDEO', media_url: `${CDN}D.mp4` }), // no cover → skipped
+      media('E', { permalink: 'javascript:alert(1)' }) // not https → skipped
+    ])
+    b.call('syncInstagram')
+
+    expect(b.fetched[0].url).toContain('/me/media?fields=')
+    expect(b.fetched[0].url).toContain('limit=12')
+    expect(b.fetched[0].url).toContain('access_token=SECRET_TOKEN')
+
+    const res = feed(b)
+    expect(res.ok).toBe(true)
+    expect(res.posts.map((p) => [p.id, p.type])).toEqual([
+      ['A', 'photo'],
+      ['B', 'reel'],
+      ['C', 'carousel']
+    ])
+    expect(res.posts[0].caption).toBe('Меден балеаж ✨')
+    expect(res.posts[1].image).toBe(`${CDN}B-cover.jpg`)
+    expect(JSON.stringify(res)).not.toContain('SECRET_TOKEN')
+  })
+
+  it("uses the first slide's cover when a carousel opens with a video", () => {
+    const b = withToken()
+    b.http = instagramApi(
+      [media('C', { media_type: 'CAROUSEL_ALBUM', media_url: `${CDN}C.mp4` })],
+      {
+        children: {
+          C: [
+            { media_type: 'VIDEO', media_url: `${CDN}C1.mp4`, thumbnail_url: `${CDN}C1-cover.jpg` }
+          ]
+        }
+      }
+    )
+    b.call('syncInstagram')
+    expect(feed(b).posts[0].image).toBe(`${CDN}C1-cover.jpg`)
+  })
+
+  it('serves at most 12 posts', () => {
+    const b = withToken()
+    b.http = instagramApi(Array.from({ length: 20 }, (_, i) => media('P' + i)))
+    b.call('syncInstagram')
+    expect(feed(b).posts).toHaveLength(12)
+  })
+
+  it('keeps the last good copy when a later sync fails', () => {
+    const b = withToken()
+    b.http = instagramApi([media('A'), media('B')])
+    b.call('syncInstagram')
+
+    b.advance(6 * 60)
+    b.http = () => ({
+      code: 500,
+      body: { error: { message: 'Please retry your request later.', code: 2 } }
+    })
+    b.call('syncInstagram')
+    b.call('refreshConfigCache') // drop the cache, so the copy must come from the sheet
+
+    expect(feed(b).posts.map((p) => p.id)).toEqual(['A', 'B'])
+    expect(b.syncLog().at(-1)).toEqual([
+      'instagram',
+      'sync',
+      expect.stringMatching(/^failed \(500\)/)
+    ])
+    expect(b.sent).toHaveLength(0)
+  })
+
+  it('emails the owner once a day when Instagram rejects the token', () => {
+    const b = withToken()
+    b.http = () => ({
+      code: 400,
+      body: {
+        error: {
+          message: 'Error validating access token: Session has expired',
+          type: 'OAuthException',
+          code: 190
+        }
+      }
+    })
+    b.call('syncInstagram')
+    b.advance(6 * 60)
+    b.call('syncInstagram')
+    expect(b.sent).toHaveLength(1)
+    expect(b.sent[0].subject).toContain('Instagram')
+
+    b.advance(24 * 60)
+    b.call('syncInstagram')
+    expect(b.sent).toHaveLength(2)
+  })
+
+  it('refreshes the long-lived token', () => {
+    const b = withToken()
+    b.http = instagramApi([])
+    b.call('refreshInstagramToken')
+    expect(b.fetched[0].url).toContain(
+      '/refresh_access_token?grant_type=ig_refresh_token&access_token=SECRET_TOKEN'
+    )
+    expect(b.props.get('IG_TOKEN')).toBe('NEW_TOKEN')
+  })
+
+  it('setup() installs every trigger once, each on its own schedule', () => {
+    const b = loadBackend()
+    b.call('setup')
+    b.call('setup')
+    expect(b.triggers).toEqual([
+      { fn: 'syncStudio24Emails', every: { minutes: 5 } },
+      { fn: 'syncDeclinedBookings', every: { minutes: 5 } },
+      { fn: 'syncInstagram', every: { hours: 6 } },
+      { fn: 'refreshInstagramToken', every: { days: 7 } }
+    ])
+  })
+
+  it('setup() fills the feed right away when a token is saved', () => {
+    const b = withToken()
+    b.http = instagramApi([media('A')])
+    b.call('setup')
+    expect(feed(b).posts.map((p) => p.id)).toEqual(['A'])
+  })
+})

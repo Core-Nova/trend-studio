@@ -19,6 +19,7 @@ Studio24 emails, and serves live Google reviews.
 | `DeclinedBookings.gs` | 5-min trigger: reads Google's "Declined: …" notifications + sweeps declined guests, deletes those bookings |
 | `Analytics.gs` | `POST {action:'collect'}` GA4 proxy + `GET ?action=analytics` health check |
 | `Reviews.gs` | `GET ?action=reviews&lang=bg` → live Google rating + reviews (cached 6h) |
+| `Instagram.gs` | 6-hour trigger copies the latest 12 Instagram posts into the config sheet's "Instagram" tab; weekly token refresh; `GET ?action=instagram` serves the copy to the gallery page |
 | `Setup.gs` | One-time `setup()` bootstrap + editor-runnable tests |
 
 ## Deployment (one time, ~10 minutes)
@@ -42,8 +43,10 @@ Studio24 emails, and serves live Google reviews.
    **Run** → approve the permission screen (Calendar, Gmail, Sheets).
    This creates the **TREND Booking Config** spreadsheet (pre-filled working
    hours + service durations), the `studio24-synced`, `studio24-default-time`,
-   `studio24-failed` and `declines-synced` Gmail labels, and the
-   two 5-minute triggers (`syncStudio24Emails`, `syncDeclinedBookings`). The execution log prints the spreadsheet link.
+   `studio24-failed` and `declines-synced` Gmail labels, and the triggers
+   (`syncStudio24Emails` and `syncDeclinedBookings` every 5 min,
+   `syncInstagram` every 6 h, `refreshInstagramToken` weekly). The execution
+   log prints the spreadsheet link.
    *(Optional)* Script Property `ALERT_EMAIL` — where sync-problem alerts go
    (default: the script's own account).
 4. *(Optional — live reviews)* In [console.cloud.google.com](https://console.cloud.google.com)
@@ -54,6 +57,23 @@ Studio24 emails, and serves live Google reviews.
    In Apps Script → Project Settings → **Script Properties** add
    `PLACES_API_KEY` and `PLACE_ID`. Skipping this step is fine — the site
    keeps its bundled reviews.
+4b. *(Gallery — Instagram feed)* Until this is done the gallery shows the
+   bundled salon photos.
+   1. Make **@trendbytedi** a **Business** or **Creator** account (Instagram
+      app → Settings → Account type and tools — free, one minute). Personal
+      accounts have no API.
+   2. At [developers.facebook.com](https://developers.facebook.com) create an
+      app (type **Business**) → add the **Instagram** product → **API setup
+      with Instagram login** → add @trendbytedi under *Instagram testers* and
+      accept the invite in the Instagram app.
+   3. In that same API setup page **Generate token** for @trendbytedi (it asks
+      to log in to Instagram). That is a long-lived token (60 days).
+   4. Apps Script → Project Settings → **Script Properties** → add `IG_TOKEN`
+      = the token → run **`setup`** again: it adds the Instagram triggers and
+      fills the feed straight away.
+   The weekly trigger keeps the token alive. If Instagram ever rejects it
+   (password change, app removed, 60 days without a refresh), you get an
+   email, the gallery keeps its last copy, and step 3–4 fixes it.
 5. **Deploy** → **New deployment** → type **Web app** →
    Execute as: **Me** · Who has access: **Anyone** → Deploy → copy the
    `https://script.google.com/macros/s/…/exec` URL.
@@ -157,6 +177,14 @@ GET ?action=reviews&lang=<bg|en>
 → { ok, rating, count,
     reviews:[{ author, photo, rating, text, date: ISO, time: 'преди месец' }] }
 | { ok:false, error:'not_configured'|'places_error' }
+
+GET ?action=instagram
+→ { ok, updatedAt: ISO,
+    posts:[{ id, type:'photo'|'carousel'|'reel', image: https URL (a reel's cover,
+             a carousel's first slide), caption (trailing hashtags dropped, ≤300),
+             permalink, timestamp }] }          newest first, at most 12
+| { ok:false, error:'not_configured'   (no IG_TOKEN)
+                  |'empty' }           (token saved, no successful sync yet)
 ```
 
 ## Quotas & caveats (consumer Gmail account)

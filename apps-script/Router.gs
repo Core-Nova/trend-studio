@@ -3,7 +3,7 @@
  *
  * Deployed as a Web App (Execute as: Me, Access: Anyone). The static site
  * calls it cross-origin, which imposes two rules:
- *  - GET for reads (?action=availability | reviews)
+ *  - GET for reads (?action=availability | reviews | instagram)
  *  - POST bodies must be text/plain (fetch's default for a string body) so
  *    the browser skips the CORS preflight — Apps Script cannot answer OPTIONS.
  * Responses are ContentService JSON; fetch follows the 302 redirect Apps
@@ -15,6 +15,7 @@ function doGet(e) {
   try {
     if (action === 'availability') return json_(getAvailability(e.parameter))
     if (action === 'reviews') return json_(getReviews(e.parameter))
+    if (action === 'instagram') return json_(getInstagramFeed())
     if (action === 'analytics') return json_(analyticsHealth())
     return json_({ ok: false, error: 'unknown_action' })
   } catch (err) {
