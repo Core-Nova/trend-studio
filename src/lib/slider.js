@@ -14,8 +14,11 @@ export const createImageSlider = ({ container, images, width, height, delay = 0,
   const fitDistance = (height / 2) / Math.tan((fov / 2) * Math.PI / 180)
   root.camera.position.set(0, 0, fitDistance)
 
-  const slideOut = new Slide(width, height, 'out')
-  const slideIn = new Slide(width, height, 'in')
+  // Built in small steps by init() below, never in one go: the two meshes are
+  // ~56k triangles each, and building them in a single task froze a phone's
+  // main thread for seconds (Lighthouse mobile: ~10 s Total Blocking Time).
+  let slideOut = null
+  let slideIn = null
 
   let currentIndex = 0
   let disposed = false
@@ -47,6 +50,7 @@ export const createImageSlider = ({ container, images, width, height, delay = 0,
           const texImage = capTextureSize(img)
           slide.setImage(texImage)
           slide.time = 0
+          root.requestRender() // new texture: the loop is idle between transitions
           resolve(texImage)
         },
         undefined,
@@ -55,7 +59,7 @@ export const createImageSlider = ({ container, images, width, height, delay = 0,
     })
 
   const runTransition = (nextIdx) => {
-    if (disposed || transitioning) return
+    if (disposed || transitioning || !slideIn) return
     transitioning = true
 
     if (nextIdx !== undefined) {
@@ -69,6 +73,7 @@ export const createImageSlider = ({ container, images, width, height, delay = 0,
     loadImage(images[targetIndex], slideIn).then(() => {
       if (disposed) return
 
+      root.setAnimating(true)
       TweenMax.to(slideOut, 3.0, {
         time: slideOut.totalDuration,
         ease: Power0.easeInOut
@@ -86,6 +91,9 @@ export const createImageSlider = ({ container, images, width, height, delay = 0,
           const currentImg = slideIn.material.uniforms.map.value.image
           slideOut.setImage(currentImg)
           slideOut.time = 0
+          // Draw the settled slide, then let the loop go idle until the next
+          // transition instead of redrawing an unchanged frame 60×/s.
+          root.setAnimating(false)
 
           const preloadIndex = (currentIndex + 1) % images.length
           loadImage(images[preloadIndex], slideIn).catch(() => {})
@@ -98,40 +106,55 @@ export const createImageSlider = ({ container, images, width, height, delay = 0,
     }).catch(() => { transitioning = false })
   }
 
-  const initialLoads = [loadImage(images[0], slideOut)]
-  if (images.length >= 2) {
-    initialLoads.push(loadImage(images[1], slideIn))
-  }
-
-  Promise.all(initialLoads)
-    .then(() => {
-      if (disposed) return
-      root.scene.add(slideOut, slideIn)
-      if (onReady) onReady()
-      if (autoPlay && !paused) {
-        pendingTimeout = setTimeout(() => runTransition(), delay + 1000)
+  const init = async () => {
+    await pageLoaded()
+    const out = await buildSlide(width, height, 'out', () => disposed)
+    const incoming = await buildSlide(width, height, 'in', () => disposed)
+    if (disposed) {
+      // dispose() ran mid-build and had nothing to free yet.
+      for (const slide of [out, incoming]) {
+        if (slide) {
+          slide.geometry.dispose()
+          slide.material.dispose()
+        }
       }
-    })
-    .catch(() => {})
+      return
+    }
+    slideOut = out
+    slideIn = incoming
+
+    const initialLoads = [loadImage(images[0], slideOut)]
+    if (images.length >= 2) {
+      initialLoads.push(loadImage(images[1], slideIn))
+    }
+    await Promise.all(initialLoads)
+    if (disposed) return
+
+    root.scene.add(slideOut, slideIn)
+    // Paint before onReady: the caller hides its CSS fallback on ready, and the
+    // canvas must already show the first slide by then.
+    root.renderNow()
+    if (onReady) onReady()
+    if (autoPlay && !paused) {
+      pendingTimeout = setTimeout(() => runTransition(), delay + 1000)
+    }
+  }
+  init().catch(() => {})
 
   const dispose = () => {
     disposed = true
     if (pendingTimeout) clearTimeout(pendingTimeout)
-    TweenMax.killTweensOf(slideOut)
-    TweenMax.killTweensOf(slideIn)
     root.dispose()
 
-    if (slideOut.material.uniforms.map.value.image) {
-      slideOut.material.uniforms.map.value.dispose()
+    for (const slide of [slideOut, slideIn]) {
+      if (!slide) continue // still being built — init() frees it
+      TweenMax.killTweensOf(slide)
+      if (slide.material.uniforms.map.value.image) {
+        slide.material.uniforms.map.value.dispose()
+      }
+      slide.geometry.dispose()
+      slide.material.dispose()
     }
-    if (slideIn.material.uniforms.map.value.image) {
-      slideIn.material.uniforms.map.value.dispose()
-    }
-
-    slideOut.geometry.dispose()
-    slideOut.material.dispose()
-    slideIn.geometry.dispose()
-    slideIn.material.dispose()
   }
 
   return {
@@ -167,10 +190,45 @@ export const createImageSlider = ({ container, images, width, height, delay = 0,
   }
 }
 
+/** Hands the main thread back so input and paint can run between build steps. */
+const yieldToMain = () =>
+  typeof window.scheduler?.yield === 'function'
+    ? window.scheduler.yield()
+    : new Promise((resolve) => setTimeout(resolve, 0))
+
+const pageLoaded = () =>
+  document.readyState === 'complete'
+    ? Promise.resolve()
+    : new Promise((resolve) => window.addEventListener('load', resolve, { once: true }))
+
+/**
+ * Builds one slide mesh as four separate tasks (plane, buffers, UVs, animation
+ * attributes) with a yield between each, so no single task holds the main
+ * thread for the whole build. Resolves to null if cancelled() turns true.
+ */
+const buildSlide = async (width, height, phase, cancelled) => {
+  await yieldToMain()
+  if (cancelled()) return null
+  const plane = new THREE.PlaneGeometry(width, height, width * 2, height * 2)
+  THREE.BAS.Utils.separateFaces(plane)
+
+  await yieldToMain()
+  if (cancelled()) return null
+  const geometry = new SlideGeometry(plane)
+
+  await yieldToMain()
+  if (cancelled()) return null
+  geometry.bufferUVs()
+
+  await yieldToMain()
+  if (cancelled()) return null
+  geometry.bufferAnimationAttributes(plane, width, height, phase)
+
+  return new Slide(geometry, createSlideMaterial(phase))
+}
+
 class Slide extends THREE.Mesh {
-  constructor(width, height, phase) {
-    const geometry = new SlideGeometry(width, height, phase)
-    const material = createSlideMaterial(phase)
+  constructor(geometry, material) {
     super(geometry, material)
 
     this.totalDuration = geometry.totalDuration
@@ -191,15 +249,8 @@ class Slide extends THREE.Mesh {
   }
 }
 
+/** Positions only — buildSlide() adds UVs and animation attributes in later tasks. */
 class SlideGeometry extends THREE.BAS.ModelBufferGeometry {
-  constructor(width, height, phase) {
-    const plane = new THREE.PlaneGeometry(width, height, width * 2, height * 2)
-    THREE.BAS.Utils.separateFaces(plane)
-    super(plane)
-
-    this.bufferUVs()
-    this.bufferAnimationAttributes(plane, width, height, phase)
-  }
 
   bufferPositions() {
     const positionBuffer = this.createAttribute('position', 3).array
@@ -355,10 +406,18 @@ const createSlideMaterial = (phase) => {
   )
 }
 
+/**
+ * Renderer + camera + scene. Draws on demand rather than in a permanent rAF
+ * loop: continuously only while a transition is animating AND the canvas is on
+ * screen, plus single frames when something changed (new texture, resize,
+ * scrolled back into view). An idle hero costs no main-thread or GPU time.
+ */
 class THREERoot {
   constructor(container, params) {
     this.container = container
     this._animationId = null
+    this._animating = false
+    this._visible = true
 
     this.renderer = new THREE.WebGLRenderer({
       antialias: params.antialias,
@@ -378,7 +437,14 @@ class THREERoot {
 
     this.resize()
     window.addEventListener('resize', this.resize)
-    this.tick()
+
+    if (typeof IntersectionObserver === 'function') {
+      this._observer = new IntersectionObserver(([entry]) => {
+        this._visible = entry.isIntersecting
+        if (this._visible) this.requestRender()
+      })
+      this._observer.observe(container)
+    }
   }
 
   resize = () => {
@@ -387,16 +453,37 @@ class THREERoot {
     this.camera.aspect = clientWidth / clientHeight
     this.camera.updateProjectionMatrix()
     this.renderer.setSize(clientWidth, clientHeight)
+    // Resizing clears the canvas; repaint in the same task so it never blanks.
+    this.renderNow()
   }
 
-  tick = () => {
+  renderNow() {
     this.renderer.render(this.scene, this.camera)
+  }
+
+  /** Draw one frame soon (no-op if one is already scheduled or off screen). */
+  requestRender() {
+    if (this._animationId !== null || !this._visible || !this.container) return
     this._animationId = requestAnimationFrame(this.tick)
   }
 
-  dispose() {
-    if (this._animationId) cancelAnimationFrame(this._animationId)
+  /** true = redraw every frame (a transition is running); false = one last frame, then idle. */
+  setAnimating(on) {
+    this._animating = on
+    this.requestRender()
+  }
+
+  tick = () => {
     this._animationId = null
+    this.renderNow()
+    if (this._animating) this.requestRender()
+  }
+
+  dispose() {
+    if (this._animationId !== null) cancelAnimationFrame(this._animationId)
+    this._animationId = null
+    this.container = null
+    if (this._observer) this._observer.disconnect()
     window.removeEventListener('resize', this.resize)
     this.renderer.dispose()
     if (this.renderer.domElement.parentNode) {

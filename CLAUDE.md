@@ -92,6 +92,7 @@ src/
 - Three.js, BAS, and TweenMax are loaded from CDN in `index.html` via `requestIdleCallback` (lazy, non-blocking)
 - `slider.js` creates a particle-disintegration transition effect between images
 - `useSlider` hook polls for globals (`THREE`, `TweenMax`), dynamically imports `slider.js`, returns `{ ready, controls }` where `controls` is a ref to `{ next, prev, pause, resume, dispose, getCurrentIndex }`
+- Main-thread budget (Lighthouse mobile scored 58 with ~10 s blocking before this): the two ~56k-triangle meshes are built after `load` in yielded steps (`buildSlide`), and `THREERoot` draws on demand — every frame only while a transition runs and the canvas is on screen, otherwise single frames via `requestRender()`. Do not reintroduce a permanent rAF loop; anything that changes what the canvas shows must call `requestRender()`
 - Works on both desktop and mobile — no UA/viewport guard
 - `autoPlay: true` (default) for hero auto-cycling, `autoPlay: false` for stories viewer (manual control)
 - `ImageCrossfade` component serves as visible fallback until WebGL is ready, then hides
