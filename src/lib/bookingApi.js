@@ -77,7 +77,9 @@ export function createBooking(payload) {
  */
 export function fetchInstagramFeed() {
   const params = new URLSearchParams({ action: 'instagram' })
-  return request(`${BOOKING_URL}?${params}`, {}, 8000)
+  // Placeholders show for as long as this takes, and there are bundled photos
+  // to fall back on: a healthy answer takes 1–2 s, so give up well before 8.
+  return request(`${BOOKING_URL}?${params}`, {}, 5000)
 }
 
 /**

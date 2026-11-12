@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { translations } from '../../translations'
-import { useInstagramFeed, MAX_POSTS } from '../../hooks/useInstagramFeed'
+import { useInstagramFeed, MAX_POSTS, EAGER_POSTS } from '../../hooks/useInstagramFeed'
 import { SectionHeader } from '../atoms/SectionHeader'
 import { ResponsiveImage } from '../atoms/ResponsiveImage'
 import { SITE } from '../../lib/constants'
@@ -77,7 +77,9 @@ const TypeBadge = ({ type }) => (
 )
 
 const PostTile = memo(({ post, index, label, viewLabel, onOpen }) => {
-  const loading = index < 4 ? 'eager' : 'lazy'
+  const eager = index < EAGER_POSTS
+  const loading = eager ? 'eager' : 'lazy'
+  const fetchPriority = eager ? 'high' : 'auto'
   // The link's aria-label is what assistive tech reads; the alt is for search
   // engines (Google Images reads <img alt>, not the label on the link around it).
   const alt = post.caption || post.alt || ''
@@ -101,6 +103,7 @@ const PostTile = memo(({ post, index, label, viewLabel, onOpen }) => {
             height={post.height}
             alt={alt}
             loading={loading}
+            fetchPriority={fetchPriority}
             decoding="async"
           />
         ) : (
@@ -110,6 +113,7 @@ const PostTile = memo(({ post, index, label, viewLabel, onOpen }) => {
             width="1080"
             height="1350"
             loading={loading}
+            fetchPriority={fetchPriority}
             decoding="async"
             referrerPolicy="no-referrer"
           />

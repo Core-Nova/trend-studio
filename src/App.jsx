@@ -8,6 +8,8 @@ import { Footer } from './components/Footer/Footer'
 import { StickyBooking } from './components/StickyBooking/StickyBooking'
 import { BackToTop } from './components/BackToTop/BackToTop'
 import { HomePage } from './pages/HomePage'
+import { useGalleryPrefetch } from './hooks/useGalleryPrefetch'
+import { PATHS, samePath } from './lib/routes'
 import logoSrc from './assets/brand/trend-logo.png?w=200&format=webp&quality=80'
 
 const GalleryPage = lazy(() => import('./pages/GalleryPage'))
@@ -28,6 +30,9 @@ const AppRoutes = () => {
     if (!langSwitch) window.scrollTo(0, 0)
     trackPageView(location.pathname)
   }, [location.pathname, langSwitch])
+
+  // Warm the gallery (code + Instagram feed) from whichever page comes first.
+  useGalleryPrefetch(!samePath(location.pathname, PATHS.gallery))
 
   return (
     <>

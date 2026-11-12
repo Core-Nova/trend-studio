@@ -3,6 +3,7 @@ import { LanguageProvider } from '../contexts/LanguageContext'
 import {
   useInstagramFeed,
   normalizePosts,
+  prefetchInstagramFeed,
   FALLBACK_POSTS,
   MAX_POSTS
 } from '../hooks/useInstagramFeed'
@@ -93,6 +94,37 @@ describe('useInstagramFeed', () => {
     await waitFor(() => expect(junk.result.current.status).toBe('fallback'))
   })
 
+  it('remembers "no feed" for the tab, but retries after a network failure', async () => {
+    fetchInstagramFeed.mockResolvedValue({ ok: false, error: 'not_configured' })
+    const first = renderHook(() => useInstagramFeed())
+    await waitFor(() => expect(first.result.current.status).toBe('fallback'))
+
+    // Straight to the bundled photos: no placeholders, no second request.
+    const second = renderHook(() => useInstagramFeed())
+    expect(second.result.current.status).toBe('fallback')
+    expect(fetchInstagramFeed).toHaveBeenCalledTimes(1)
+
+    sessionStorage.clear()
+    fetchInstagramFeed.mockResolvedValue({ ok: false, error: 'network' })
+    const down = renderHook(() => useInstagramFeed())
+    await waitFor(() => expect(down.result.current.status).toBe('fallback'))
+    fetchInstagramFeed.mockResolvedValue(LIVE)
+    const retry = renderHook(() => useInstagramFeed())
+    expect(retry.result.current.status).toBe('loading')
+    await waitFor(() => expect(retry.result.current.status).toBe('live'))
+  })
+
+  it('asks again once a "no feed" answer is older than 5 minutes', async () => {
+    sessionStorage.setItem(
+      'trend:instagram-feed',
+      JSON.stringify({ at: Date.now() - 6 * 60 * 1000, posts: [] })
+    )
+    fetchInstagramFeed.mockResolvedValue(LIVE)
+    const { result } = renderHook(() => useInstagramFeed())
+    expect(result.current.status).toBe('loading')
+    await waitFor(() => expect(result.current.status).toBe('live'))
+  })
+
   it('refetches once the cached copy is older than 30 minutes', async () => {
     sessionStorage.setItem(
       'trend:instagram-feed',
@@ -102,6 +134,38 @@ describe('useInstagramFeed', () => {
     const { result } = renderHook(() => useInstagramFeed())
     expect(result.current.status).toBe('loading')
     await waitFor(() => expect(result.current.posts.map((p) => p.id)).toEqual(['A', 'B']))
+  })
+})
+
+describe('prefetchInstagramFeed', () => {
+  it('lets the gallery open with posts and no request of its own', async () => {
+    fetchInstagramFeed.mockResolvedValue(LIVE)
+    await prefetchInstagramFeed()
+
+    const { result } = renderHook(() => useInstagramFeed())
+    expect(result.current.status).toBe('live')
+    expect(result.current.posts.map((p) => p.id)).toEqual(['A', 'B'])
+    expect(fetchInstagramFeed).toHaveBeenCalledTimes(1)
+  })
+
+  it('shares one request with a gallery that mounts while it is in flight', async () => {
+    let answer
+    fetchInstagramFeed.mockReturnValue(new Promise((resolve) => (answer = resolve)))
+    const prefetching = prefetchInstagramFeed()
+    const { result } = renderHook(() => useInstagramFeed())
+    expect(result.current.status).toBe('loading')
+
+    answer(LIVE)
+    await prefetching
+    await waitFor(() => expect(result.current.status).toBe('live'))
+    expect(fetchInstagramFeed).toHaveBeenCalledTimes(1)
+  })
+
+  it('does nothing when the tab already has an answer', async () => {
+    fetchInstagramFeed.mockResolvedValue(LIVE)
+    await prefetchInstagramFeed()
+    await prefetchInstagramFeed()
+    expect(fetchInstagramFeed).toHaveBeenCalledTimes(1)
   })
 })
 
