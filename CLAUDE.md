@@ -11,7 +11,7 @@ TREND Hair Boutique Studio is a luxury hair salon in central Sofia, Bulgaria.
 - **Domain:** trendbytedi.com
 - **Services:** Haircuts, blow dries, coloring (KYDRA by Phyto), hair treatments (ALTERNA, REDKEN), eyelash extensions, special occasion styling
 - **Prices in EUR.** Opening hours vary by day (Mon/Wed/Fri 09–19:30, Tue/Thu 10–19, Sat/Sun 09–19).
-- **Languages:** English + Bulgarian (bilingual throughout the UI)
+- **Languages:** English + Bulgarian (bilingual throughout the UI); Bulgarian at `/…`, English at `/en/…`
 - **Google rating:** never hardcode the rating or the review count — both are scraped weekly and live in `public/reviews.json` (see Reviews Pipeline). It was 4.9 / 60 in Nov 2026, while the site still showed 5.0 because the scraper defaulted to 5.0 whenever it missed the header.
 
 ## Tech Stack
@@ -47,7 +47,7 @@ src/
     bookingApi.js          — Apps Script client (availability, booking; fetchLiveReviews is dormant)
     bookingUtils.js        — Booking selection/validation helpers
     constants.js           — SITE object: phone/viber/Studio24/Instagram/Maps URLs
-    routes.js              — PATHS (page URLs, trailing slash) + samePath(); use for every internal link and route check
+    routes.js              — PATHS (Bulgarian page URLs, trailing slash), localePath()/pathLang() for the /en/ twins, samePath(); use for every internal link and route check
   hooks/
     useSlider.js           — Generic reusable hook wrapping slider.js lifecycle
     useHeroSliders.js      — Creates 2 desktop sliders (left/right) or 1 mobile slider
@@ -67,14 +67,14 @@ src/
     Gallery/               — Gallery grid section (home page) — bundled photos, stories viewer / lightbox
     InstagramFeed/         — The gallery page: the salon's Instagram feed in TREND's design
     ImageCrossfade/        — CSS crossfade fallback until WebGL loads
-    atoms/                 — ResponsiveImage, SectionHeader, BookingButton
+    atoms/                 — ResponsiveImage, SectionHeader, BookingButton, LangLink (language-aware router Link)
     ...                    — Other sections (About, Services, Contact, Reviews, Navigation, Footer, StickyBooking, Booking)
   pages/
     HomePage.jsx           — Eagerly loaded, composes all home sections
     GalleryPage.jsx        — The Instagram feed (InstagramFeed), nothing else
     ServicesPage, AboutPage, ContactPage, NotFoundPage — Lazy-loaded
   contexts/
-    LanguageContext.jsx    — EN/BG language toggle
+    LanguageContext.jsx    — EN/BG language, derived from the URL (RoutedLanguageProvider)
   translations/
     index.js               — All UI strings in { en, bg } format
 ```
@@ -147,7 +147,7 @@ scrape now writes all of them — never update any by hand:
 - The committed `src/data/reviews.js` is what `npm run dev` and any local build show, so it goes stale between scrapes — that is expected, not a bug
 
 ### Bilingual Support
-- `LanguageContext` provides `t()` function
+- `LanguageContext` provides `t()`, `lang` and `changeLanguage()`. The language comes from the URL (`/en/...` = English, anything else Bulgarian) — see Prerendering. `LanguageProvider` (state + localStorage) is only the router-less variant for tests
 - All strings in `translations/index.js` as `{ en: '...', bg: '...' }`
 - `BookingButton` uses `btn--stable` class with `display: inline-grid` to prevent layout shift between languages
 
@@ -185,21 +185,29 @@ Pages serves a pure SPA, so without this every route returned the 404 fallback
 with an empty body — Google saw nothing until its deferred JS-rendering pass.
 The script runs after `vite build` and, from a single `ROUTES` table, emits:
 
-- a static `dist/<route>/index.html` per route — the shell with per-route
-  `<head>` (title/description/canonical/og) **and** a semantic body outline
-- `dist/sitemap.xml`, with `<lastmod>` from `git log` on each route's `sources`
+- a static page per route **per language** — Bulgarian at
+  `dist/<route>/index.html` (the default, URLs unchanged), English at
+  `dist/en/<route>/index.html` — the shell with per-route `<head>`
+  (title/description/canonical/og, `<html lang>`, `og:locale`, hreflang) **and**
+  a semantic body outline in that language
+- `dist/sitemap.xml` listing both URLs of every route, each with its
+  `xhtml:link` alternates and `<lastmod>` from `git log` on the route's `sources`
 
 Rules:
 - **`ROUTES` is the only place to register a route.** There is no
-  `public/sitemap.xml` any more; adding a route there covers both outputs
+  `public/sitemap.xml` any more; adding a route there covers both outputs in
+  both languages (`title`/`description` are `{ en, bg }` nodes, `body(tr)`
+  receives the language picker). The React side needs the route in `App.jsx`
+  (inside the `/en?` parent) and `PATHS`
 - Body builders read `src/translations/index.js` and `src/data/services.json`.
   Never hand-write copy in the script — if the static and React versions
   disagree, widen the data the builder reads
 - Injected markup goes inside `#root`; `createRoot()` clears the container on
   mount, so React always wins for real visitors. Do not switch to
   `hydrateRoot` without making the markup match the React tree exactly
-- `/` keeps the shell's own hand-written bilingual `<head>` and gets a body
-  only; `dist/404.html` is deliberately left as the bare shell
+- `/` keeps the shell's own hand-written `<head>` (only its language tags are
+  set, `applyLocale`) and gets a body; `/en/` gets a generated head like any
+  subpage; `dist/404.html` is deliberately left as the bare shell
 - The generator throws if a `<head>` tag or `#root` is missing, so a Vite HTML
   output change fails the build instead of shipping a broken page
 - **Every page URL ends in a slash** (`/gallery/`) — that is what Pages serves;
@@ -208,11 +216,24 @@ Rules:
   `PATHS` in `src/lib/routes.js` and compare with `samePath()` (a visitor from
   Google is on `/contact/`, never `/contact`) — a bare `'/contact'` string either
   links to a redirect (Search Console: "Page with redirect") or misses the page
-- Every prerendered body starts with a plain `<nav>` of all routes, so the
-  static HTML carries internal links before JS runs
-- Subpages carry no hreflang: the shell's block (en/bg/x-default → `/`) is the
-  homepage's and is stripped by `applySeo`. Languages share one URL per page,
-  so there is no alternate to declare until URL-based language routing exists
+- Every prerendered body starts with a plain `<nav>` of all routes in the
+  page's own language space, plus a link to the page's other-language URL, so
+  the static HTML carries internal links before JS runs
+- **The URL is the language.** `/x/` is Bulgarian, `/en/x/` is English
+  (`pathLang`/`localePath` in `src/lib/routes.js`, shared by the script and the
+  app). `RoutedLanguageProvider` reads it from the location — localStorage never
+  overrides it, or a visitor would see English on a URL indexed as Bulgarian —
+  and the EN/BG toggle navigates to the page's other URL (same route element via
+  the optional `/en?` segment, so no remount; `state.langSwitch` skips the
+  scroll-to-top). `PATHS` holds the Bulgarian paths: render internal links with
+  the `LangLink` atom (or `localePath(PATHS.x, lang)`), never a bare router
+  `<Link>` and never a hand-written `/en/...`. `samePath()` ignores the prefix
+- Every page, subpages included, carries the same reciprocal hreflang set on
+  both versions: `bg`, `en`, and `x-default` → the Bulgarian URL
+  (`alternatesFor`). Each version's canonical and `og:url` are its own URL.
+  `usePageSEO` writes the identical values at runtime — change both together.
+  `index.html` carries the homepage's set for dev and the 404 shell
+- `/book` (and `/en/book`) stays unprerendered and out of the sitemap
 - `dist/404.html` is made `noindex` with no canonical (`applyNotFound`): Pages
   serves it as a 200 at `/404.html`
 - `src/__tests__/seoRoutesIndexing.test.js` locks these in

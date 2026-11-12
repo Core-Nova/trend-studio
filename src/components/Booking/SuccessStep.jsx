@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { LangLink as Link } from '../atoms/LangLink'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { translations } from '../../translations'
 import { formatSlotDate, formatMinutes } from '../../lib/bookingUtils'

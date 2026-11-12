@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { LangLink as Link } from '../atoms/LangLink'
 import { SectionHeader } from '../atoms/SectionHeader'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import logoWebp from '../../assets/brand/trend-logo.png?w=900&format=webp'

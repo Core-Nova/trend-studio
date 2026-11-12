@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom'
+import { LangLink as Link } from '../atoms/LangLink'
 import { trackEvent } from '../../lib/analytics'
 import { SITE } from '../../lib/constants'
-import { samePath } from '../../lib/routes'
+import { PATHS, samePath } from '../../lib/routes'
 import { BookingLink } from '../atoms/BookingLink'
 import logoSrc from '../../assets/brand/trend-logo.png?w=320&format=webp'
 import logoSrcAvif from '../../assets/brand/trend-logo.png?w=320&format=avif'
@@ -17,7 +17,7 @@ export const NavigationView = ({
   <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
     <a href="#main-content" className="skip-link">Skip to content</a>
     <div className="nav-container">
-      <Link to="/" className="logo" aria-label="TREND Hair Boutique Studio — home">
+      <Link to={PATHS.home} className="logo" aria-label="TREND Hair Boutique Studio — home">
         <picture>
           <source type="image/avif" srcSet={logoSrcAvif} />
           <img src={logoSrc} alt="" className="logo__img" />

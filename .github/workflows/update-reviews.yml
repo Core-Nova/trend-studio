@@ -32,6 +32,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        # Full history, so the sitemap's <lastmod> dates come from each route's
+        # own last commit instead of the tip commit (see deploy.yml).
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

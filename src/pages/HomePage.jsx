@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { LangLink as Link } from '../components/atoms/LangLink'
 import { useLanguage } from '../contexts/LanguageContext'
 import { translations } from '../translations'
 import { useIsMobile } from '../hooks/useIsMobile'

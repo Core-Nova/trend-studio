@@ -20,7 +20,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+        # Full history: scripts/seo-routes.mjs dates each sitemap <lastmod> from
+        # `git log` on that route's sources. A shallow clone only has the tip
+        # commit, so every URL claimed to have changed on every deploy.
+        with:
+          fetch-depth: 0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

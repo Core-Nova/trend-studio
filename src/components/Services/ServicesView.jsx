@@ -1,5 +1,5 @@
 import { useState, memo } from 'react'
-import { Link } from 'react-router-dom'
+import { LangLink as Link } from '../atoms/LangLink'
 import { SectionHeader } from '../atoms/SectionHeader'
 import { BookingLink } from '../atoms/BookingLink'
 import { useScrollReveal } from '../../hooks/useScrollReveal'

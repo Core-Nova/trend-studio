@@ -16,6 +16,13 @@
  * failed) see. Keep it that way: if the two ever disagree, the fix is to widen
  * the data these builders read, never to hand-write copy here.
  *
+ * Every route is written twice from the same ROUTES table: Bulgarian at
+ * dist/<route>/index.html (the default language, URLs unchanged) and English at
+ * dist/en/<route>/index.html. Each copy has its own <html lang>, self canonical
+ * and og:locale, and both carry the same reciprocal hreflang set (bg, en,
+ * x-default → the Bulgarian URL). The app reads the language from the URL the
+ * same way (src/lib/routes.js, LanguageContext).
+ *
  * Also emits dist/sitemap.xml from the same ROUTES table, with <lastmod> read
  * from git history — public/sitemap.xml no longer exists, so adding a route
  * means editing ROUTES below and nothing else.
@@ -28,11 +35,12 @@ import { execSync } from 'child_process'
 import { dirname, join, sep } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { translations } from '../src/translations/index.js'
+import { DEFAULT_LANG, LANGS, localePath } from '../src/lib/routes.js'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DIST = join(ROOT, 'dist')
 const BASE_URL = 'https://trendbytedi.com'
-const LANG = 'bg' // first-visit/crawler default (LanguageContext: localStorage || 'bg')
+const OG_LOCALE = { bg: 'bg_BG', en: 'en_US' }
 
 const seo = translations.seo
 const catalog = JSON.parse(readFileSync(join(ROOT, 'src/data/services.json'), 'utf8'))
@@ -42,7 +50,8 @@ const escText = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').re
 /** Author-entered strings carry real newlines (address, opening hours). */
 const escLines = (s) => escText(s).replace(/\r?\n/g, '<br />')
 
-const tr = (node) => (node && typeof node === 'object' ? node[LANG] : node)
+/** Picks one language out of an `{ en, bg }` node; body builders receive it as `tr`. */
+const trFor = (lang) => (node) => (node && typeof node === 'object' ? node[lang] : node)
 
 const INSTAGRAM_URL = 'https://instagram.com/trendbytedi'
 
@@ -51,8 +60,18 @@ const INSTAGRAM_URL = 'https://instagram.com/trendbytedi'
  * "/gallery/" and 301s "/gallery" to it. Canonicals, the sitemap and every
  * static link use this form (the app does the same via src/lib/routes.js).
  */
-const routePath = (route) => (route === '/' ? '/' : `${route}/`)
-const routeUrl = (route) => `${BASE_URL}${routePath(route)}`
+const routePath = (route, lang = DEFAULT_LANG) => localePath(route === '/' ? '/' : `${route}/`, lang)
+const routeUrl = (route, lang = DEFAULT_LANG) => `${BASE_URL}${routePath(route, lang)}`
+
+/**
+ * The hreflang set of a route — identical on both language versions, which is
+ * what makes it reciprocal. x-default is the Bulgarian URL: the salon is in
+ * Sofia and that is the version an unmatched locale should land on.
+ */
+export const alternatesFor = (route) => [
+  ...LANGS.map((lang) => ({ hreflang: lang, href: routeUrl(route, lang) })),
+  { hreflang: 'x-default', href: routeUrl(route, DEFAULT_LANG) },
+]
 
 // ---------- body builders ----------
 
@@ -61,23 +80,33 @@ const routeUrl = (route) => `${BASE_URL}${routePath(route)}`
  * links at all, so before rendering JS a crawler could reach the other pages
  * only through the sitemap. Labels are the React nav's (translations.nav).
  */
-const siteNav = () => {
+const siteNav = (lang, current) => {
+  const tr = trFor(lang)
   const items = Object.keys(ROUTES).map((route) => {
     const key = route === '/' ? 'home' : route.slice(1)
-    return `<li><a href="${routePath(route)}">${escText(tr(translations.nav[key]))}</a></li>`
+    return `<li><a href="${routePath(route, lang)}">${escText(tr(translations.nav[key]))}</a></li>`
   })
+  // The language toggle as links (the React one is EN | BG buttons): the other
+  // version of THIS page, so the two trees are cross-linked before JS runs.
+  if (current) {
+    for (const other of LANGS.filter((l) => l !== lang)) {
+      items.push(
+        `<li><a href="${routePath(current, other)}" hreflang="${other}" lang="${other}">${other.toUpperCase()}</a></li>`
+      )
+    }
+  }
   return `<nav>\n<ul>\n${items.join('\n')}\n</ul>\n</nav>`
 }
 
 /** Name/address/phone, repeated on every page — local search wants it consistent. */
-const nap = () => `
+const nap = (tr) => `
 <aside>
   <p><strong>TREND Hair Boutique Studio</strong></p>
   <p>${escLines(tr(translations.contact.addressText))}</p>
   <p><a href="tel:+359888599590">0888 599 590</a></p>
 </aside>`
 
-const servicesBody = () => {
+const servicesBody = (tr) => {
   const out = [`<h1>${escText(tr(translations.services.title))}</h1>`]
   for (const key of Object.keys(translations.services.descriptions)) {
     out.push(`<p>${escText(tr(translations.services.descriptions[key]))}</p>`)
@@ -110,7 +139,7 @@ const servicesBody = () => {
   return out.join('\n')
 }
 
-const aboutBody = () => {
+const aboutBody = (tr) => {
   const a = translations.about
   const out = [
     `<h1>${escText(tr(translations.nav.about))}</h1>`,
@@ -129,7 +158,7 @@ const aboutBody = () => {
   return out.join('\n')
 }
 
-const contactBody = () => {
+const contactBody = (tr) => {
   const c = translations.contact
   return [
     `<h1>${escText(tr(c.title))}</h1>`,
@@ -145,7 +174,7 @@ const contactBody = () => {
 }
 
 /** Mirrors InstagramFeed: the posts themselves are fetched at runtime. */
-const galleryBody = () => {
+const galleryBody = (tr) => {
   const ig = translations.instagram
   return [
     `<h1>${escText(tr(translations.gallery.title))}</h1>`,
@@ -160,7 +189,7 @@ const galleryBody = () => {
  * copy spells it out as text so the most-linked URL is not the one page with
  * nothing to crawl. Section order mirrors HomePage.jsx.
  */
-const homeBody = () => {
+const homeBody = (tr) => {
   const out = [
     '<h1>TREND Hair Boutique Studio</h1>',
     `<p>${escText(tr(translations.hero.subtitle))}</p>`,
@@ -176,7 +205,7 @@ const homeBody = () => {
 }
 
 /** Unused until `/book` leaves the experimental flag — see the ROUTES note. */
-const bookingBody = () => {
+const bookingBody = (tr) => {
   const b = translations.booking
   const out = [
     `<h1>${escText(tr(b.title))}</h1>`,
@@ -191,7 +220,8 @@ const bookingBody = () => {
 
 // ---------- routes ----------
 
-// One table drives prerendering AND the sitemap. `sources` are the files whose
+// One table drives prerendering AND the sitemap, in both languages: `title` and
+// `description` are `{ en, bg }` nodes, `body` receives the language's `tr`. `sources` are the files whose
 // last commit date becomes <lastmod>. The homepage keeps the shell's own <head>
 // (already correct) and only gets a body — `self: true` writes it back to
 // dist/index.html instead of a subdirectory. dist/404.html keeps the bare
@@ -201,8 +231,8 @@ const bookingBody = () => {
 // /404.html.
 const ROUTES = {
   '/': {
-    title: seo.title[LANG],
-    description: seo.description[LANG],
+    title: seo.title,
+    description: seo.description,
     body: homeBody,
     self: true,
     sources: ['src/pages/HomePage.jsx', 'src/components', 'index.html'],
@@ -210,8 +240,8 @@ const ROUTES = {
     priority: '1.0',
   },
   '/gallery': {
-    title: seo.galleryTitle[LANG],
-    description: seo.galleryDescription[LANG],
+    title: seo.galleryTitle,
+    description: seo.galleryDescription,
     body: galleryBody,
     sources: [
       'src/pages/GalleryPage.jsx',
@@ -223,24 +253,24 @@ const ROUTES = {
     priority: '0.8',
   },
   '/services': {
-    title: seo.servicesTitle[LANG],
-    description: seo.servicesDescription[LANG],
+    title: seo.servicesTitle,
+    description: seo.servicesDescription,
     body: servicesBody,
     sources: ['src/pages/ServicesPage.jsx', 'src/data/services.json'],
     changefreq: 'monthly',
     priority: '0.9',
   },
   '/about': {
-    title: seo.aboutTitle[LANG],
-    description: seo.aboutDescription[LANG],
+    title: seo.aboutTitle,
+    description: seo.aboutDescription,
     body: aboutBody,
     sources: ['src/pages/AboutPage.jsx'],
     changefreq: 'monthly',
     priority: '0.7',
   },
   '/contact': {
-    title: seo.contactTitle[LANG],
-    description: seo.contactDescription[LANG],
+    title: seo.contactTitle,
+    description: seo.contactDescription,
     body: contactBody,
     sources: ['src/pages/ContactPage.jsx'],
     changefreq: 'monthly',
@@ -263,8 +293,37 @@ const swap = (html, re, value, label) => {
   return html.replace(re, (_m, p1, p2) => `${p1}${value}${p2}`)
 }
 
-/** Rewrite <head> SEO tags of the shell for one route. Pure — no IO. */
-export const applySeo = (html, { title, description, url }) => {
+const HREFLANG_RE = /[ \t]*<link rel="alternate" hreflang="[^"]*" href="[^"]*"\s*\/?>\r?\n?/g
+const CANONICAL_TAG_RE = /([ \t]*)<link rel="canonical" href="[^"]*"\s*\/?>(\r?\n?)/
+
+/**
+ * Language-specific <head> parts: <html lang>, og:locale and the hreflang
+ * block (the shell's own is replaced, never kept — it is only right for the
+ * page it was written for). Pure — no IO.
+ */
+export const applyLocale = (html, { lang, alternates }) => {
+  const other = LANGS.find((l) => l !== lang)
+  let h = swap(html, /(<html\b[^>]*\blang=")[^"]*(")/, lang, 'html lang')
+  h = swap(h, /(<meta property="og:locale" content=")[^"]*(")/, OG_LOCALE[lang], 'og:locale')
+  h = swap(
+    h,
+    /(<meta property="og:locale:alternate" content=")[^"]*(")/,
+    OG_LOCALE[other],
+    'og:locale:alternate'
+  )
+  h = h.replace(HREFLANG_RE, '')
+  if (!CANONICAL_TAG_RE.test(h)) throw new Error('seo-routes: expected <head> tag not found: canonical')
+  return h.replace(CANONICAL_TAG_RE, (tag, indent, eol) => {
+    const nl = eol || '\n'
+    const links = alternates
+      .map((a) => `${indent}<link rel="alternate" hreflang="${a.hreflang}" href="${a.href}" />`)
+      .join(nl)
+    return `${tag.replace(/\r?\n$/, '')}${nl}${links}${nl}`
+  })
+}
+
+/** Rewrite <head> SEO tags of the shell for one route in one language. Pure — no IO. */
+export const applySeo = (html, { title, description, url, lang, alternates }) => {
   const t = escText(title)
   const ta = escAttr(title)
   const d = escAttr(description)
@@ -281,17 +340,10 @@ export const applySeo = (html, { title, description, url }) => {
   h = swap(h, /(<meta name="twitter:title" content=")[^"]*(")/, ta, 'twitter:title')
   h = swap(h, /(<link rel="canonical" href=")[^"]*(")/, url, 'canonical')
   h = swap(h, /(<meta property="og:url" content=")[^"]*(")/, url, 'og:url')
-  // The shell's hreflang block is the homepage's: en/bg/x-default → "/". Copied
-  // onto a subpage it declares the HOMEPAGE to be that page's English and
-  // Bulgarian version. Both languages share one URL per page (the toggle is
-  // client-side), so a subpage has no alternate to declare: drop the block.
-  h = h.replace(HREFLANG_RE, '')
-  return h
+  return applyLocale(h, { lang, alternates })
 }
 
-const HREFLANG_RE = /[ \t]*<link rel="alternate" hreflang="[^"]*" href="[^"]*"\s*\/?>\r?\n?/g
 const ROBOTS_RE = /(<meta name="robots" content=")[^"]*(")/
-const CANONICAL_RE = /[ \t]*<link rel="canonical" href="[^"]*"\s*\/?>\r?\n?/
 
 /**
  * dist/404.html: Pages answers unknown URLs with it (status 404, fine) but also
@@ -301,7 +353,7 @@ const CANONICAL_RE = /[ \t]*<link rel="canonical" href="[^"]*"\s*\/?>\r?\n?/
  */
 export const applyNotFound = (html) => {
   let h = swap(html, ROBOTS_RE, 'noindex, follow', 'meta robots')
-  h = h.replace(CANONICAL_RE, '').replace(HREFLANG_RE, '')
+  h = h.replace(CANONICAL_TAG_RE, '').replace(HREFLANG_RE, '')
   return h
 }
 
@@ -310,13 +362,13 @@ export const applyNotFound = (html) => {
  * mount, so this never fights React — it is simply what exists until then.
  * Pure — no IO.
  */
-export const applyBody = (html, markup) => {
+export const applyBody = (html, markup, { lang = DEFAULT_LANG, route } = {}) => {
   const re = /(<div id="root">)([\s\S]*?)(<\/div>)/
   if (!re.test(html)) throw new Error('seo-routes: <div id="root"> not found')
   return html.replace(
     re,
     (_m, open, _inner, close) =>
-      `${open}\n<header>\n${siteNav()}\n</header>\n<main>\n${markup}\n${nap()}\n</main>\n${close}`
+      `${open}\n<header>\n${siteNav(lang, route)}\n</header>\n<main>\n${markup}\n${nap(trFor(lang))}\n</main>\n${close}`
   )
 }
 
@@ -341,20 +393,29 @@ const gitDate = (paths) => {
 
 const repoDate = () => gitDate([]) || today()
 
+/**
+ * One <url> per language version of each route, each listing the full
+ * alternate set (itself included), as Google's sitemap hreflang format wants.
+ */
 export const buildSitemap = (lastmodFor) => {
-  const urls = Object.entries(ROUTES).map(([route, meta]) => {
-    const loc = routeUrl(route)
-    return [
-      '  <url>',
-      `    <loc>${loc}</loc>`,
-      `    <lastmod>${lastmodFor(route, meta)}</lastmod>`,
-      `    <changefreq>${meta.changefreq}</changefreq>`,
-      `    <priority>${meta.priority}</priority>`,
-      '  </url>',
-    ].join('\n')
+  const urls = Object.entries(ROUTES).flatMap(([route, meta]) => {
+    const alternates = alternatesFor(route).map(
+      (a) => `    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${a.href}" />`
+    )
+    return LANGS.map((lang) =>
+      [
+        '  <url>',
+        `    <loc>${routeUrl(route, lang)}</loc>`,
+        ...alternates,
+        `    <lastmod>${lastmodFor(route, meta)}</lastmod>`,
+        `    <changefreq>${meta.changefreq}</changefreq>`,
+        `    <priority>${meta.priority}</priority>`,
+        '  </url>',
+      ].join('\n')
+    )
   })
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls.join('\n')}
 </urlset>
 `
@@ -368,25 +429,38 @@ const main = () => {
 
   for (const [route, meta] of Object.entries(ROUTES)) {
     if (!meta.body) continue
-    // Trailing slash: Pages serves this file at "/gallery/" and 301s the
-    // slashless form to it, so the canonical must match the served URL.
-    // The shell's <head> already IS the homepage's — hand-written, bilingual,
-    // and better than anything assembled from a single-language seo.* string.
-    // Home therefore gets a body only; every other route gets both.
-    const withHead = meta.self ? shell : applySeo(shell, { ...meta, url: routeUrl(route) })
-    const html = applyBody(withHead, meta.body())
-    const file = meta.self
-      ? join(DIST, 'index.html')
-      : join(DIST, route.replace(/^\//, ''), 'index.html')
-    mkdirSync(dirname(file), { recursive: true })
-    writeFileSync(file, html)
-    prerendered++
-    console.log(`  ${route.padEnd(10)} → dist/${file.slice(DIST.length + 1).split(sep).join('/')}`)
+    const alternates = alternatesFor(route)
+    for (const lang of LANGS) {
+      // Trailing slash: Pages serves this file at "/gallery/" and 301s the
+      // slashless form to it, so the canonical must match the served URL.
+      // The shell's <head> already IS the Bulgarian homepage's — hand-written
+      // and richer than a seo.* string — so that one page keeps it and only has
+      // its language tags set. Every other page, the English home included,
+      // gets title/description/canonical from ROUTES.
+      const keepHead = meta.self && lang === DEFAULT_LANG
+      const withHead = keepHead
+        ? applyLocale(shell, { lang, alternates })
+        : applySeo(shell, {
+            title: meta.title[lang],
+            description: meta.description[lang],
+            url: routeUrl(route, lang),
+            lang,
+            alternates,
+          })
+      const html = applyBody(withHead, meta.body(trFor(lang)), { lang, route })
+      // "/en/gallery/" → dist/en/gallery/index.html, "/" → dist/index.html
+      const file = join(DIST, ...routePath(route, lang).split('/').filter(Boolean), 'index.html')
+      mkdirSync(dirname(file), { recursive: true })
+      writeFileSync(file, html)
+      prerendered++
+      const shown = file.slice(DIST.length + 1).split(sep).join('/')
+      console.log(`  ${routePath(route, lang).padEnd(15)} → dist/${shown}`)
+    }
   }
 
   const notFound = join(DIST, '404.html')
   writeFileSync(notFound, applyNotFound(readFileSync(notFound, 'utf8')))
-  console.log(`  ${'404'.padEnd(10)} → dist/404.html (noindex)`)
+  console.log(`  ${'404'.padEnd(15)} → dist/404.html (noindex)`)
 
   // A shallow CI checkout has no history to date individual files against, so
   // the tip commit stands in rather than emitting today's date for everything.

@@ -1,13 +1,18 @@
 import { useEffect } from 'react'
+import { useLanguage } from '../contexts/LanguageContext'
+import { localePath } from '../lib/routes'
 
 const BASE_URL = 'https://trendbytedi.com'
 const SCRIPT_ID = 'breadcrumb-schema'
 
 /**
  * Injects a BreadcrumbList JSON-LD script into <head> for non-home routes.
- * Items: [{ name, path }]. Removes on unmount or path change.
+ * Items: [{ name, path }] with paths from PATHS — they are moved into the
+ * current language's URL space here. Removes on unmount or path change.
  */
 export const useBreadcrumbSchema = items => {
+  const { lang } = useLanguage()
+
   useEffect(() => {
     if (!items || items.length === 0) return undefined
 
@@ -18,7 +23,7 @@ export const useBreadcrumbSchema = items => {
         '@type': 'ListItem',
         position: i + 1,
         name: item.name,
-        item: `${BASE_URL}${item.path}`,
+        item: `${BASE_URL}${localePath(item.path, lang)}`,
       })),
     }
 
@@ -35,5 +40,5 @@ export const useBreadcrumbSchema = items => {
       const existing = document.getElementById(SCRIPT_ID)
       if (existing) existing.remove()
     }
-  }, [items])
+  }, [items, lang])
 }

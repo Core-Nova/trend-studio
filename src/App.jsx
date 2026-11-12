@@ -1,7 +1,7 @@
 import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { trackPageView } from './lib/analytics'
-import { LanguageProvider } from './contexts/LanguageContext'
+import { RoutedLanguageProvider } from './contexts/LanguageContext'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { Navigation } from './components/Navigation/Navigation'
 import { Footer } from './components/Footer/Footer'
@@ -20,10 +20,14 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const AppRoutes = () => {
   const location = useLocation()
 
+  // The language toggle navigates to the same page's other URL
+  // (RoutedLanguageProvider): a new page view, but the reader stays put.
+  const langSwitch = Boolean(location.state?.langSwitch)
+
   useEffect(() => {
-    window.scrollTo(0, 0)
+    if (!langSwitch) window.scrollTo(0, 0)
     trackPageView(location.pathname)
-  }, [location.pathname])
+  }, [location.pathname, langSwitch])
 
   return (
     <>
@@ -31,13 +35,19 @@ const AppRoutes = () => {
       <main id="main-content">
         <Suspense fallback={<div className="page-loading"><img src={logoSrc} alt="" className="page-loading__logo" /></div>}>
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/gallery" element={<GalleryPage />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/book" element={<BookingPage />} />
-            <Route path="*" element={<NotFoundPage />} />
+            {/* "en?" is an optional static segment: every page is served at
+                "/x/" (Bulgarian) and "/en/x/" (English) by the SAME route, so
+                switching language re-renders the page instead of remounting it.
+                The language itself is read from the URL in LanguageContext. */}
+            <Route path="/en?">
+              <Route index element={<HomePage />} />
+              <Route path="gallery" element={<GalleryPage />} />
+              <Route path="services" element={<ServicesPage />} />
+              <Route path="about" element={<AboutPage />} />
+              <Route path="contact" element={<ContactPage />} />
+              <Route path="book" element={<BookingPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
           </Routes>
         </Suspense>
       </main>
@@ -57,16 +67,16 @@ const AppShell = () => {
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <AppRoutes />
+      <RoutedLanguageProvider>
+        <AppRoutes />
+      </RoutedLanguageProvider>
     </BrowserRouter>
   )
 }
 
 export const App = () => (
   <ErrorBoundary>
-    <LanguageProvider>
-      <AppShell />
-    </LanguageProvider>
+    <AppShell />
   </ErrorBoundary>
 )
 

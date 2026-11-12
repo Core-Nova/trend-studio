@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { LangLink as Link } from './LangLink'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { useBookingTarget } from '../../hooks/useBookingTarget'
 import { trackEvent } from '../../lib/analytics'
