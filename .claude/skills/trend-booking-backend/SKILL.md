@@ -34,6 +34,7 @@ redirect that `fetch` follows. `src/__tests__/bookingApi.test.js` locks this in.
 | Apps Script source (copy-pasted into script.google.com) | `apps-script/*.gs` + `appsscript.json` |
 | Single-paste bundler (`node apps-script/bundle.mjs \| clip`) | `apps-script/bundle.mjs` |
 | Node test harness — runs the bundle against fakes of Calendar/Gmail/Sheets/Properties/Cache/Lock with a virtual clock | `src/__tests__/appsScriptHarness.js` + `appsScript.test.js` |
+| Cancel / decline / move-by-email suite + the email-text builders it feeds the fake Gmail | `src/__tests__/bookingSync.test.js` + `bookingEmails.js` |
 | Deployment / testing / maintenance guide | `apps-script/README.md` |
 | Frontend API client | `src/lib/bookingApi.js` (env: `VITE_BACKEND_URL` = the /exec URL) |
 | Wizard state machine | `src/hooks/useBookingFlow.js` |
@@ -117,11 +118,29 @@ messages. The ledger in Script Property `S24_SYNC_STATE` holds `since` (last
 scan start; the search is `from:info@studio24.bg after:<since − 60 min>`, and
 older messages are skipped), `done` (message ids in that window) and
 `attempts` (retry counts). With no ledger yet (first run after upgrading) the
-old `-label:studio24-synced newer_than:7d` search is used once. Labels are
-cosmetic now: `studio24-synced` (handled), `studio24-default-time` (length
-guessed), `studio24-failed` (gave up after `maxAttempts` = 3 runs; the owner is
-emailed via `notifyOwner_`). Calendar writes run under the script lock shared
-with `bookAppointment`; if it's busy the run skips and the next one catches up.
+old `-label:studio24-synced newer_than:7d` search is used once. Calendar
+writes run under the script lock shared with `bookAppointment`; if it's busy
+the run skips and the next one catches up.
+
+**Gmail labels** are for the owner's eyes; every name lives in
+`CONFIG.labels` (`Config.gs`), `setup()` creates them all, `addLabels_`
+creates any missing one on first use. The handlers return the label names
+for what they did (`handleNewReservation_` → booked / updated / duplicate,
+`handleCancellation_` → cancelled / trimmed / not-found,
+unrecognized, failed after `maxAttempts` = 3 runs) and `processS24Message_`
+adds them plus `studio24-synced`. Anything a person must look at also gets
+**`needs-check`**: default-time, not-found, an unreadable cancellation, an
+unrecognized booking email, failed. Labels are per THREAD, so they
+accumulate across same-subject mail. Only `studio24-synced` and
+`declines-synced` are read back (search exclusions) — never rename those
+without migrating. The owner-facing table is in `apps-script/README.md`.
+
+Messages are applied **in the order they were sent** (sorted by date), never
+in search order: Gmail lists threads newest-first and a re-booking joins the
+original booking's thread, so "cancel 10:30" + "re-book 10:30" read together
+used to run re-book first (skipped as a duplicate), then cancel — and the
+booking vanished. A move ("Нова" new time + "Отменена" old time, either order)
+relies on this too.
 
 Recognized subjects (from `info@studio24.bg`):
 
@@ -129,14 +148,23 @@ Recognized subjects (from `info@studio24.bg`):
   event (NO guests/invites — Studio24 already confirmed). `planStudio24Event_`
   ends it when the LAST service ends: each line's own Studio24 time
   (`18:10Терапия…`) + its Services-tab minutes (an untimed line follows the
-  previous one). Dedupe = same phone + exact same start. No parseable service
-  lines → still created, default length, ⚠️, owner emailed
+  previous one). Same phone + exact same start = the same booking: same title
+  (services) → `duplicate_skipped` (an owner's hand-fixed length survives);
+  other services → the event is **updated** to the new email. No parseable
+  service lines → still created, default length, ⚠️, owner emailed
 - `Отменена резервация от <име>` → for each cancelled `dd.mm.yyyy, hh:mm` line,
   `findCancelledEvents_` picks the client's `source=studio24` event: exact
   start → the one running at that time → their only one that day (owner moved
   it). Lines under `Неотменените предстоящи часове` are `kept`: if any fall
-  inside the event it is **trimmed** to them (`trimToKept_`), else deleted
-- Anything else → SyncLog `studio24-ignored` (how a new mail type shows up)
+  inside the event it is **trimmed** to them (`trimToKept_`), else deleted. A
+  kept line that already has its OWN event (`clientEventStartsAt_` — the new
+  half of a move that overlaps the old time) doesn't count, so the old event
+  is deleted rather than trimmed onto the new one
+- Anything else → SyncLog `studio24-ignored`. The first email of each
+  booking-related kind (subject contains `резерв`, e.g. `Променена
+  резервация`) also emails the owner, once per kind (`S24_UNKNOWN_KINDS`):
+  a reschedule format isn't supported yet, so an unknown one leaves the old
+  slot blocked and the new one sellable
 
 When a service line matches no Services-tab row, `matchService_` returns
 `{ name: null, minutes: CONFIG.defaultServiceMin }` and the booking's length is
@@ -149,6 +177,11 @@ Parsers are pure functions in `Studio24Sync.gs`; `runParserTests()` in
 `Setup.gs` asserts them against real sample emails, and
 `src/__tests__/appsScript.test.js` runs it (plus the end-to-end sync,
 availability and booking cases) in Node — run it before every re-paste.
+`src/__tests__/bookingSync.test.js` covers the booking lifecycle by email:
+it builds the text Studio24 / Google Calendar would send
+(`src/__tests__/bookingEmails.js` — `newReservation`, `cancellation`,
+`rsvpNotice`), delivers it to the fake Gmail and runs the real triggers.
+Add a case there for every new email shape.
 
 ## Declined invites
 
@@ -160,16 +193,35 @@ and closes the gap from both ends:
 
 1. **Gmail pass** — reads the owner's `Declined: <title> @ Thu 27 Aug 2026
    2:30pm - 4:20pm (GMT+3)` notifications (label `declines-synced` marks
-   processed threads). The title is truncated with `...` so it is prefix-matched;
-   the start is exact and uses the subject's own GMT offset (Sofia is +3 summer,
-   +2 winter). `parseDeclineSubject_` is pure — `runParserTests()` covers it.
-   Non-English subjects don't parse — the sweep is the backstop.
-2. **Calendar sweep** — deletes upcoming `source=website` events where **every**
-   guest answered "No" (`getGuestList()` excludes the owner).
+   processed threads, plus `declines-removed` / `-kept` / `-not-found`, or
+   `declines-unreadable` for a `Declined:` subject that doesn't parse) to find
+   the booking each names. The title is truncated
+   with `...` so it is prefix-matched; the start is exact and uses the
+   subject's own GMT offset (Sofia is +3 summer, +2 winter). Google drops
+   `:00` on the hour (`10am - 11am`) — the minutes are optional.
+   `parseDeclineSubject_` is pure — `runParserTests()` covers it. Non-English
+   subjects don't parse — the sweep is the backstop.
+2. **Calendar sweep** — checks every upcoming `source=website` event.
 
-Both log `booking-declined` to SyncLog, tagged `(email)` or `(sweep)`. Studio24
-events have no guests, so they are never affected. Worst-case lag before the
-slot frees up: one trigger cycle.
+**The event's guest list decides, never the email**: a booking is deleted only
+while its **client** answers "No" (`clientDeclined_`). The client is the guest
+in the `email` tag `bookAppointment` sets; older events without it fall back to
+"every guest said No" (`getGuestList()` excludes the owner). So a client who
+switches back to "Yes" before the trigger runs keeps the booking, and a guest
+the owner added (a stylist) declining cancels nothing. `bookAppointment` also
+deletes a declined booking it finds in the slot being booked, so a client who
+declined and re-books the same time gets a fresh event + invite (not the
+"already booked" retry answer) and the slot isn't `slot_taken` for others.
+
+All log `booking-declined` to SyncLog, tagged `(email)`, `(sweep)` or
+`(rebooked)`; an email naming a booking whose client hasn't declined logs
+`kept — …`. Studio24 events have no guests, so they are never affected.
+Worst-case lag before availability shows the slot free: one trigger cycle.
+
+The owner cancelling a website booking = deleting the event in Google
+Calendar (and letting it email the guest) — nothing to sync. A booking the
+owner drags to another time is announced to the client by Google as an
+updated invite; a later decline names the new time and matches.
 
 ## Script Properties (Apps Script → Project Settings)
 
@@ -183,6 +235,9 @@ slot frees up: one trigger cycle.
   (default: the script's own account; max 10/day)
 - `S24_SYNC_STATE`, `WEB_BOOKINGS_DAY` — written by the script; deleting
   `S24_SYNC_STATE` makes the next run fall back to the label-based search
+- `S24_UNKNOWN_KINDS` — written by the script: the unrecognized Studio24
+  booking-email kinds the owner was already alerted about; delete an entry to
+  be alerted about that kind again
 
 ## Updating the deployed script
 

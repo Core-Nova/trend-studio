@@ -21,15 +21,23 @@
  * The very first run (no ledger yet) uses the old label-based search, so
  * upgrading never replays mail the previous version already synced.
  *
- * Labels are for the owner's eyes: 'studio24-synced' on every handled
- * thread, 'studio24-default-time' when a booking's length fell back to
- * CONFIG.defaultServiceMin (a service missing from the Services tab — fix it
- * there), 'studio24-failed' as above.
+ * Labels are for the owner's eyes (CONFIG.labels): 'studio24-synced' on every
+ * handled thread, plus one per outcome — booked / updated / duplicate /
+ * cancelled / trimmed / not-found / default-time / unrecognized / failed —
+ * and 'needs-check' on anything a person should look at.
  *
- * Recognized subjects (anything else is logged as 'studio24-ignored', so a
- * new Studio24 mail type — e.g. a reschedule — shows up in SyncLog):
- *  - "Нова резервация от <name> на <dd.mm.yyyy> в <hh:mm>"  → create event
+ * Messages are applied in the order they were sent (not Gmail's newest-first
+ * thread order), so a move — "Нова" for the new time plus "Отменена" for the
+ * old one, in either order — and a cancel-then-rebook both end right even
+ * when one run reads them together.
+ *
+ * Recognized subjects:
+ *  - "Нова резервация от <name> на <dd.mm.yyyy> в <hh:mm>"  → create event, or
+ *    update the client's event at that start when the services changed
  *  - "Отменена резервация от <name>"                        → delete / trim event(s)
+ * Anything else is logged as 'studio24-ignored'; the first email of each new
+ * booking-related kind (e.g. "Променена резервация") also emails the owner —
+ * see alertUnknownBookingMail_.
  *
  * Synced events get NO guests and send NO invites — Studio24 already
  * confirmed with the client. They exist so getAvailability() sees the slot
@@ -46,15 +54,23 @@ function syncStudio24Emails() {
   const windowStart = state.since ? state.since - cfg.scanOverlapMin * 60000 : null
   const query = windowStart
     ? 'from:' + cfg.from + ' after:' + Math.floor(windowStart / 1000)
-    : 'from:' + cfg.from + ' -label:' + cfg.label + ' newer_than:7d'
+    : 'from:' + cfg.from + ' -label:' + CONFIG.labels.studio24Synced + ' newer_than:7d'
 
   const pending = []
   GmailApp.search(query).forEach(function (thread) {
     thread.getMessages().forEach(function (msg) {
       if (state.done[msg.getId()]) return
-      if (windowStart && msg.getDate().getTime() < windowStart) return // handled by an earlier run
-      pending.push({ thread: thread, msg: msg })
+      const date = msg.getDate().getTime()
+      if (windowStart && date < windowStart) return // handled by an earlier run
+      pending.push({ thread: thread, msg: msg, date: date })
     })
+  })
+  // Apply mail in the order Studio24 sent it. Gmail lists threads newest
+  // first and a re-booking joins the original booking's thread, so search
+  // order put "re-book 10:30" (skipped as a duplicate of the still-present
+  // booking) before "cancel 10:30" — and the client's booking was deleted.
+  pending.sort(function (a, b) {
+    return a.date - b.date
   })
 
   if (pending.length) {
@@ -90,6 +106,7 @@ function processS24Message_(item, state, labels) {
   const id = msg.getId()
   if (state.done[id]) return
   const subject = msg.getSubject()
+  const L = CONFIG.labels
   let outcome
   try {
     outcome = handleStudio24Message_(msg, item.thread)
@@ -110,29 +127,69 @@ function processS24Message_(item, state, labels) {
       'Error: ' + err,
       'Email: ' + item.thread.getPermalink(),
     ])
-    outcome = { failed: true }
+    outcome = [L.studio24Failed, L.needsCheck]
   }
   delete state.attempts[id]
   state.done[id] = msg.getDate().getTime()
   saveS24State_(state)
 
-  addLabel_(item.thread, cfg.label, labels)
-  if (outcome.defaultTime) addLabel_(item.thread, cfg.defaultTimeLabel, labels)
-  if (outcome.failed) addLabel_(item.thread, cfg.failedLabel, labels)
+  addLabels_(item.thread, [L.studio24Synced].concat(outcome), labels)
 }
 
-/** → { defaultTime: boolean } — true when the booking's length is a guess. */
+/** Applies one Studio24 email. → the CONFIG.labels names saying what it did. */
 function handleStudio24Message_(msg, thread) {
+  const L = CONFIG.labels
   const subject = msg.getSubject()
   if (CONFIG.studio24.newSubjectRe.test(subject)) {
-    return { defaultTime: handleNewReservation_(subject, msg.getPlainBody(), thread.getPermalink()) }
+    return handleNewReservation_(subject, msg.getPlainBody(), thread.getPermalink())
   }
   if (CONFIG.studio24.cancelSubjectRe.test(subject)) {
-    handleCancellation_(msg.getPlainBody(), thread.getPermalink())
-    return { defaultTime: false }
+    return handleCancellation_(msg.getPlainBody(), thread.getPermalink())
   }
   logSync_('studio24-ignored', subject, 'unrecognized subject, not synced')
-  return { defaultTime: false }
+  const aboutBooking = alertUnknownBookingMail_(subject, thread.getPermalink())
+  return aboutBooking ? [L.studio24Unrecognized, L.needsCheck] : [L.studio24Unrecognized]
+}
+
+const S24_UNKNOWN_KEY_ = 'S24_UNKNOWN_KINDS'
+
+/**
+ * A Studio24 email about a booking that is neither "Нова" nor "Отменена" —
+ * most likely a moved booking — changes the day without the calendar
+ * knowing: the old slot stays blocked and the new one is free for the
+ * website to sell. The owner is emailed the FIRST time each kind of subject
+ * appears ("Променена резервация"), so they fix those bookings by hand and
+ * forward a sample to get the kind supported; every instance stays in
+ * SyncLog and carries the 'needs-check' label. Once per kind, so a frequent
+ * kind (say, reminders) can't use up the daily alert cap that real sync
+ * failures need.
+ *
+ * @return {boolean} whether the email is about a booking (then it needs a look)
+ */
+function alertUnknownBookingMail_(subject, link) {
+  if (!/резерв/i.test(subject)) return false // newsletters and the like: SyncLog only
+  const kind = subject.split(' от ')[0].replace(/\d+/g, '#').trim().slice(0, 60)
+  let kinds
+  try {
+    kinds = JSON.parse(getProp_(S24_UNKNOWN_KEY_) || '[]')
+  } catch (err) {
+    kinds = []
+  }
+  if (kinds.indexOf(kind) !== -1) return true
+  setProp_(S24_UNKNOWN_KEY_, JSON.stringify(kinds.concat([kind])))
+  notifyOwner_('New kind of Studio24 email, not synced: "' + kind + '"', [
+    'Studio24 sent a booking email the calendar sync does not understand, so the calendar',
+    'was NOT changed. If it moved or changed a booking, update the calendar by hand —',
+    'otherwise the website may sell the new time to someone else.',
+    '',
+    'You are told once per kind of email; later ones get the Gmail labels',
+    '"studio24-unrecognized" and "needs-check". Forward this email to the developer so it',
+    'can be supported.',
+    '',
+    'Subject: ' + subject,
+    link ? 'Email: ' + link : '',
+  ])
+  return true
 }
 
 function loadS24State_() {
@@ -148,9 +205,13 @@ function saveS24State_(state) {
   setProp_(S24_STATE_KEY_, JSON.stringify(state))
 }
 
-function addLabel_(thread, name, cache) {
-  cache[name] = cache[name] || getOrCreateLabel_(name)
-  thread.addLabel(cache[name])
+/** Adds each named Gmail label once; `cache` reuses label objects within a run. */
+function addLabels_(thread, names, cache) {
+  names.forEach(function (name, i) {
+    if (!name || names.indexOf(name) !== i) return
+    cache[name] = cache[name] || getOrCreateLabel_(name)
+    thread.addLabel(cache[name])
+  })
 }
 
 // ---------- parsers (pure — exercised by runParserTests() in Setup.gs) ----------
@@ -286,45 +347,61 @@ const UNMATCHED_PREFIX_ = '⚠️ '
  * owner is emailed: a booking that never reaches the calendar is a slot the
  * website would sell twice.
  *
- * @return {boolean} true when an event was created whose length is a guess
- *   (a service missing from the Services tab, or no service lines at all) —
- *   the caller labels the thread 'studio24-default-time'. A skipped
- *   duplicate creates nothing and returns false.
+ * @return {string[]} labels (CONFIG.labels): booked | updated | duplicate,
+ *   plus default-time + needs-check when the length is a guess (a service
+ *   missing from the Services tab, or no service lines at all).
  */
 function handleNewReservation_(subject, plainBody, link) {
+  const L = CONFIG.labels
   const p = parseNewReservation_(subject, plainBody)
   if (!p) {
     logSync_('studio24-new', subject, 'parse_failed')
-    return false
+    return [L.needsCheck]
   }
   const phone = digits_(p.phone)
   const plan = planStudio24Event_(p)
-
-  // Same client at the same start = Studio24 sent this booking twice. (Any
-  // overlap used to count, which dropped a second, real booking by the same
-  // client whenever our length estimate for the first ran into it.)
-  const dupe = getCalendar_()
-    .getEvents(p.start, new Date(p.start.getTime() + 60000))
-    .some(function (ev) {
-      return (
-        ev.getStartTime().getTime() === p.start.getTime() &&
-        ev.getTag('source') === 'studio24' &&
-        ev.getTag('phone') === phone
-      )
-    })
-  if (dupe) {
-    logSync_('studio24-new', p.name + ' @ ' + p.start, 'duplicate_skipped')
-    return false
-  }
-
+  const guessed = plan.usedDefault ? [L.studio24DefaultTime, L.needsCheck] : []
   const names = p.services
     .map(function (s) {
       return s.name
     })
     .join(', ')
   const title = (plan.usedDefault ? UNMATCHED_PREFIX_ : '') + 'Studio24: ' + p.name + (names ? ' — ' + names : '')
+  const description = buildStudio24Description_(p)
+
+  // Same client at the same start is the same booking — one person can't sit
+  // in two chairs. Same services = Studio24 sent it twice: skip (and keep any
+  // length the owner fixed by hand). Other services = the booking was changed
+  // and re-sent: the newest email wins; skipping it kept the old length.
+  // (Any overlap used to count, which dropped a second, real booking by the
+  // same client whenever our length estimate for the first ran into it.)
+  const existing = getCalendar_()
+    .getEvents(p.start, new Date(p.start.getTime() + 60000))
+    .filter(function (ev) {
+      return (
+        ev.getStartTime().getTime() === p.start.getTime() &&
+        ev.getTag('source') === 'studio24' &&
+        ev.getTag('phone') === phone
+      )
+    })[0]
+  if (existing && existing.getTitle() === title) {
+    logSync_('studio24-new', p.name + ' @ ' + p.start, 'duplicate_skipped')
+    return [L.studio24Duplicate]
+  }
+  if (existing) {
+    existing.setTime(p.start, plan.end)
+    existing.setTitle(title)
+    existing.setDescription(description)
+    logSync_(
+      'studio24-new',
+      p.name + ' @ ' + p.start,
+      'updated to ' + plan.minutes + 'min [' + plan.breakdown + '] (re-sent with other services)'
+    )
+    return [L.studio24Updated].concat(guessed)
+  }
+
   const event = getCalendar_().createEvent(title, p.start, plan.end, {
-    description: buildStudio24Description_(p),
+    description: description,
     location: CONFIG.address,
   })
   event.setTag('source', 'studio24')
@@ -343,7 +420,7 @@ function handleNewReservation_(subject, plainBody, link) {
       link ? 'Email: ' + link : '',
     ])
   }
-  return plan.usedDefault
+  return [L.studio24Booked].concat(guessed)
 }
 
 /**
@@ -351,10 +428,16 @@ function handleNewReservation_(subject, plainBody, link) {
  * client's synced event (see findCancelledEvents_). If the client keeps other
  * services inside that event ("Неотменените…"), the event is trimmed to just
  * those; otherwise it is deleted.
+ *
+ * @return {string[]} labels (CONFIG.labels): cancelled and/or trimmed; a
+ *   start that matched no event adds not-found + needs-check, an unreadable
+ *   email needs-check.
  */
 function handleCancellation_(plainBody, link) {
+  const L = CONFIG.labels
   const p = parseCancellation_(plainBody)
   const phone = digits_(p.phone)
+  const outcome = []
   if (!p.items.length) {
     logSync_('studio24-cancel', p.phone || '(no phone)', 'parse_failed, no cancelled lines found')
     notifyOwner_('Studio24 cancellation could not be read', [
@@ -363,7 +446,7 @@ function handleCancellation_(plainBody, link) {
       '',
       link ? 'Email: ' + link : '',
     ])
-    return
+    return [L.needsCheck]
   }
   const cancelledNames = p.items
     .map(function (item) {
@@ -380,25 +463,34 @@ function handleCancellation_(plainBody, link) {
     })
     if (!events.length) {
       logSync_('studio24-cancel', String(start), 'not_found')
+      outcome.push(L.studio24NotFound, L.needsCheck)
       return
     }
     events.forEach(function (ev) {
       seen[ev.getId()] = true
       const evStart = ev.getStartTime().getTime()
       const evEnd = ev.getEndTime().getTime()
+      // A kept service stays in THIS event only if no other event of the
+      // client starts at its time. A move an hour later arrives as "Нова
+      // 11:00" + "Отменена 10:00, keeping 11:00": the new booking is already
+      // its own event, and trimming the old one onto it blocked it twice.
       const kept = p.kept.filter(function (k) {
-        return k.start.getTime() >= evStart && k.start.getTime() < evEnd
+        const t = k.start.getTime()
+        return t >= evStart && t < evEnd && !clientEventStartsAt_(k.start, phone, ev.getId())
       })
       const label = ev.getTitle() + ' @ ' + ev.getStartTime()
       if (kept.length) {
         trimToKept_(ev, kept, cancelledNames)
         logSync_('studio24-cancel', label, 'trimmed to kept: ' + ev.getTitle())
+        outcome.push(L.studio24Trimmed)
       } else {
         ev.deleteEvent()
         logSync_('studio24-cancel', label, 'deleted')
+        outcome.push(L.studio24Cancelled)
       }
     })
   })
+  return outcome
 }
 
 /**
@@ -427,6 +519,21 @@ function findCancelledEvents_(start, phone, keptSameDay) {
   })
   if (running.length) return running.length === 1 ? running : []
   return sameDay.length === 1 && !keptSameDay ? sameDay : []
+}
+
+/** True when the client has a synced event, other than `exceptId`, starting exactly at `start`. */
+function clientEventStartsAt_(start, phone, exceptId) {
+  if (!phone) return false
+  return getCalendar_()
+    .getEvents(start, new Date(start.getTime() + 60000))
+    .some(function (ev) {
+      return (
+        ev.getId() !== exceptId &&
+        ev.getStartTime().getTime() === start.getTime() &&
+        ev.getTag('source') === 'studio24' &&
+        ev.getTag('phone') === phone
+      )
+    })
 }
 
 /** Shrinks a partly cancelled booking to the services the client kept. */

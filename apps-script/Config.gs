@@ -28,17 +28,44 @@ const CONFIG = {
 
   cacheSec: { hours: 600, reviews: 21600 },
 
+  // Gmail labels, so the owner can see in the inbox what every booking email
+  // did. Labels sit on THREADS and Gmail threads mail with the same subject,
+  // so one thread can carry several. setup() creates them all; a missing one
+  // is created when first used. Only `studio24Synced` (first-run search) and
+  // `declinesSynced` (decline-pass search) are ever read back by the code —
+  // rename those two only together with their threads.
+  labels: {
+    // Something a person should look at; the thread's other labels say why.
+    // Remove it once handled — it is added again only by a new problem.
+    needsCheck: 'needs-check',
+
+    studio24Synced: 'studio24-synced', // every Studio24 email the sync handled
+    studio24Booked: 'studio24-booked', // new booking → event created
+    studio24Updated: 'studio24-updated', // re-sent with other services → event updated
+    studio24Duplicate: 'studio24-duplicate', // sent twice → nothing changed
+    studio24Cancelled: 'studio24-cancelled', // cancellation → event deleted
+    studio24Trimmed: 'studio24-trimmed', // partial cancellation → event shortened
+    studio24NotFound: 'studio24-not-found', // cancellation matched no event (+ needs-check)
+    // Length is a guess: a service missing from the Services tab (+ needs-check)
+    // — the Gmail twin of the ⚠️ event title.
+    studio24DefaultTime: 'studio24-default-time',
+    // Neither a new booking nor a cancellation; nothing changed (+ needs-check
+    // when it is about a booking).
+    studio24Unrecognized: 'studio24-unrecognized',
+    // Still threw after maxAttempts runs: NOT synced (+ needs-check; owner emailed).
+    studio24Failed: 'studio24-failed',
+
+    declinesSynced: 'declines-synced', // every "Declined: …" notification read
+    declinesRemoved: 'declines-removed', // client declined → booking deleted
+    declinesKept: 'declines-kept', // client answered again / another guest declined → kept
+    declinesNotFound: 'declines-not-found', // no booking at that time (already removed)
+    // A "Declined:" subject the parser can't read — the calendar sweep still
+    // removes the booking; a run of these means Google changed its format.
+    declinesUnreadable: 'declines-unreadable',
+  },
+
   studio24: {
     from: 'info@studio24.bg',
-    label: 'studio24-synced',
-    // Added ALONGSIDE `label` when a booking's length fell back to
-    // defaultServiceMin because a service name wasn't in the Services tab —
-    // the Gmail-side twin of the UNMATCHED_PREFIX_ event-title marker, so the
-    // threads whose times need checking by hand are one click away.
-    defaultTimeLabel: 'studio24-default-time',
-    // Added when a message still threw after maxAttempts runs — it was NOT
-    // synced and needs a manual look (the owner is emailed too).
-    failedLabel: 'studio24-failed',
     maxAttempts: 3,
     // Each run re-reads mail this far before the previous run started, so a
     // message Gmail indexes late is not skipped; the per-message ledger keeps
@@ -47,10 +74,6 @@ const CONFIG = {
     newSubjectRe: /^Нова резервация от (.+?) на (\d{2})\.(\d{2})\.(\d{4}) в (\d{1,2}):(\d{2})/,
     cancelSubjectRe: /^Отменена резервация от /,
   },
-
-  // Gmail label for processed Google Calendar "Declined: …" notifications
-  // (see DeclinedBookings.gs).
-  declineLabel: 'declines-synced',
 
   // Emails about sync problems that need a human — a Studio24 mail that kept
   // failing or could not be read. Sent to the ALERT_EMAIL script property,

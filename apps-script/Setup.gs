@@ -8,10 +8,9 @@
 
 function setup() {
   createConfigSpreadsheetIfMissing_()
-  getOrCreateLabel_(CONFIG.studio24.label)
-  getOrCreateLabel_(CONFIG.studio24.defaultTimeLabel)
-  getOrCreateLabel_(CONFIG.studio24.failedLabel)
-  getOrCreateLabel_(CONFIG.declineLabel)
+  Object.keys(CONFIG.labels).forEach(function (key) {
+    getOrCreateLabel_(CONFIG.labels[key]) // so every Gmail label is there before its first use
+  })
   installTrigger_()
   // Fill the gallery now instead of at the first 6-hour tick.
   if (getProp_('IG_TOKEN')) syncInstagram()
@@ -279,6 +278,10 @@ function runParserTests() {
   check('decline.titleRejectsOther', titleMatches_('Мария Петрова — Сешоар', d.title), false)
   check('decline.usFormat', parseDeclineSubject_('Declined: X @ Thu Aug 27, 2026 2:30pm - 4:20pm (GMT+3)').start.getTime(), Date.UTC(2026, 7, 27, 11, 30))
   check('decline.winterOffset', parseDeclineSubject_('Declined: X @ Fri 9 Jan 2026 9:00am - 10:00am (GMT+2)').start.getTime(), Date.UTC(2026, 0, 9, 7, 0))
+  // Google drops ":00" on the hour ("10am - 11am") — half the website's 30-min grid.
+  check('decline.onTheHour', parseDeclineSubject_('Declined: X @ Wed 4 Nov 2026 10am - 11am (GMT+2) (trendstudiotedi@gmail.com)').start.getTime(), Date.UTC(2026, 10, 4, 8, 0))
+  check('decline.noon', parseDeclineSubject_('Declined: X @ Wed 4 Nov 2026 12pm - 1pm (GMT+2)').start.getTime(), Date.UTC(2026, 10, 4, 10, 0))
+  check('decline.bareHour', parseDeclineSubject_('Declined: X @ Wed 4 Nov 2026 10 - 11 (GMT+2)'), null)
   check('decline.nonDecline', parseDeclineSubject_('Accepted: X @ Thu 27 Aug 2026 2:30pm (GMT+3)'), null)
 
   // Instagram captions: the trailing hashtag block goes, a closing @mention stays.

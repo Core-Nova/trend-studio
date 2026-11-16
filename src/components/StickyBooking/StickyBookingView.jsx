@@ -1,7 +1,7 @@
-import { trackEvent } from '../../lib/analytics'
+import { trackCallClick } from '../../lib/ctaTracking'
 import { BookingLink } from '../atoms/BookingLink'
 
-const trackPhone = () => trackEvent('contact', { method: 'phone', location: 'sticky_bar' })
+const trackPhone = () => trackCallClick('sticky_bar')
 
 export const StickyBookingView = ({ text, phoneHref, callText }) => (
   <div className="sticky-booking">

@@ -3,9 +3,11 @@
  * Apps Script backend (apps-script/*.gs) — run in Node against in-memory
  * fakes (see appsScriptHarness.js). Covers what the editor-only
  * runParserTests() can't: availability, booking, and the Studio24 sync
- * end-to-end through Gmail → Calendar → SyncLog.
+ * end-to-end through Gmail → Calendar → SyncLog. Cancelled, declined and
+ * moved bookings have their own suite: bookingSync.test.js.
  */
 import { loadBackend } from './appsScriptHarness'
+import { cancellation, newReservation } from './bookingEmails'
 
 const ISO = (s) => new Date(s).getTime()
 
@@ -20,38 +22,6 @@ const bookingPayload = (overrides = {}) => ({
   lang: 'bg',
   website: '',
   ...overrides
-})
-
-const newReservation = ({ name, date, time, phone = '0889 972 828', services }) => ({
-  subject: `Нова резервация от ${name} на ${date} в ${time}`,
-  body: [
-    'Здравейте Теди Първанова,',
-    '',
-    `Hair Boutique Studio TREND получи нова онлайн резервация от Studio24.bg на ${date} в ${time}.`,
-    '',
-    `Клиентът е ${name} с тел. ${phone} и имейл client@example.com`,
-    '',
-    'Избрани са следните услуги:',
-    '',
-    services,
-    'Ако няма да можете да обслужите клиента, е необходимо да му позвъните възможно най-скоро и да промените или отмените запазения час.'
-  ].join('\n')
-})
-
-const cancellation = ({ name, phone = '0889 972 828', lines, kept = [] }) => ({
-  subject: `Отменена резервация от ${name}`,
-  body: [
-    'Здравейте,',
-    '',
-    `${name} с тел. ${phone} и имейл client@example.com отмени следните услуги в Hair Boutique Studio TREND:`,
-    '',
-    ...lines,
-    'Отменените услуги са премахнати от Вашия календар и няма нужда да ги търсите и изтривате.',
-    '',
-    ...(kept.length
-      ? ['Неотменените предстоящи часове на клиента са:', '', ...kept]
-      : ['Клиентът няма други предстоящи часове във вашия салон.'])
-  ].join('\n')
 })
 
 const studio24Events = (b) => b.events.filter((ev) => ev.tags.source === 'studio24')
@@ -158,7 +128,7 @@ describe('bookAppointment', () => {
     expect(ev.end).toBe(ISO('2026-11-04T11:00:00+02:00'))
     expect(ev.guests.map((g) => g.email)).toEqual(['maria@example.com'])
     expect(ev.sendInvites).toBe(true)
-    expect(ev.tags).toEqual({ source: 'website', phone: '0888123456' })
+    expect(ev.tags).toEqual({ source: 'website', phone: '0888123456', email: 'maria@example.com' })
   })
 
   it('rejects a booking that runs past closing even when its end wraps past midnight', () => {
@@ -314,7 +284,7 @@ describe('syncStudio24Emails', () => {
     expect(ev.end - ev.start).toBe(15 * 60000)
     expect(ev.guests).toEqual([])
     expect(ev.tags).toEqual({ source: 'studio24', phone: '0889972828' })
-    expect([...b.threads[0].labels]).toEqual(['studio24-synced'])
+    expect([...b.threads[0].labels]).toEqual(['studio24-synced', 'studio24-booked'])
   })
 
   it('handles each message once, however often the trigger runs', () => {

@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { LangLink as Link } from './LangLink'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { useBookingTarget } from '../../hooks/useBookingTarget'
-import { trackEvent } from '../../lib/analytics'
+import { trackBookClick } from '../../lib/ctaTracking'
 
 /**
  * Booking CTA whose width is the maximum of the translated labels in all
@@ -18,8 +18,8 @@ import { trackEvent } from '../../lib/analytics'
  * invisibly in the same grid cell to size the button. Backwards-compatible:
  * a plain `text` prop still works for one-off callers.
  *
- * `location` (e.g. 'hero', 'sticky_bar', 'footer') is sent as an analytics
- * param so we can attribute bookings to surface.
+ * `location` (e.g. 'hero', 'sticky_bar', 'footer') is sent with the
+ * `book_now_click` event so we can attribute bookings to surface.
  */
 export const BookingButton = memo(({ translations, text, url, className = '', location = 'unknown' }) => {
   const { lang, t } = useLanguage()
@@ -27,10 +27,7 @@ export const BookingButton = memo(({ translations, text, url, className = '', lo
   const external = url ? true : target.external
   const href = url || target.href
 
-  const handleClick = () => {
-    if (external) trackEvent('generate_lead', { method: 'booking_link', location, language: lang })
-    else trackEvent('select_content', { content_type: 'booking', location, language: lang })
-  }
+  const handleClick = () => trackBookClick(location, external ? 'studio24' : 'booking_page')
 
   const label = translations ? (
     <>

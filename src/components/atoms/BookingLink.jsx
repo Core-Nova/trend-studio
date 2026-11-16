@@ -1,7 +1,6 @@
 import { LangLink as Link } from './LangLink'
-import { useLanguage } from '../../contexts/LanguageContext'
 import { useBookingTarget } from '../../hooks/useBookingTarget'
-import { trackEvent } from '../../lib/analytics'
+import { trackBookClick } from '../../lib/ctaTracking'
 
 /**
  * A "Book" call-to-action that follows the experimental toggle: it links
@@ -12,12 +11,10 @@ import { trackEvent } from '../../lib/analytics'
  * side effects like closing a menu — both fire on click.
  */
 export const BookingLink = ({ className = '', location = 'unknown', onClick, children, ...rest }) => {
-  const { lang } = useLanguage()
   const { external, to, href } = useBookingTarget()
 
   const handleClick = (e) => {
-    if (external) trackEvent('generate_lead', { method: 'booking_link', location, language: lang })
-    else trackEvent('select_content', { content_type: 'booking', location, language: lang })
+    trackBookClick(location, external ? 'studio24' : 'booking_page')
     if (onClick) onClick(e)
   }
 

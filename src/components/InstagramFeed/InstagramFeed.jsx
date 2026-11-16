@@ -6,6 +6,7 @@ import { SectionHeader } from '../atoms/SectionHeader'
 import { ResponsiveImage } from '../atoms/ResponsiveImage'
 import { SITE } from '../../lib/constants'
 import { trackEvent } from '../../lib/analytics'
+import { trackInstagramClick } from '../../lib/ctaTracking'
 import monogramSrc from '../../assets/brand/trend-monogram.png?w=128&format=webp'
 
 const TILE_SIZES = '(max-width: 768px) 50vw, (max-width: 992px) 33vw, 320px'
@@ -154,7 +155,7 @@ export const InstagramFeed = ({ tag, title, as = 'h2', location = 'gallery_page'
       location,
       feed: status
     })
-  const follow = (link) => trackEvent('share', { method: 'instagram', location, link })
+  const follow = (link) => trackInstagramClick(`${location}_${link}`)
 
   return (
     <section className="ig-feed">

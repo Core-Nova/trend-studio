@@ -120,6 +120,7 @@ src/
 - Free serverless backend under trendstudiotedi@gmail.com — availability from Google Calendar + working-hours spreadsheet, event creation with client invites, Studio24 email sync (5-min Gmail poll), declined-invite cleanup (`DeclinedBookings.gs`, own 5-min trigger), the gallery's Instagram feed (`Instagram.gs`: 6-hour sync into the config sheet's "Instagram" tab, weekly token refresh, `?action=instagram`; needs Script Property `IG_TOKEN`), and a reviews endpoint the site does not currently call
 - Source in `apps-script/` (one `.gs` per function, copy-pasted into script.google.com); deployment guide in `apps-script/README.md`
 - `src/__tests__/appsScript.test.js` runs the pasted bundle in Node against fakes of the Google services (virtual clock, Sofia TZ) — the only way to test the backend without deploying; extend it with every backend change
+- `src/__tests__/bookingSync.test.js` covers cancelled, declined and moved bookings purely through email text (`bookingEmails.js` builds what Studio24 / Google Calendar send; the triggers read it from the fake Gmail). Declines are decided by the client's RSVP on the event, never by the email alone
 - Frontend: `/book` wizard (`src/components/Booking/`, `useBookingFlow`, `src/lib/bookingApi.js`); the /exec URL is `SITE.backendUrl` (`src/lib/constants.js`) — a hardcoded public default, overridable via env `VITE_BACKEND_URL`
 - CORS constraint: POSTs are text/plain string bodies with NO custom headers (Apps Script can't answer preflight)
 - Service durations live in TWO places: `services.json` `minutes` (wizard) and the config spreadsheet's Services tab (Studio24 sync) — keep in sync
@@ -146,6 +147,12 @@ scrape now writes all of them — never update any by hand:
 - The scrape refuses to write a field it did not read (a missed header would otherwise publish a "0 reviews" rich-result to Google)
 - `--override` is a no-op kept for backwards compatibility; the default mode already writes everything
 - The committed `src/data/reviews.js` is what `npm run dev` and any local build show, so it goes stale between scrapes — that is expected, not a bug
+
+### Analytics (GA4)
+- `src/lib/analytics.js`: gtag first, Apps Script collector fallback (`apps-script/Analytics.gs`) for in-app browsers that block gtag.js
+- The three conversion buttons each have their own event, so they are separate rows in GA4 → Reports → Engagement → Events: `book_now_click`, `call_click`, `instagram_follow_click`. Fire them only through `src/lib/ctaTracking.js` (`trackBookClick` / `trackCallClick` / `trackInstagramClick`) on every Book, `tel:` and Instagram-profile link, with a `location` unique to that button. `language` comes from the URL. Book clicks also get `destination` (`studio24` | `booking_page`). Locked in by `src/__tests__/ctaTracking.test.jsx`
+- Until Nov 2026 the same clicks went out as `generate_lead` / `contact` / `share`; GA4 data from before then uses those names. `generate_lead` now means a booking submitted through the `/book` wizard
+- Running `npm run dev` sends events to the live GA4 property
 
 ### Bilingual Support
 - `LanguageContext` provides `t()`, `lang` and `changeLanguage()`. The language comes from the URL (`/en/...` = English, anything else Bulgarian) — see Prerendering. `LanguageProvider` (state + localStorage) is only the router-less variant for tests

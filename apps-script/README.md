@@ -42,8 +42,8 @@ Studio24 emails, and serves live Google reviews.
 3. In the editor pick the function **`setup`** in the toolbar dropdown →
    **Run** → approve the permission screen (Calendar, Gmail, Sheets).
    This creates the **TREND Booking Config** spreadsheet (pre-filled working
-   hours + service durations), the `studio24-synced`, `studio24-default-time`,
-   `studio24-failed` and `declines-synced` Gmail labels, and the triggers
+   hours + service durations), the Gmail labels (see [Gmail labels](#gmail-labels)),
+   and the triggers
    (`syncStudio24Emails` and `syncDeclinedBookings` every 5 min,
    `syncInstagram` every 6 h, `refreshInstagramToken` weekly). The execution
    log prints the spreadsheet link.
@@ -86,8 +86,9 @@ Edit the code in the Apps Script editor (or re-paste — `node
 apps-script/bundle.mjs | clip` again), then
 **Deploy → Manage deployments → ✏ → Version: New version → Deploy**.
 The `/exec` URL stays the same. (A brand-new deployment would mint a new URL
-and break the site until `VITE_BACKEND_URL` is updated.) After an update that
-adds a Gmail label, run `setup()` once more — it only creates what's missing.
+and break the site until `VITE_BACKEND_URL` is updated.) A new Gmail label is
+created the first time it is used; run `setup()` once more to see them all in
+Gmail straight away — it only creates what's missing.
 
 Power option: [`clasp`](https://github.com/google/clasp) (`npm i -g
 @google/clasp`, `clasp login`, `clasp clone <scriptId>` into a scratch dir)
@@ -109,10 +110,16 @@ Changes apply within ~10 minutes (cache TTL).
 
 ## How the Studio24 sync behaves
 
-- **Each email is handled once.** Gmail groups mail with the same subject into
-  one thread — every "Отменена резервация от <name>" by the same client, and a
-  re-booking of the same slot — so the sync tracks individual messages (Script
-  Property `S24_SYNC_STATE`), not threads. Labels are only for you to look at.
+- **Each email is handled once, in the order it was sent.** Gmail groups mail
+  with the same subject into one thread — every "Отменена резервация от
+  <name>" by the same client, and a re-booking of the same slot — so the sync
+  tracks individual messages (Script Property `S24_SYNC_STATE`), not threads,
+  and sorts them by date before applying them. Labels are only for you to look
+  at.
+- **Moves work in either order.** A moved booking arrives as a new booking for
+  the new time plus a cancellation of the old one; the calendar ends up with
+  just the new time whichever comes first. A booking re-sent for the same time
+  with other services updates the event.
 - **Length = until Studio24's last service ends.** Studio24 gives each service
   its own start time; the event runs to the last one's start + its minutes in
   the Services tab.
@@ -124,16 +131,69 @@ Changes apply within ~10 minutes (cache TTL).
 - **Unreadable service lines still block the slot** for the default 60 min,
   with ⚠️ in the title, and you get an email.
 - **Unknown Studio24 emails** (anything that isn't a new booking or a
-  cancellation) are logged as `studio24-ignored` in SyncLog — that's how a new
-  email type, like a reschedule, would show up.
+  cancellation) are logged as `studio24-ignored` in SyncLog. If the subject is
+  about a booking ("…резервация…", e.g. a reschedule), you also get an email
+  the first time each kind appears — the calendar was NOT changed, so fix
+  those bookings by hand and forward one to get the kind supported.
+
+## Gmail labels
+
+Every booking email the sync reads gets labels saying what it did, so the
+inbox doubles as the log (SyncLog has the details). **`needs-check` is the one
+to watch**: it marks every email a person should look at — the thread's other
+labels say why. Remove it once you've handled it; only a new problem adds it
+back. Labels belong to a whole Gmail conversation, and Gmail groups emails
+with the same subject (e.g. every cancellation by one client), so one
+conversation can carry several.
+
+| Label | What happened | What to do |
+|---|---|---|
+| `needs-check` | Something below that needs a person | Look, fix, remove the label |
+| `studio24-synced` | Any Studio24 email the sync handled | — |
+| `studio24-booked` | New booking → calendar event created | — |
+| `studio24-updated` | Booking re-sent with other services → event updated | — |
+| `studio24-duplicate` | Same booking sent twice → nothing changed | — |
+| `studio24-cancelled` | Cancellation → event deleted | — |
+| `studio24-trimmed` | Part of a booking cancelled → event shortened to what's kept | — |
+| `studio24-not-found` | Cancellation matched no calendar event (+ `needs-check`) | Make sure the slot is free in the calendar |
+| `studio24-default-time` | A service isn't in the Services tab, so the length is a guess (+ `needs-check`) | Fix the event's length; add the service to the Services tab |
+| `studio24-unrecognized` | Neither a new booking nor a cancellation → nothing changed (+ `needs-check` if it's about a booking) | If it moved a booking, fix the calendar by hand |
+| `studio24-failed` | Kept failing → NOT synced (+ `needs-check`, you're emailed) | Update the calendar by hand |
+| `declines-synced` | Any "Declined: …" email the sync read | — |
+| `declines-removed` | The client declined → website booking deleted | — |
+| `declines-kept` | Booking kept: the client answered "Yes" again, or a guest you added declined | — |
+| `declines-not-found` | No booking at that time (already removed) | — |
+| `declines-unreadable` | A "Declined:" subject in a format the sync can't read; the booking is still removed by the calendar check | Many of these = tell the developer |
+
+The names are in `CONFIG.labels` (`Config.gs`). To rename one, rename it in
+Gmail and in `CONFIG.labels` together — except `studio24-synced` and
+`declines-synced`, which the sync searches by: renaming those makes it re-read
+older emails once.
+
+## How declined invites behave
+
+- A website booking is removed when its **client** answers "No" to the
+  invite — read from the event's guest list every 5 minutes, using Google's
+  "Declined: …" email only to find the booking faster. If the client switches
+  back to "Yes" before then, the booking stays; a guest you added yourself
+  (e.g. a stylist) declining never cancels it.
+- A client who declined and books the same time again gets a new booking and
+  a new invite.
+- To cancel a website booking yourself, delete the event in Google Calendar
+  (let it email the guest). If you move it, Google sends the client the
+  updated invite; nothing else is needed.
 
 ## Testing
 
 **In Node (no Google account needed):** `npx vitest run
-src/__tests__/appsScript.test.js` runs the exact bundle against in-memory
-fakes of Calendar, Gmail, Sheets, etc. — availability (incl. DST changes),
-booking rules, and the Studio24 sync end to end. It also runs
-`runParserTests()`. Run it before every re-paste.
+src/__tests__/appsScript.test.js src/__tests__/bookingSync.test.js` runs the
+exact bundle against in-memory fakes of Calendar, Gmail, Sheets, etc. —
+availability (incl. DST changes), booking rules, the Studio24 sync end to end,
+and `runParserTests()`. `bookingSync.test.js` drives cancellations, declined
+invites and moved bookings purely through email text: it builds what Studio24
+and Google Calendar would send (`bookingEmails.js`), drops it into the fake
+inbox and checks the calendar — no email is ever sent. Run both before every
+re-paste.
 
 From the Apps Script editor (pick function → Run → View → Logs):
 

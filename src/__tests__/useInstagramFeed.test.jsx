@@ -207,10 +207,9 @@ describe('InstagramFeed', () => {
     })
 
     screen.getByRole('link', { name: /Follow on Instagram/ }).click()
-    expect(trackEvent).toHaveBeenCalledWith('share', {
-      method: 'instagram',
-      location: 'gallery_page',
-      link: 'follow_button'
+    expect(trackEvent).toHaveBeenCalledWith('instagram_follow_click', {
+      location: 'gallery_page_follow_button',
+      language: 'bg'
     })
   })
 

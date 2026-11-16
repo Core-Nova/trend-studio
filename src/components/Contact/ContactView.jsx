@@ -2,13 +2,15 @@ import { SectionHeader } from '../atoms/SectionHeader'
 import { BookingButton } from '../atoms/BookingButton'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import { trackEvent } from '../../lib/analytics'
+import { trackBookClick, trackCallClick } from '../../lib/ctaTracking'
 
-const trackPhone = () => trackEvent('contact', { method: 'phone', location: 'contact_section' })
+const trackPhoneNumber = () => trackCallClick('contact_phone_number')
+const trackCallButton = () => trackCallClick('contact_section')
 const trackViber = () => trackEvent('contact', { method: 'viber', location: 'contact_section' })
 const trackEmail = () => trackEvent('contact', { method: 'email', location: 'contact_section' })
 const trackMap = () => trackEvent('select_content', { content_type: 'map', location: 'contact_section' })
 
-const trackStudio24 = () => trackEvent('generate_lead', { method: 'booking_link', location: 'contact_section' })
+const trackStudio24 = () => trackBookClick('contact_studio24_link')
 
 export const ContactView = ({
   sectionTag, title, addressLabel, addressLines, phoneLabel, phone, phoneHref,
@@ -36,7 +38,7 @@ export const ContactView = ({
             <div className="contact-details">
               <h3>{phoneLabel}</h3>
               <p>
-                <a href={phoneHref} onClick={trackPhone}>{phone}</a>
+                <a href={phoneHref} onClick={trackPhoneNumber}>{phone}</a>
               </p>
               {viberUrl && (
                 <a href={viberUrl} className="contact-viber-link" onClick={trackViber}>
@@ -63,7 +65,7 @@ export const ContactView = ({
           </div>
           <div className="contact-actions">
             <BookingButton translations={bookOnlineBtn} className="booking-btn" location="contact_section" />
-            <a href={phoneHref} className="btn btn-secondary contact-call-btn" onClick={trackPhone}>
+            <a href={phoneHref} className="btn btn-secondary contact-call-btn" onClick={trackCallButton}>
               &#9742; {phone}
             </a>
           </div>

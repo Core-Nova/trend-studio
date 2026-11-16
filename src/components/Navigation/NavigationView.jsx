@@ -1,13 +1,14 @@
 import { LangLink as Link } from '../atoms/LangLink'
 import { trackEvent } from '../../lib/analytics'
+import { trackCallClick, trackInstagramClick } from '../../lib/ctaTracking'
 import { SITE } from '../../lib/constants'
 import { PATHS, samePath } from '../../lib/routes'
 import { BookingLink } from '../atoms/BookingLink'
 import logoSrc from '../../assets/brand/trend-logo.png?w=320&format=webp'
 import logoSrcAvif from '../../assets/brand/trend-logo.png?w=320&format=avif'
 
-const trackPhone = location => () => trackEvent('contact', { method: 'phone', location })
-const trackIG = location => () => trackEvent('share', { method: 'instagram', location })
+const trackPhone = location => () => trackCallClick(location)
+const trackIG = location => () => trackInstagramClick(location)
 const trackLang = code => () => trackEvent('language_switch', { language: code })
 
 export const NavigationView = ({

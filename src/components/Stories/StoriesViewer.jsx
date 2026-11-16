@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { trackEvent } from '../../lib/analytics'
+import { trackCallClick, trackInstagramClick } from '../../lib/ctaTracking'
 
-const trackPhone = () => trackEvent('contact', { method: 'phone', location: 'stories_cta' })
-const trackIG = () => trackEvent('share', { method: 'instagram', location: 'stories_cta' })
+const trackPhone = () => trackCallClick('stories_cta')
+const trackIG = () => trackInstagramClick('stories_cta')
 
 export const StoriesViewer = ({
   images, currentIndex, progress, onClose, onNext, onPrev, onPause, onResume,

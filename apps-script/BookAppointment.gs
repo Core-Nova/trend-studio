@@ -17,7 +17,8 @@
  * booking at exactly this start, that booking is returned as a success. A
  * request that timed out in the browser but went through here therefore
  * resolves on retry instead of answering "slot taken" with the client's own
- * booking.
+ * booking. A booking whose client DECLINED the invite doesn't count — it is
+ * deleted here and the slot booked afresh, with a new invite.
  *
  * The length booked is never shorter than the services sent add up to, so a
  * stale or tampered `durationMin` can't under-book the stylist.
@@ -82,7 +83,16 @@ function bookAppointment(body) {
       return { ok: false, error: 'outside_hours' }
     }
 
-    const conflicts = timedEvents_(start, end)
+    // A website booking whose client declined the invite is cancelled; it
+    // only waits for syncDeclinedBookings() to delete it. Clear it now so it
+    // neither blocks the slot nor answers a re-booking as "already booked" —
+    // that returned the declined event, sent no new invite, and the next
+    // sweep deleted the booking the client had just been told was made.
+    const conflicts = []
+    timedEvents_(start, end).forEach(function (ev) {
+      if (ev.getTag('source') === 'website' && clientDeclined_(ev)) removeDeclinedBooking_(ev, 'rebooked')
+      else conflicts.push(ev)
+    })
     const own = conflicts.filter(function (ev) {
       return (
         ev.getTag('source') === 'website' &&
@@ -110,6 +120,7 @@ function bookAppointment(body) {
     })
     event.setTag('source', 'website')
     event.setTag('phone', phoneDigits)
+    event.setTag('email', email.toLowerCase()) // which guest is the client — see clientDeclined_
     limiter.record()
     logSync_('website-booking', name + ' @ ' + body.start, 'created ' + duration + 'min')
     return { ok: true, eventId: event.getId(), start: body.start, durationMin: duration }

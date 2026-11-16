@@ -4,13 +4,19 @@
  * touches: CalendarApp, GmailApp, UrlFetchApp, ScriptApp, SpreadsheetApp, PropertiesService,
  * CacheService, LockService, Session, Utilities.
  *
- * The fakes model only the behaviour the backend relies on. Two choices are
+ * The fakes model only the behaviour the backend relies on. Three choices are
  * deliberately pessimistic:
  *  - Gmail threads mail with an identical subject from the same sender into
  *    one conversation, and labels are conversation-level (a new message in a
  *    labeled thread already carries the label) — real Gmail does both for
  *    automated notifications.
+ *  - `GmailApp.search` lists threads newest-first by their latest message, as
+ *    Gmail does — so search order is NOT the order the mail was sent in.
  *  - `getEvents(start, end)` returns every event overlapping the range.
+ *
+ * Guests are plain objects on each event (`ev.guests[i].status` = 'INVITED' |
+ * 'YES' | 'NO' | 'MAYBE'); a test answers an invite by setting the status, the
+ * way Google updates the organizer's copy when a guest RSVPs.
  *
  * The clock is virtual: `new Date()` / `Date.now()` inside the script read
  * `harness.setNow()` / `harness.advance()`, nothing else.
@@ -261,9 +267,15 @@ export function loadBackend({
     thread.messages.push(msg)
     return { thread, msg }
   }
+  // Like real Gmail: threads come newest-first by their LATEST message, so a
+  // new message in an old thread jumps ahead of a newer thread's older one.
+  const lastDate = (t) => t.messages[t.messages.length - 1].date
   const GmailApp = {
     search: (query) =>
-      threads.filter((t) => t.messages.some((m) => matches(t, m, query))).map((t) => t.api),
+      threads
+        .filter((t) => t.messages.some((m) => matches(t, m, query)))
+        .sort((a, b) => lastDate(b) - lastDate(a) || threads.indexOf(b) - threads.indexOf(a))
+        .map((t) => t.api),
     getUserLabelByName: (name) => labels[name] || null,
     createLabel: (name) => label(name),
     sendEmail: (to, subject, body) => sent.push({ to, subject, body })
@@ -367,6 +379,8 @@ export function loadBackend({
     advance: (minutes) => (clock.now += minutes * 60000),
     deliver,
     threads,
+    /** Names of the Gmail labels that exist, sorted. */
+    gmailLabels: () => Object.keys(labels).sort(),
     events,
     makeEvent,
     failures,

@@ -3,7 +3,7 @@ import { translations } from '../../translations'
 import { useBookingFlow } from '../../hooks/useBookingFlow'
 import { bookingEnabled } from '../../lib/bookingApi'
 import { SITE } from '../../lib/constants'
-import { trackEvent } from '../../lib/analytics'
+import { trackBookClick, trackCallClick } from '../../lib/ctaTracking'
 import { ServicesStep } from './ServicesStep'
 import { TimeStep } from './TimeStep'
 import { DetailsStep } from './DetailsStep'
@@ -20,7 +20,7 @@ export const BookingFallbackLinks = ({ location }) => {
       <a
         href={SITE.phoneHref}
         className="btn btn-primary booking-btn--fluid"
-        onClick={() => trackEvent('contact', { method: 'phone', location })}
+        onClick={() => trackCallClick(location)}
       >
         {t(b.callBtn)}
       </a>
@@ -29,7 +29,7 @@ export const BookingFallbackLinks = ({ location }) => {
         target="_blank"
         rel="noopener noreferrer"
         className="booking-fallback__alt"
-        onClick={() => trackEvent('generate_lead', { method: 'booking_link', location })}
+        onClick={() => trackBookClick(location)}
       >
         {t(b.orStudio24)}
       </a>

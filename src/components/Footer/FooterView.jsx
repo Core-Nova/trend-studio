@@ -1,10 +1,11 @@
 import { trackEvent } from '../../lib/analytics'
+import { trackCallClick, trackInstagramClick } from '../../lib/ctaTracking'
 import { SITE } from '../../lib/constants'
 import logoWebp from '../../assets/brand/trend-logo.png?w=600&format=webp'
 import logoAvif from '../../assets/brand/trend-logo.png?w=600&format=avif'
 
-const trackIG = () => trackEvent('share', { method: 'instagram', location: 'footer' })
-const trackPhone = () => trackEvent('contact', { method: 'phone', location: 'footer' })
+const trackIG = () => trackInstagramClick('footer')
+const trackPhone = () => trackCallClick('footer')
 const trackMap = () => trackEvent('select_content', { content_type: 'map', location: 'footer' })
 
 export const FooterView = ({ tagline, copyright, year }) => (
