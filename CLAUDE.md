@@ -48,24 +48,26 @@ src/
     bookingUtils.js        — Booking selection/validation helpers
     constants.js           — SITE object: phone/viber/Studio24/Instagram/Maps URLs
     routes.js              — PATHS (Bulgarian page URLs, trailing slash), localePath()/pathLang() for the /en/ twins, samePath(); use for every internal link and route check
+    photos.js              — photoAlt() (description + salon/city suffix), /photos/ paths, Instagram permalinks; shared with the build scripts
   hooks/
     useSlider.js           — Generic reusable hook wrapping slider.js lifecycle
     useHeroSliders.js      — Creates 2 desktop sliders (left/right) or 1 mobile slider
     useHero.js             — Hero section data + slider refs
     useStories.js          — Stories viewer state machine (open/close/next/prev/pause/resume + rAF progress bar)
     useGalleryImages.js    — Bundled gallery images + story groups
-    useInstagramFeed.js    — Gallery posts: live feed via Apps Script, else bundled photos as posts
     useIsMobile.js         — Responsive breakpoint hook
     useLightbox.js         — Desktop lightbox for gallery
     ...                    — Other section-specific hooks
   data/
-    imageImports.js        — vite-imagetools globs, image arrays, dimensions, alt text, STORY_GROUPS
+    photos.json            — every bundled photo: file name, size, EN/BG alt (see Image Pipeline)
+    imageImports.js        — vite-imagetools srcsets for photos.json; allImages, instagramPosts, salonPhotos, STORY_GROUPS
     reviews.js             — Auto-generated review snapshot (fallback + hero badge); do not hand-edit
   components/
     Hero/                  — Hero section with WebGL sliders (desktop: split left/right, mobile: single full-bleed)
     Stories/               — Instagram-style stories viewer (mobile) with WebGL transitions
     Gallery/               — Gallery grid section (home page) — bundled photos, stories viewer / lightbox
-    InstagramFeed/         — The gallery page: the salon's Instagram feed in TREND's design
+    InstagramFeed/         — The gallery page: the salon's Instagram posts (bundled snapshot) in TREND's design
+    StudioPhotos/          — About page "Our Studio": the owner's Google Maps photos of the salon
     ImageCrossfade/        — CSS crossfade fallback until WebGL loads
     atoms/                 — ResponsiveImage, SectionHeader, BookingButton, LangLink (language-aware router Link)
     ...                    — Other sections (About, Services, Contact, Reviews, Navigation, Footer, StickyBooking, Booking)
@@ -82,9 +84,11 @@ src/
 ## Key Patterns
 
 ### Image Pipeline
-- Source images live in `src/assets/images/{hero-left,hero-right,gallery}/`
-- `src/data/imageImports.js` uses `import.meta.glob` with vite-imagetools queries to generate AVIF/WebP srcsets at build time
-- Adding/removing images requires updating the filename arrays (`HERO_LEFT`, `HERO_RIGHT`, `GALLERY`), `DIMENSIONS`, and `ALTS` arrays in `imageImports.js`
+- Source images live in `src/assets/images/{hero-left,hero-right,gallery,instagram,salon}/`
+- **`src/data/photos.json` is the one list of photos**: an array per folder, each `{ file, width, height, alt: { en, bg } }` (Instagram entries add `shortcode`, `type`, `date`, newest first). Adding/removing a photo = the file + its entry there; `src/__tests__/photos.test.js` fails if they disagree (missing file, wrong size, duplicate or non-descriptive name, missing Bulgarian)
+- File names are descriptive kebab-case and unique across folders (`blonde-balayage-beach-waves-trend-sofia.jpg`, salon photos `trend-hair-salon-sofia-…`): image search reads them, the hashed build outputs keep them, and the build publishes every photo flat at `/photos/<file>`
+- `alt` holds the description only; `photoAlt()` (`src/lib/photos.js`) appends "— TREND Hair Boutique Studio, Sofia/София". Render `img.alts[lang]` (the page's language), not the English `img.alt`
+- `src/data/imageImports.js` reads photos.json and uses `import.meta.glob` with vite-imagetools queries to generate AVIF/WebP srcsets at build time; exports `allImages`, `heroPreviews`, `instagramPosts`, `salonPhotos`
 - Supports JPG and PNG (`*.{jpg,png}`)
 - `ResponsiveImage` component renders `<picture>` with `<source>` for AVIF, WebP, and `<img>` fallback
 
@@ -110,14 +114,16 @@ src/
 - Mobile: tapping an image opens the stories viewer; desktop: a CSS lightbox (`useLightbox`)
 
 ### Gallery Page = Instagram Feed
-- `/gallery` renders only `InstagramFeed` (page h1 stays "Gallery"/"Галерия" for SEO and the nav): profile card + Follow button, a grid of up to 12 posts (4 / 3 / 2 columns at >992 / >768 / phone), 4:5 tiles, carousel and reel marks, caption overlay on hover and keyboard focus, every tile linking to the post on Instagram in a new tab
-- Data: `useInstagramFeed()` → `fetchInstagramFeed()` (`bookingApi.js`) → Apps Script `?action=instagram`. The browser never calls Instagram and never sees the token
-- Until the feed is connected — and whenever the backend is unreachable or returns nothing usable — the hook serves `FALLBACK_POSTS` (the bundled photos, linking to the profile), so the page is never empty. Live posts are cached in `sessionStorage` for 30 min
-- Only `https` image and link URLs are rendered (`normalizePosts`), on top of the backend's own filter
+- `/gallery` renders only `InstagramFeed` (page h1 stays "Gallery"/"Галерия" for SEO and the nav): profile card + Follow button, the posts in a masonry of CSS columns (4 / 3 / 2 at >992 / >768 / phone) where every tile keeps its photo's own aspect ratio — **never crop them** (no fixed tile ratio, no `object-fit: cover`) — carousel and reel marks, caption overlay on hover and keyboard focus, every tile linking to its post on Instagram in a new tab
+- **No backend:** the posts are a snapshot bundled with the site (`instagramPosts`, photos in `src/assets/images/instagram/`, entries in `photos.json`), so the page renders instantly and the photos are served from trendbytedi.com under descriptive names. The Nov 2026 snapshot was taken by hand from the public profile and each post's public embed page (`instagram.com/p/<shortcode>/embed/captioned/` carries the uncropped 1440px image); to add a post, save its image under a descriptive name and add its entry at the top of `instagram` in photos.json
+- The old live path (`apps-script/Instagram.gs`, `?action=instagram`) was never deployed and nothing calls it any more
 - Design reference: the "TREND Instagram Feed" design canvas (claude.ai artifact)
 
+### About Page Studio Photos
+- `StudioPhotos` ("Our Studio" / "Нашето студио", after the About section): the owner's own photos from the Google Maps listing (`salonPhotos`, `src/assets/images/salon/`), with captions. Customer-uploaded Maps photos belong to their authors — don't use them. The current ones date from May 2021
+
 ### Booking Backend (Google Apps Script)
-- Free serverless backend under trendstudiotedi@gmail.com — availability from Google Calendar + working-hours spreadsheet, event creation with client invites, Studio24 email sync (5-min Gmail poll), declined-invite cleanup (`DeclinedBookings.gs`, own 5-min trigger), the gallery's Instagram feed (`Instagram.gs`: 6-hour sync into the config sheet's "Instagram" tab, weekly token refresh, `?action=instagram`; needs Script Property `IG_TOKEN`), and a reviews endpoint the site does not currently call
+- Free serverless backend under trendstudiotedi@gmail.com — availability from Google Calendar + working-hours spreadsheet, event creation with client invites, Studio24 email sync (5-min Gmail poll), declined-invite cleanup (`DeclinedBookings.gs`, own 5-min trigger), an Instagram feed sync (`Instagram.gs`, `?action=instagram`, needs Script Property `IG_TOKEN`) that the gallery no longer uses — it bundles its posts — and a reviews endpoint the site does not currently call
 - Source in `apps-script/` (one `.gs` per function, copy-pasted into script.google.com); deployment guide in `apps-script/README.md`
 - `src/__tests__/appsScript.test.js` runs the pasted bundle in Node against fakes of the Google services (virtual clock, Sofia TZ) — the only way to test the backend without deploying; extend it with every backend change
 - `src/__tests__/bookingSync.test.js` covers cancelled, declined and moved bookings purely through email text (`bookingEmails.js` builds what Studio24 / Google Calendar send; the triggers read it from the fake Gmail). Declines are decided by the client's RSVP on the event, never by the email alone
@@ -140,7 +146,7 @@ scrape now writes all of them — never update any by hand:
 | This file's business-context line | nothing | never — so it carries no number |
 
 - `npm run fetch-reviews` (Playwright, no API key) scrapes the Maps listing and rewrites the first three. None are committed by CI; **both** workflows run it **before** `npm run build`, because the hero badge and the JSON-LD are baked in at build time — only the JSON is fetched at runtime
-  - `update-reviews.yml`: every Monday 04:00 UTC or manual dispatch, then deploys
+  - `update-reviews.yml`: every Monday 04:00 UTC or manual dispatch, then deploys. Build and deploy are separate jobs (`deploy` `needs: build`), as in `deploy.yml`: when they shared one job, the 23 Nov 2026 run's `deploy-pages` reported the just-uploaded `github-pages` artifact as missing and that week's reviews never went live
   - `deploy.yml` (every push to main): best-effort (`continue-on-error`). Without it a push deploy ships the committed snapshot and undoes the Monday refresh — that happened in Nov 2026
 - GitHub disables a scheduled workflow after 60 days without commits (`update-reviews.yml` was `disabled_inactivity` from Nov 2 2026). Re-enable it in the Actions tab; a push deploy refreshes reviews either way
 - The scrape **merges** into the committed snapshot (`mergeReviews`, tested in `fetchReviews.test.js`): Maps only loads ~5–10 reviews, so it adds new reviewers to the front (the carousel shows the first 10) and never drops a known one; known reviewers keep their snapshot date
@@ -186,6 +192,7 @@ npm run format       # Prettier
 
 - Static site on GitHub Pages via `gh-pages` package
 - `vite.config.js` supports `VITE_BASE_PATH` env var for non-root deployments
+- Every deploy replaces the whole site, so the hashed chunks an open tab knows about are gone (404). Route pages are lazy-loaded through `lazyPage()` (`src/lib/lazyPage.js`), never bare `React.lazy`: a failed chunk import reloads the page once (sessionStorage guard against loops) instead of showing the ErrorBoundary's "Something went wrong" — that was what visitors saw after leaving a tab open across a deploy
 - Structured data (JSON-LD `HairSalon` schema) in `index.html`
 
 ### Prerendering (`scripts/seo-routes.mjs`)
@@ -244,6 +251,13 @@ Rules:
 - `/book` (and `/en/book`) stays unprerendered and out of the sitemap
 - `dist/404.html` is made `noindex` with no canonical (`applyNotFound`): Pages
   serves it as a 200 at `/404.html`
+- **Photos** (`scripts/photos.mjs`, from `photos.json`): every photo is also
+  published as `dist/photos/<file>` (JPEG, ≤1600px, stable URL — what the
+  JSON-LD `image` list in `index.html` points at); each route's static body
+  lists its photos with alt text in its language inside `<noscript>` (read by
+  crawlers that skip JavaScript, never downloaded by real visitors); and each
+  sitemap entry lists them as `<image:image>` (`PAGE_PHOTOS`: home = hero +
+  gallery, `/gallery` = Instagram, `/about` = salon) for Google and Bing
 - `src/__tests__/seoRoutesIndexing.test.js` locks these in
 - Enforce HTTPS in the repo's Pages settings: if it is off, every page is also
   served (200) over `http://`

@@ -4,12 +4,17 @@ import { useStories } from '../../hooks/useStories'
 import { useLightbox } from '../../hooks/useLightbox'
 import { useCarousel } from '../../hooks/useCarousel'
 import { useGalleryImages } from '../../hooks/useGalleryImages'
+import { useMemo } from 'react'
+import { useLanguage } from '../../contexts/LanguageContext'
 import { GalleryView } from './GalleryView'
 
 export const Gallery = ({ showSeeAll = false }) => {
   const data = useGallery()
   const isMobile = useIsMobile()
-  const { images, imageUrls, storyGroups } = useGalleryImages()
+  const { images: bundled, imageUrls, storyGroups } = useGalleryImages()
+  const { lang } = useLanguage()
+  // Alt text in the page's language (the bundled photos carry both).
+  const images = useMemo(() => bundled.map((img) => ({ ...img, alt: img.alts[lang] })), [bundled, lang])
 
   const stories = useStories({ images: imageUrls, duration: 5000 })
   const lightbox = useLightbox(images.length)

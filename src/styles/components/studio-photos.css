@@ -1,0 +1,54 @@
+/* StudioPhotos component styles — "Our Studio" on the About page. */
+
+/* Sits straight under the white About section, so it shares its background
+   and skips the top padding: one continuous "about us" block. */
+.studio {
+  background: var(--white);
+  padding-top: 0;
+}
+
+.studio__intro {
+  max-width: 640px;
+  margin: -24px auto 48px;
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: var(--gray);
+}
+
+.studio__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.studio__photo {
+  margin: 0;
+}
+
+.studio__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+}
+
+.studio__photo figcaption {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--gray);
+}
+
+@media (max-width: 768px) {
+  .studio__intro {
+    margin: -12px auto 32px;
+  }
+
+  .studio__grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}

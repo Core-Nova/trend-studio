@@ -27,6 +27,11 @@
  * from git history — public/sitemap.xml no longer exists, so adding a route
  * means editing ROUTES below and nothing else.
  *
+ * Photos (scripts/photos.mjs, from src/data/photos.json): every photo is
+ * published at dist/photos/<descriptive-name>.jpg, each route's static body
+ * lists its photos (in <noscript>, for crawlers that don't run JavaScript),
+ * and each sitemap entry lists them as <image:image> for Google and Bing.
+ *
  * Runs after `vite build` (see the `build` npm script).
  */
 
@@ -36,6 +41,8 @@ import { dirname, join, sep } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { translations } from '../src/translations/index.js'
 import { DEFAULT_LANG, LANGS, localePath } from '../src/lib/routes.js'
+import { photoPath } from '../src/lib/photos.js'
+import { photoMarkup, photosFor, writePublicPhotos } from './photos.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DIST = join(ROOT, 'dist')
@@ -155,6 +162,12 @@ const aboutBody = (tr) => {
   for (const p of a.products || []) {
     out.push(`<h3>${escText(p.name)}</h3>`, `<p>${escText(tr(p.desc))}</p>`)
   }
+  // Mirrors StudioPhotos, which follows the About section on the page.
+  out.push(
+    `<h2>${escText(tr(translations.studio.title))}</h2>`,
+    `<p>${escText(tr(translations.studio.intro))}</p>`,
+    photoMarkup('/about', tr)
+  )
   return out.join('\n')
 }
 
@@ -173,13 +186,14 @@ const contactBody = (tr) => {
   ].join('\n')
 }
 
-/** Mirrors InstagramFeed: the posts themselves are fetched at runtime. */
+/** Mirrors InstagramFeed: the bundled posts, each linking to its Instagram post. */
 const galleryBody = (tr) => {
   const ig = translations.instagram
   return [
     `<h1>${escText(tr(translations.gallery.title))}</h1>`,
     `<p>${escText(tr(ig.intro))}</p>`,
     `<p><a href="${INSTAGRAM_URL}">${escText(tr(ig.followBtn))} — @trendbytedi</a></p>`,
+    photoMarkup('/gallery', tr),
     `<p><a href="${INSTAGRAM_URL}">${escText(tr(ig.seeAll))}</a></p>`,
   ].join('\n')
 }
@@ -200,7 +214,12 @@ const homeBody = (tr) => {
     '<ul>',
   ]
   for (const cat of catalog.services.categories) out.push(`<li>${escText(tr(cat.name))}</li>`)
-  out.push('</ul>', `<h2>${escText(tr(translations.contact.title))}</h2>`)
+  out.push(
+    '</ul>',
+    `<h2>${escText(tr(translations.gallery.title))}</h2>`,
+    photoMarkup('/', tr),
+    `<h2>${escText(tr(translations.contact.title))}</h2>`
+  )
   return out.join('\n')
 }
 
@@ -235,7 +254,14 @@ const ROUTES = {
     description: seo.description,
     body: homeBody,
     self: true,
-    sources: ['src/pages/HomePage.jsx', 'src/components', 'index.html'],
+    sources: [
+      'src/pages/HomePage.jsx',
+      'src/components',
+      'index.html',
+      'src/assets/images/hero-left',
+      'src/assets/images/hero-right',
+      'src/assets/images/gallery',
+    ],
     changefreq: 'weekly',
     priority: '1.0',
   },
@@ -246,8 +272,7 @@ const ROUTES = {
     sources: [
       'src/pages/GalleryPage.jsx',
       'src/components/InstagramFeed/InstagramFeed.jsx',
-      'src/hooks/useInstagramFeed.js',
-      'src/data/imageImports.js',
+      'src/assets/images/instagram',
     ],
     changefreq: 'weekly',
     priority: '0.8',
@@ -264,7 +289,7 @@ const ROUTES = {
     title: seo.aboutTitle,
     description: seo.aboutDescription,
     body: aboutBody,
-    sources: ['src/pages/AboutPage.jsx'],
+    sources: ['src/pages/AboutPage.jsx', 'src/components/StudioPhotos', 'src/assets/images/salon'],
     changefreq: 'monthly',
     priority: '0.7',
   },
@@ -395,12 +420,17 @@ const repoDate = () => gitDate([]) || today()
 
 /**
  * One <url> per language version of each route, each listing the full
- * alternate set (itself included), as Google's sitemap hreflang format wants.
+ * alternate set (itself included), as Google's sitemap hreflang format wants,
+ * and the photos the page shows (image sitemap extension, read by Google and
+ * Bing; `image:loc` is the only image tag Google still uses).
  */
 export const buildSitemap = (lastmodFor) => {
   const urls = Object.entries(ROUTES).flatMap(([route, meta]) => {
     const alternates = alternatesFor(route).map(
       (a) => `    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${a.href}" />`
+    )
+    const images = photosFor(route).map(
+      (photo) => `    <image:image>\n      <image:loc>${BASE_URL}${photoPath(photo)}</image:loc>\n    </image:image>`
     )
     return LANGS.map((lang) =>
       [
@@ -410,12 +440,13 @@ export const buildSitemap = (lastmodFor) => {
         `    <lastmod>${lastmodFor(route, meta)}</lastmod>`,
         `    <changefreq>${meta.changefreq}</changefreq>`,
         `    <priority>${meta.priority}</priority>`,
+        ...images,
         '  </url>',
       ].join('\n')
     )
   })
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls.join('\n')}
 </urlset>
 `
@@ -423,7 +454,7 @@ ${urls.join('\n')}
 
 // ---------- main ----------
 
-const main = () => {
+const main = async () => {
   const shell = readFileSync(join(DIST, 'index.html'), 'utf8')
   let prerendered = 0
 
@@ -468,7 +499,14 @@ const main = () => {
   const sitemap = buildSitemap((_route, meta) => gitDate(meta.sources) || fallback)
   writeFileSync(join(DIST, 'sitemap.xml'), sitemap)
 
-  console.log(`\n✓ generated ${prerendered} crawlable route pages + sitemap.xml`)
+  const photos = await writePublicPhotos(DIST)
+
+  console.log(`\n✓ generated ${prerendered} crawlable route pages + sitemap.xml + ${photos} photos in dist/photos/`)
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) main()
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
+}

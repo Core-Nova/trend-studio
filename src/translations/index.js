@@ -31,8 +31,16 @@ export const translations = {
     openPost: { en: 'Open on Instagram', bg: 'Отворете в Instagram' },
     seeAll: { en: 'See all posts on Instagram', bg: 'Всички публикации в Instagram' },
     reel: { en: 'reel', bg: 'видео' },
-    carousel: { en: 'carousel', bg: 'галерия' },
-    loading: { en: 'Loading posts…', bg: 'Зареждаме публикациите…' }
+    carousel: { en: 'carousel', bg: 'галерия' }
+  },
+
+  studio: {
+    sectionTag: { en: 'Inside the studio', bg: 'Вътре в студиото' },
+    title: { en: 'Our Studio', bg: 'Нашето студио' },
+    intro: {
+      en: 'A calm, elegant space in the heart of Sofia, at 8 Tsar Kaloyan St.',
+      bg: 'Спокойно и елегантно пространство в сърцето на София, на ул. „Цар Калоян“ 8.'
+    }
   },
 
   about: {

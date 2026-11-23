@@ -22,13 +22,12 @@ const constrained = () => {
 /**
  * Gets the gallery ready while the visitor is still on another page: once the
  * page has loaded and the browser is idle, it downloads the gallery's code
- * chunk and its Instagram feed (plus the first row of post images), so
- * opening the gallery shows posts straight away instead of a spinner and
- * ~1.5 s of placeholders while the Apps Script answers.
+ * chunk (the Instagram posts are bundled in it), so opening the gallery shows
+ * the posts straight away instead of the route's loading spinner.
  *
  * Runs once per page load, never on the gallery itself (the page does its own
- * loading there) and never on constrained connections. Both imports are the
- * same modules the lazy route uses, so nothing is downloaded twice.
+ * loading there) and never on constrained connections. The import is the same
+ * module the lazy route uses, so nothing is downloaded twice.
  *
  * @param {boolean} enabled false while the gallery is the current page
  */
@@ -40,7 +39,6 @@ export const useGalleryPrefetch = (enabled) => {
 
     const run = () => {
       import('../pages/GalleryPage').catch(() => {})
-      import('./useInstagramFeed').then((m) => m.prefetchInstagramFeed()).catch(() => {})
     }
     const schedule = () => {
       timerId = window.setTimeout(() => {

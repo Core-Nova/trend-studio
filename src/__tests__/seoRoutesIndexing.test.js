@@ -15,6 +15,7 @@ import {
   alternatesFor,
   buildSitemap
 } from '../../scripts/seo-routes.mjs'
+import photos from '../data/photos.json'
 
 const SHELL = `<!doctype html>
 <html lang="bg">
@@ -187,6 +188,19 @@ describe('sitemap', () => {
       })
     )
     expect(xml).not.toContain('book')
+  })
+
+  it('lists the photos each page shows as image:image, on both language URLs', () => {
+    expect(xml).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"')
+    const imagesOf = (loc) =>
+      [...entries.find((e) => e.includes(`<loc>${loc}</loc>`)).matchAll(/<image:loc>([^<]+)<\/image:loc>/g)].map(
+        (m) => m[1]
+      )
+    const urls = (list) => list.map((p) => `${BASE}/photos/${p.file}`)
+    for (const path of ['/gallery/', '/en/gallery/']) expect(imagesOf(`${BASE}${path}`)).toEqual(urls(photos.instagram))
+    for (const path of ['/about/', '/en/about/']) expect(imagesOf(`${BASE}${path}`)).toEqual(urls(photos.salon))
+    expect(imagesOf(`${BASE}/`)).toEqual(urls([...photos['hero-left'], ...photos['hero-right'], ...photos.gallery]))
+    expect(imagesOf(`${BASE}/services/`)).toEqual([])
   })
 
   it('gives every entry the full xhtml:link alternate set, itself included', () => {

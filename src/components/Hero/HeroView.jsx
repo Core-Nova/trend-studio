@@ -6,6 +6,7 @@ import { RatingBadge } from '../Reviews/RatingBadge'
 import { imageData, heroPreviews } from '../../data/imageImports'
 import { googleReviews } from '../../data/reviews'
 import { SITE } from '../../lib/constants'
+import { useLanguage } from '../../contexts/LanguageContext'
 import logoSrc from '../../assets/brand/trend-logo.png?w=1378&format=webp&quality=92'
 import logoSrcAvif from '../../assets/brand/trend-logo.png?w=1378&format=avif&quality=80'
 
@@ -37,6 +38,7 @@ const preloadHero = isMobile => {
 }
 
 export const HeroView = ({ tagline, bookBtn, isMobile, leftRef, rightRef, mobileRef, sliderReady }) => {
+  const { lang } = useLanguage()
   preloadHero(isMobile)
   return (
   <section id="home" className="hero">
@@ -55,7 +57,7 @@ export const HeroView = ({ tagline, bookBtn, isMobile, leftRef, rightRef, mobile
           srcSetWebp={heroPreviews.left.srcSetWebp}
           srcSetAvif={heroPreviews.left.srcSetAvif}
           sizes="50vw"
-          alt={heroPreviews.left.alt}
+          alt={heroPreviews.left.alts[lang]}
           className="hero-slider__preview"
           fetchpriority="high"
           loading="eager"
@@ -90,7 +92,7 @@ export const HeroView = ({ tagline, bookBtn, isMobile, leftRef, rightRef, mobile
           srcSetWebp={heroPreviews.right.srcSetWebp}
           srcSetAvif={heroPreviews.right.srcSetAvif}
           sizes="50vw"
-          alt={heroPreviews.right.alt}
+          alt={heroPreviews.right.alts[lang]}
           className="hero-slider__preview"
           fetchpriority="high"
           loading="eager"

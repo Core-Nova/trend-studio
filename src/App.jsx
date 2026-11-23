@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from 'react'
+import { useEffect, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { trackPageView } from './lib/analytics'
 import { RoutedLanguageProvider } from './contexts/LanguageContext'
@@ -10,14 +10,17 @@ import { BackToTop } from './components/BackToTop/BackToTop'
 import { HomePage } from './pages/HomePage'
 import { useGalleryPrefetch } from './hooks/useGalleryPrefetch'
 import { PATHS, samePath } from './lib/routes'
+import { lazyPage } from './lib/lazyPage'
 import logoSrc from './assets/brand/trend-logo.png?w=200&format=webp&quality=80'
 
-const GalleryPage = lazy(() => import('./pages/GalleryPage'))
-const ServicesPage = lazy(() => import('./pages/ServicesPage'))
-const AboutPage = lazy(() => import('./pages/AboutPage'))
-const ContactPage = lazy(() => import('./pages/ContactPage'))
-const BookingPage = lazy(() => import('./pages/BookingPage'))
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+// lazyPage, not React.lazy: a tab left open across a deploy reloads instead of
+// crashing when it asks for a chunk the deploy deleted.
+const GalleryPage = lazyPage(() => import('./pages/GalleryPage'))
+const ServicesPage = lazyPage(() => import('./pages/ServicesPage'))
+const AboutPage = lazyPage(() => import('./pages/AboutPage'))
+const ContactPage = lazyPage(() => import('./pages/ContactPage'))
+const BookingPage = lazyPage(() => import('./pages/BookingPage'))
+const NotFoundPage = lazyPage(() => import('./pages/NotFoundPage'))
 
 const AppRoutes = () => {
   const location = useLocation()

@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { translations } from '../../translations'
-import { useInstagramFeed, MAX_POSTS, EAGER_POSTS } from '../../hooks/useInstagramFeed'
+import { instagramPosts } from '../../data/imageImports'
 import { SectionHeader } from '../atoms/SectionHeader'
 import { ResponsiveImage } from '../atoms/ResponsiveImage'
 import { SITE } from '../../lib/constants'
@@ -9,6 +9,9 @@ import { trackEvent } from '../../lib/analytics'
 import { trackInstagramClick } from '../../lib/ctaTracking'
 import monogramSrc from '../../assets/brand/trend-monogram.png?w=128&format=webp'
 
+/** Tiles loaded eagerly — roughly the first row; the rest are lazy. */
+const EAGER_POSTS = 4
+// Column width: 4 / 3 / 2 columns at >992 / >768 / phone (instagram-feed.css).
 const TILE_SIZES = '(max-width: 768px) 50vw, (max-width: 992px) 33vw, 320px'
 
 const InstagramIcon = () => (
@@ -77,13 +80,8 @@ const TypeBadge = ({ type }) => (
   </span>
 )
 
-const PostTile = memo(({ post, index, label, viewLabel, onOpen }) => {
+const PostTile = memo(({ post, index, label, caption, viewLabel, alt, onOpen }) => {
   const eager = index < EAGER_POSTS
-  const loading = eager ? 'eager' : 'lazy'
-  const fetchPriority = eager ? 'high' : 'auto'
-  // The link's aria-label is what assistive tech reads; the alt is for search
-  // engines (Google Images reads <img alt>, not the label on the link around it).
-  const alt = post.caption || post.alt || ''
   return (
     <li className="ig-post">
       <a
@@ -94,34 +92,24 @@ const PostTile = memo(({ post, index, label, viewLabel, onOpen }) => {
         aria-label={label}
         onClick={() => onOpen(post)}
       >
-        {post.srcSetWebp ? (
-          <ResponsiveImage
-            src={post.image}
-            srcSetWebp={post.srcSetWebp}
-            srcSetAvif={post.srcSetAvif}
-            sizes={TILE_SIZES}
-            width={post.width}
-            height={post.height}
-            alt={alt}
-            loading={loading}
-            fetchPriority={fetchPriority}
-            decoding="async"
-          />
-        ) : (
-          <img
-            src={post.image}
-            alt={alt}
-            width="1080"
-            height="1350"
-            loading={loading}
-            fetchPriority={fetchPriority}
-            decoding="async"
-            referrerPolicy="no-referrer"
-          />
-        )}
+        {/* The link's aria-label is what assistive tech reads; the alt is for
+            search engines (Google Images reads <img alt>, not the link label).
+            width/height give each tile its photo's own shape — nothing is cropped. */}
+        <ResponsiveImage
+          src={post.src}
+          srcSetWebp={post.srcSetWebp}
+          srcSetAvif={post.srcSetAvif}
+          sizes={TILE_SIZES}
+          width={post.width}
+          height={post.height}
+          alt={alt}
+          loading={eager ? 'eager' : 'lazy'}
+          fetchPriority={eager ? 'high' : 'auto'}
+          decoding="async"
+        />
         {post.type !== 'photo' && <TypeBadge type={post.type} />}
         <span className="ig-post__overlay" aria-hidden="true">
-          {post.caption && <span className="ig-post__caption">{post.caption}</span>}
+          <span className="ig-post__caption">{caption}</span>
           <span className="ig-post__view">
             {viewLabel}
             <ArrowIcon />
@@ -133,27 +121,25 @@ const PostTile = memo(({ post, index, label, viewLabel, onOpen }) => {
 })
 
 /**
- * The salon's Instagram feed in TREND's own design (the gallery page). Posts
- * come from useInstagramFeed(): the live feed via the Apps Script, or the
- * bundled photos when the feed is unavailable — the page is never empty.
- * Every tile links to its post on Instagram in a new tab.
+ * The salon's Instagram feed in TREND's own design (the gallery page): a
+ * snapshot of the latest posts bundled with the site (instagramPosts — photos
+ * stored under src/assets/images/instagram/, listed in src/data/photos.json),
+ * so it needs no backend and renders instantly. Tiles keep each photo's own
+ * aspect ratio in a masonry layout, and each links to its post on Instagram.
  */
 export const InstagramFeed = ({ tag, title, as = 'h2', location = 'gallery_page' }) => {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const ig = translations.instagram
-  const { status, posts } = useInstagramFeed()
 
   const labelFor = (post) => {
     const kind = post.type === 'photo' ? '' : ` (${t(ig[post.type])})`
-    const text = post.caption || post.alt
-    return `${t(ig.openPost)}${kind}${text ? `: ${text}` : ''}`
+    return `${t(ig.openPost)}${kind}: ${post.description[lang]}`
   }
   const openPost = (post) =>
     trackEvent('select_content', {
       content_type: 'instagram_post',
       item_id: post.id,
-      location,
-      feed: status
+      location
     })
   const follow = (link) => trackInstagramClick(`${location}_${link}`)
 
@@ -185,24 +171,19 @@ export const InstagramFeed = ({ tag, title, as = 'h2', location = 'gallery_page'
           </a>
         </div>
 
-        <p className="sr-only" role="status">
-          {status === 'loading' ? t(ig.loading) : ''}
-        </p>
-        <ul className="ig-feed__grid" aria-busy={status === 'loading'}>
-          {status === 'loading'
-            ? Array.from({ length: MAX_POSTS }, (_, i) => (
-                <li key={i} className="ig-post ig-post--placeholder" aria-hidden="true" />
-              ))
-            : posts.map((post, i) => (
-                <PostTile
-                  key={post.id}
-                  post={post}
-                  index={i}
-                  label={labelFor(post)}
-                  viewLabel={t(ig.viewPost)}
-                  onOpen={openPost}
-                />
-              ))}
+        <ul className="ig-feed__grid">
+          {instagramPosts.map((post, i) => (
+            <PostTile
+              key={post.id}
+              post={post}
+              index={i}
+              label={labelFor(post)}
+              caption={post.description[lang]}
+              alt={post.alts[lang]}
+              viewLabel={t(ig.viewPost)}
+              onOpen={openPost}
+            />
+          ))}
         </ul>
 
         <a

@@ -1,0 +1,354 @@
+{
+  "hero-left": [
+    {
+      "file": "sleek-long-dark-hair-blunt-fringe-trend-sofia.jpg",
+      "width": 1080,
+      "height": 1920,
+      "alt": {
+        "en": "Sleek long dark hair with a blunt fringe",
+        "bg": "Права дълга тъмна коса с прав бретон"
+      }
+    },
+    {
+      "file": "violet-hair-colour-long-waves-trend-sofia.jpg",
+      "width": 1456,
+      "height": 2568,
+      "alt": {
+        "en": "Vivid violet hair colour with long soft waves",
+        "bg": "Ярко виолетово боядисване с дълги меки вълни"
+      }
+    },
+    {
+      "file": "peach-hair-colour-soft-waves-trend-sofia.jpg",
+      "width": 1080,
+      "height": 1920,
+      "alt": {
+        "en": "Peach hair colour with soft waves, coloured with KYDRA",
+        "bg": "Прасковен цвят на косата с меки вълни, боядисване с KYDRA"
+      }
+    },
+    {
+      "file": "voluminous-curled-bob-blow-dry-trend-sofia.jpg",
+      "width": 2268,
+      "height": 4032,
+      "alt": {
+        "en": "Voluminous curled bob blow-dry, back and mirror view",
+        "bg": "Обемно оформен боб с къдрици — изглед отзад и в огледалото"
+      }
+    },
+    {
+      "file": "red-and-black-hair-colour-waves-trend-sofia.jpg",
+      "width": 3024,
+      "height": 5363,
+      "alt": {
+        "en": "Bold red and black hair colour with long waves",
+        "bg": "Смело червено и черно боядисване с дълги вълни"
+      }
+    },
+    {
+      "file": "bridal-waves-with-roses-hairstyle-trend-sofia.jpg",
+      "width": 2646,
+      "height": 4706,
+      "alt": {
+        "en": "Soft bridal waves styled with fresh roses",
+        "bg": "Меки булчински вълни, украсени със свежи рози"
+      }
+    }
+  ],
+  "hero-right": [
+    {
+      "file": "long-dark-waves-curtain-fringe-trend-sofia.jpg",
+      "width": 2933,
+      "height": 5224,
+      "alt": {
+        "en": "Long dark hair with soft waves and a curtain fringe",
+        "bg": "Дълга тъмна коса с меки вълни и бретон тип „завеса“"
+      }
+    },
+    {
+      "file": "violet-hair-colour-voluminous-curls-trend-sofia.jpg",
+      "width": 2032,
+      "height": 3619,
+      "alt": {
+        "en": "Vivid violet hair colour with voluminous curls",
+        "bg": "Ярко виолетово боядисване с обемни къдрици"
+      }
+    },
+    {
+      "file": "blonde-balayage-beach-waves-trend-sofia.jpg",
+      "width": 1170,
+      "height": 2080,
+      "alt": {
+        "en": "Blonde balayage with beach waves",
+        "bg": "Рус балеаж с плажни вълни"
+      }
+    },
+    {
+      "file": "platinum-blonde-curled-bob-trend-sofia.jpg",
+      "width": 2956,
+      "height": 5255,
+      "alt": {
+        "en": "Platinum blonde bob with voluminous curls",
+        "bg": "Платинено рус боб с обемни къдрици"
+      }
+    },
+    {
+      "file": "chestnut-brown-layered-waves-trend-sofia.jpg",
+      "width": 2308,
+      "height": 4103,
+      "alt": {
+        "en": "Chestnut brown layered hair with soft waves",
+        "bg": "Кестенява коса на етажи с меки вълни"
+      }
+    },
+    {
+      "file": "extra-long-sleek-brunette-hair-trend-sofia.jpg",
+      "width": 2552,
+      "height": 4537,
+      "alt": {
+        "en": "Extra-long, sleek straight brunette hair",
+        "bg": "Изключително дълга, права и лъскава кестенява коса"
+      }
+    }
+  ],
+  "gallery": [
+    {
+      "file": "curled-bob-blow-dry-mirror-view-trend-sofia.jpg",
+      "width": 2268,
+      "height": 4032,
+      "alt": {
+        "en": "Curled bob blow-dry with glossy volume, mirror view",
+        "bg": "Оформен боб с лъскав обем — изглед в огледалото"
+      }
+    },
+    {
+      "file": "platinum-blonde-bob-haircut-trend-sofia.jpg",
+      "width": 2636,
+      "height": 4692,
+      "alt": {
+        "en": "Platinum blonde bob haircut, back view",
+        "bg": "Платинено рус боб — изглед отзад"
+      }
+    },
+    {
+      "file": "natural-brown-long-layered-haircut-trend-sofia.jpg",
+      "width": 2410,
+      "height": 4284,
+      "alt": {
+        "en": "Natural brown hair with a long layered haircut",
+        "bg": "Естествено кестенява коса с дълго подстригване на етажи"
+      }
+    },
+    {
+      "file": "mens-textured-haircut-blonde-highlights-trend-sofia.jpg",
+      "width": 1888,
+      "height": 3356,
+      "alt": {
+        "en": "Men's textured haircut with blonde highlights",
+        "bg": "Мъжко текстурирано подстригване с руси кичури"
+      }
+    },
+    {
+      "file": "violet-hair-colour-gold-baroque-chair-trend-sofia.jpg",
+      "width": 1456,
+      "height": 2568,
+      "alt": {
+        "en": "Vivid violet long waves on the studio's gold baroque chair",
+        "bg": "Ярко виолетови дълги вълни на златния бароков стол в студиото"
+      }
+    },
+    {
+      "file": "deep-violet-hair-colour-curls-trend-sofia.jpg",
+      "width": 1278,
+      "height": 2280,
+      "alt": {
+        "en": "Deep violet hair colour with defined curls",
+        "bg": "Наситено виолетово боядисване с оформени къдрици"
+      }
+    },
+    {
+      "file": "violet-hair-colour-curls-portrait-trend-sofia.jpg",
+      "width": 2032,
+      "height": 3619,
+      "alt": {
+        "en": "Violet hair colour with voluminous curls, close-up portrait",
+        "bg": "Виолетово боядисване с обемни къдрици — портрет отблизо"
+      }
+    }
+  ],
+  "instagram": [
+    {
+      "file": "long-straight-glossy-brunette-hair-trend-sofia.jpg",
+      "width": 1440,
+      "height": 1799,
+      "alt": {
+        "en": "Long, straight, glossy brunette hair, back and front view",
+        "bg": "Дълга, права и лъскава кестенява коса — изглед отзад и отпред"
+      },
+      "shortcode": "Dfz3-GzgKGV",
+      "type": "carousel",
+      "date": "2026-11-16"
+    },
+    {
+      "file": "defined-natural-curls-trend-sofia.jpg",
+      "width": 1440,
+      "height": 1810,
+      "alt": {
+        "en": "Defined natural curls with volume, back and front view",
+        "bg": "Оформени естествени къдрици с обем — изглед отзад и отпред"
+      },
+      "shortcode": "DeXM0NOgMEN",
+      "type": "carousel",
+      "date": "2026-10-11"
+    },
+    {
+      "file": "blonde-balayage-soft-waves-trend-sofia.jpg",
+      "width": 1440,
+      "height": 1920,
+      "alt": {
+        "en": "Blonde balayage with soft waves",
+        "bg": "Рус балеаж с меки вълни"
+      },
+      "shortcode": "DdXNfxgiOd0",
+      "type": "carousel",
+      "date": "2026-09-16"
+    },
+    {
+      "file": "voluminous-curly-hair-care-trend-sofia.jpg",
+      "width": 1440,
+      "height": 1920,
+      "alt": {
+        "en": "Big, voluminous curly hair after curl care",
+        "bg": "Големи обемни къдрици след грижа за къдрава коса"
+      },
+      "shortcode": "DdXBN4AAGUs",
+      "type": "carousel",
+      "date": "2026-09-16"
+    },
+    {
+      "file": "retro-bell-bob-hairstyle-photoshoot-trend-sofia.jpg",
+      "width": 1080,
+      "height": 1440,
+      "alt": {
+        "en": "Retro \"bell\" bob hairstyle for a fashion photoshoot",
+        "bg": "Ретро прическа „камбанка“ за модна фотосесия"
+      },
+      "shortcode": "DdCahIiiEhC",
+      "type": "carousel",
+      "date": "2026-09-08"
+    },
+    {
+      "file": "long-curly-hair-care-styling-trend-sofia.jpg",
+      "width": 640,
+      "height": 1136,
+      "alt": {
+        "en": "Long curly hair care and styling",
+        "bg": "Грижа и оформяне на дълга къдрава коса"
+      },
+      "shortcode": "DbwD4S2AlJF",
+      "type": "reel",
+      "date": "2026-08-07"
+    },
+    {
+      "file": "very-long-sleek-dark-hair-trend-sofia.jpg",
+      "width": 1080,
+      "height": 1440,
+      "alt": {
+        "en": "Very long, sleek dark hair",
+        "bg": "Много дълга, права тъмна коса"
+      },
+      "shortcode": "DbtQkV5DPxg",
+      "type": "carousel",
+      "date": "2026-08-06"
+    },
+    {
+      "file": "vivid-purple-hair-colour-refresh-trend-sofia.jpg",
+      "width": 1080,
+      "height": 1350,
+      "alt": {
+        "en": "Vivid purple hair colour, refreshed by Tedi",
+        "bg": "Ярко лилав цвят на косата, освежен от Теди"
+      },
+      "shortcode": "DbWKtZpDic1",
+      "type": "carousel",
+      "date": "2026-07-28"
+    },
+    {
+      "file": "voluminous-bob-blow-dry-copper-brown-trend-sofia.jpg",
+      "width": 1440,
+      "height": 1803,
+      "alt": {
+        "en": "Voluminous bob blow-dry in copper brown",
+        "bg": "Обемно оформен боб в медно кестеняво"
+      },
+      "shortcode": "DbOMf8qiJd8",
+      "type": "carousel",
+      "date": "2026-07-25"
+    },
+    {
+      "file": "copper-red-curly-hair-trend-sofia.jpg",
+      "width": 1440,
+      "height": 1778,
+      "alt": {
+        "en": "Copper red curly hair",
+        "bg": "Медно червена къдрава коса"
+      },
+      "shortcode": "DbJIBuTgC-a",
+      "type": "carousel",
+      "date": "2026-07-23"
+    },
+    {
+      "file": "peach-hair-colour-kydra-curls-trend-sofia.jpg",
+      "width": 1440,
+      "height": 1800,
+      "alt": {
+        "en": "Peach hair colour created with KYDRA, with soft curls",
+        "bg": "Прасковен цвят, създаден с KYDRA, с меки къдрици"
+      },
+      "shortcode": "DLXJqPyozBW",
+      "type": "carousel",
+      "date": "2025-06-26"
+    },
+    {
+      "file": "long-dark-hair-with-bangs-trend-sofia.jpg",
+      "width": 504,
+      "height": 896,
+      "alt": {
+        "en": "Long dark hair with bangs",
+        "bg": "Дълга тъмна коса с бретон"
+      },
+      "shortcode": "DK_sKlqo8JV",
+      "type": "reel",
+      "date": "2025-06-17"
+    }
+  ],
+  "salon": [
+    {
+      "file": "trend-hair-salon-sofia-lounge-gold-baroque-armchairs.jpg",
+      "width": 2000,
+      "height": 1333,
+      "alt": {
+        "en": "The studio's lounge corner with gold baroque armchairs",
+        "bg": "Кътът за отдих в студиото с позлатени барокови кресла"
+      }
+    },
+    {
+      "file": "trend-hair-salon-sofia-hair-wash-massage-chairs.jpg",
+      "width": 2000,
+      "height": 1333,
+      "alt": {
+        "en": "Hair-wash station with massage chairs",
+        "bg": "Измивна зона с масажни кресла"
+      }
+    },
+    {
+      "file": "trend-hair-salon-sofia-kydra-alterna-products.jpg",
+      "width": 2000,
+      "height": 1333,
+      "alt": {
+        "en": "KYDRA and ALTERNA professional hair products we use",
+        "bg": "Професионалните продукти KYDRA и ALTERNA, с които работим"
+      }
+    }
+  ]
+}

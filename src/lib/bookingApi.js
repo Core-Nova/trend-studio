@@ -71,18 +71,6 @@ export function createBooking(payload) {
 }
 
 /**
- * The gallery's Instagram posts — the Apps Script's copy of the feed, not
- * Instagram itself: { ok, updatedAt, posts: [{ id, type, image, caption,
- * permalink, timestamp }] } or { ok: false, error }. See apps-script/Instagram.gs.
- */
-export function fetchInstagramFeed() {
-  const params = new URLSearchParams({ action: 'instagram' })
-  // Placeholders show for as long as this takes, and there are bundled photos
-  // to fall back on: a healthy answer takes 1–2 s, so give up well before 8.
-  return request(`${BOOKING_URL}?${params}`, {}, 5000)
-}
-
-/**
  * Live Google reviews via the Apps Script Places API: { ok, rating, count,
  * reviews: [...] }. Not currently wired into the UI — reviews come from the
  * scraping pipeline (public/reviews.json) — but kept for when the Places API

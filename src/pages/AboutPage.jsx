@@ -4,6 +4,7 @@ import { translations } from '../translations'
 import { usePageSEO } from '../hooks/usePageSEO'
 import { useBreadcrumbSchema } from '../hooks/useBreadcrumbSchema'
 import { About } from '../components/About/About'
+import { StudioPhotos } from '../components/StudioPhotos/StudioPhotos'
 import { FAQ } from '../components/FAQ/FAQ'
 import { Reviews } from '../components/Reviews/Reviews'
 import { PATHS } from '../lib/routes'
@@ -25,6 +26,7 @@ export const AboutPage = () => {
   return (
     <div className="page-content">
       <About showProducts as="h1" title={t(translations.nav.about)} />
+      <StudioPhotos />
       <FAQ />
       <Reviews />
     </div>
